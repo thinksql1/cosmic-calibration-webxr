@@ -13,20 +13,23 @@
 - Added restrained phase-labelled browser-console diagnostics for unexpected binding and cleanup failures.
 - Moved `actions/configure-pages@v5` into the Pages-authorized deploy job; `pages: write` and `id-token: write` remain limited to that job.
 - Reconciled lifecycle, workflow, validation, and next-task records after the independent integration gate found defects in the initial Milestone 0 implementation.
-- `NEXT_TASK.md` now contains the bounded independent integration-gate re-run.
+- Integrated the complete Milestone 0 feature branch into local `master` with merge commit `df8b26a`; the feature branch was retained and history was not rewritten.
+- `NEXT_TASK.md` now contains one authorization-gated task to publish the Milestone 0 test site to GitHub Pages.
 
 ### Validated
 
-- `npm ci`, type-check, 15/15 unit tests, and production build passed.
-- Desktop development and production-preview scenes passed manual inspection in Chromium with no console errors or warnings.
+- The independent re-gate found no blocking or material implementation, lifecycle, workflow, test, documentation, dependency, or deferred-scope findings.
+- On the feature branch, `npm ci`, type-check, 15/15 unit tests, production build, `git diff --check`, and `npm ls --depth=0` passed.
+- On integrated `master`, the same `npm ci`, type-check, 15/15 unit tests, production build, diff, and dependency-tree checks passed again.
+- Desktop development and production-preview scenes passed Chromium inspection for reference geometry, OrbitControls, resize, readable fallback status, and console health; production preview passed again after integration.
 - Production asset references remain relative and suitable for an unknown Pages project subpath.
 
 ### Known limitations
 
 - Quest WebXR, passthrough, `local-floor`, stability, and recenter validation remain **NOT RUN**.
 - The Three.js production chunk triggers Vite's 500 kB size advisory.
-- No remote or deployment exists; the Pages workflow has not run.
-- The remediation requires an independent integration-gate re-run before any merge or Quest work.
+- No remote, deployment, or Pages URL exists; the Pages workflow has not run.
+- Overall Milestone 0 status is **CONDITIONAL PASS** pending hosted physical Quest testing.
 
 ## 2026-07-15 — Initial project activation
 

@@ -4,13 +4,13 @@
 
 **Updated by:** Codex / project control
 
-**Current phase:** Milestone 0 / remediation complete; independent integration re-gate pending
+**Current phase:** Milestone 0 integrated / hosted testing preparation
 
-**Overall status:** Local remediation validation passed; the independent integration gate must re-run before any merge. Quest verification is **NOT RUN**.
+**Overall status:** **CONDITIONAL PASS** pending hosted physical Quest testing. Automated and desktop validation passed; Quest verification is **NOT RUN**.
 
 ## One-paragraph state summary
 
-The Milestone 0 Vite, TypeScript, Three.js, and WebXR technical spike remains on `feature/milestone-0-webxr-spike`. An independent gate found a renderer-binding session-ownership defect, missing lifecycle coverage, an insufficient Pages permission boundary, and documentation overstatement. The focused remediation now owns each requested session before renderer binding, subscribes to its end event before binding, blocks duplicate starts throughout request/binding/active/cleanup work, attempts cleanup after binding failure, and covers those transitions with 15 Vitest tests. Local type-check, tests, production build, development-mode inspection, and production-preview inspection passed. Quest passthrough, floor registration, stability, drift, and recenter behavior remain **NOT RUN**; the Pages workflow has not run.
+Milestone 0 is integrated into local `master` through merge commit `df8b26a`. The independent re-gate found no remaining blocking or material implementation, lifecycle, workflow, test, documentation, dependency, or scope defects. Automated validation and desktop Chromium validation passed on the feature branch, then the complete automated suite and production preview passed again on `master`. Quest passthrough, floor registration, stability, drift, session re-entry, and recenter behavior remain **NOT RUN**. The Pages workflow exists but has not run; no remote, deployment, or Pages URL exists.
 
 ## Working and verified
 
@@ -18,9 +18,11 @@ The Milestone 0 Vite, TypeScript, Three.js, and WebXR technical spike remains on
 - `npm run typecheck`: passed with TypeScript `7.0.2`.
 - `npm run test`: 1 file and 15 tests passed with Vitest `4.1.10`.
 - `npm run build`: passed with Vite `8.1.4`; `dist/` contains relative `./assets/...` references.
+- `git diff --check` and `npm ls --depth=0`: passed on the feature branch and again after integration into `master`.
+- Independent Milestone 0 re-gate: no blocking or material findings; implementation/workflow gate passed, with overall result **CONDITIONAL PASS** solely because physical Quest validation is pending.
 - Desktop development scene rendered with origin, X/Y/Z axes, floor ring, and zenith/nadir line.
-- OrbitControls interaction changed the camera view; unsupported WebXR messaging was readable in the Codex in-app Chromium browser with no console errors or warnings.
-- Production preview loaded successfully in the same Chromium surface with no console errors or warnings.
+- OrbitControls interaction changed the camera view; resize updated the canvas to the tested viewport; unsupported WebXR messaging remained readable with no console errors or warnings.
+- Production preview loaded successfully on the feature branch and again from integrated `master`; relative production assets loaded with no console errors or warnings.
 
 ## Implemented but not fully verified
 
@@ -29,11 +31,11 @@ The Milestone 0 Vite, TypeScript, Three.js, and WebXR technical spike remains on
 - An acquired session is owned and given an `end` listener before renderer binding. Binding failure requests `session.end()` and blocks retry until cleanup settles; cleanup failure is surfaced while stale ownership is cleared.
 - The renderer is alpha-enabled, clears its opaque background in XR, and uses the Three.js XR animation loop.
 - Floor-relative reference geometry is authored around `Y = 0` and the XR reference-space type is `local-floor`.
-- The GitHub Pages workflow is present with Pages/OIDC permissions limited to its deploy job, but has not run because no remote or Pages site exists.
+- The GitHub Pages workflow is present on `master` with Pages/OIDC permissions limited to its deploy job, but has not run because no remote or Pages site exists.
 
 ## In progress
 
-- Re-run the independent Milestone 0 integration gate before any merge or Quest work.
+- Publish the Milestone 0 test site to GitHub Pages after explicit authorization of the account, repository, remote, push, Pages enablement, and deployment actions.
 
 ## Blocked
 
@@ -58,7 +60,7 @@ The Milestone 0 Vite, TypeScript, Three.js, and WebXR technical spike remains on
 
 | Artifact | Purpose | Status |
 |---|---|---|
-| `src/` | Milestone 0 scene, renderer, UI, and WebXR state/session logic | Remediated locally; device behavior unverified |
+| `src/` | Milestone 0 scene, renderer, UI, and WebXR state/session logic | Integrated into `master`; device behavior unverified |
 | `tests/xr-state.test.ts` | Capability and deterministic session-lifecycle tests | 15/15 passed |
 | `README.md` | Commands, behavior, deployment strategy, and limits | Current |
 | `docs/ARCHITECTURE.md` | Implemented Milestone 0 boundaries and lifecycle model | Current |
@@ -67,7 +69,7 @@ The Milestone 0 Vite, TypeScript, Three.js, and WebXR technical spike remains on
 | `COSMIC_CALIBRATION_WEBXR_PROJECT_BRIEF.md` | Product concept and long-term context | Active reference |
 | `PROJECT_CHARTER.md` | Project definition and boundaries | Active |
 | `DECISIONS.md` | Accepted foundation decisions | Active; unchanged this task |
-| `NEXT_TASK.md` | One bounded independent integration gate | Active |
+| `NEXT_TASK.md` | One authorization-gated Pages publication task | Active |
 
 ## Environment
 
@@ -111,8 +113,10 @@ The Milestone 0 Vite, TypeScript, Three.js, and WebXR technical spike remains on
 | 2026-07-15 | Type-check and unit tests | PASS; 15/15 tests | `npm run typecheck`; `npm run test` |
 | 2026-07-15 | Production build and path inspection | PASS; relative asset paths | `npm run build`; `dist/index.html` |
 | 2026-07-15 | Desktop development and production-preview inspection | PASS; scene, controls, status UI, and console checks | Local Vite dev and preview |
+| 2026-07-15 | Independent Milestone 0 re-gate | PASS for implementation, workflow, automated, desktop, documentation, and scope checks; overall CONDITIONAL PASS pending Quest | Feature commit `eccc78b` |
+| 2026-07-15 | Local Milestone 0 integration and revalidation | PASS; merged without rewriting history and reran the full local suite | Merge commit `df8b26a` on `master` |
 | 2026-07-15 | Physical Quest 3 validation | NOT RUN | `docs/QUEST_TESTING.md` |
 
 ## Current decision horizon
 
-Re-run the independent integration gate for the remediation before any local merge, publication, or physical Quest acceptance work.
+Obtain explicit publication authorization, publish the exact integrated `master` build through the existing Pages workflow, record the HTTPS URL, then perform the separate physical Quest 3 acceptance test.
