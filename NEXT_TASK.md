@@ -4,11 +4,11 @@ This file contains exactly one bounded next task.
 
 ## Task
 
-**Title:** Implement the minimal floor-relative WebXR passthrough technical spike.
+**Title:** Run the Milestone 0 Quest 3 manual acceptance test.
 
 ## Why this is next
 
-Establish evidence that the browser, device, passthrough, and `local-floor` assumptions can support a stable spatial reference frame before calibration or celestial work begins.
+Automated and desktop validation passed, but the Milestone 0 success condition depends on physical evidence for Quest Browser immersive AR, passthrough, floor registration, world stability, session re-entry, and recenter behavior.
 
 ## Recommended execution
 
@@ -16,49 +16,53 @@ Establish evidence that the browser, device, passthrough, and `local-floor` assu
 
 **Reasoning effort:** High
 
-**Mode:** Plan, then bounded implementation
+**Mode:** Plan, then guided physical validation
+
 **Thread:** Main control thread
 
 ## Objective
 
-Create the smallest Vite, TypeScript, Three.js, and WebXR proof that feature-detects immersive AR, requests a floor-relative reference space where supported, renders neutral reference geometry, and retains a working desktop fallback.
+Using an authorized HTTPS deployment of the committed Milestone 0 spike and a physical Meta Quest 3, execute `docs/QUEST_TESTING.md`, preserve evidence, and classify each criterion as PASS, FAIL, or NOT RUN without changing application behavior.
 
-## Allowed paths
+## Prerequisites
 
-- Root Vite/TypeScript configuration, `src/`, `public/`, and focused tests needed for the spike.
-- `README.md`, narrow documentation in `docs/`, and durable project records as verified results require.
+- The Milestone 0 implementation commit is available at an authorized HTTPS URL.
+- A physical Meta Quest 3 and a safe test area are available.
+- Quest OS version, Quest Browser version, tested URL, and tested commit can be recorded.
+
+If no authorized HTTPS URL exists, stop and request a separately authorized deployment task; this task does not itself authorize remote creation, push, Pages enablement, or deployment.
+
+## Required work
+
+1. Confirm the deployed URL corresponds to the intended implementation commit.
+2. Execute every step in `docs/QUEST_TESTING.md` on Quest 3.
+3. Record passthrough, floor alignment, vertical alignment, lateral/vertical motion, 60-second drift, exit/re-entry, and recenter evidence.
+4. Classify every criterion as PASS, FAIL, or NOT RUN.
+5. Update `PROJECT_STATE.md`, `CHANGELOG.md`, and the evidence table without implementing fixes during the acceptance run.
+6. Set exactly one next task based on the physical evidence.
 
 ## Prohibited scope
 
-- No Astronomy Engine, geolocation, north calibration, controller interaction, celestial bodies, or time controls.
-- No deployment or GitHub remote creation.
-- No native application, accounts, analytics, multi-user features, or contemplative claims.
+- No north calibration, controller raycasting, geolocation, Astronomy Engine, celestial geometry, persistence, or time controls.
+- No application fixes mixed into the evidence-gathering run.
+- No remote, push, deployment, or external configuration without explicit separate authorization.
+- Do not mark a criterion passed from code inspection or desktop behavior.
 
 ## Acceptance criteria
 
-1. Minimal Vite/TypeScript application renders a Three.js desktop fallback with origin marker, axes, horizon ring, and zenith/nadir line.
-2. Interface reports immersive-AR availability and provides Enter AR only where supported.
-3. Immersive path requests a floor-relative reference space and documents fallback/unsupported behavior.
-4. Production build passes without TypeScript errors.
-5. Documentation gives local setup, desktop verification, and Quest 3 test instructions without unrun claims.
-6. Quest verification remains **NOT RUN** until physically tested on a Quest 3.
-
-## Validation methods
-
-- Static inspection, type-check/build, and desktop runtime verification.
-- Diff and documentation inspection for prohibited features and unsupported claims.
-- Physical Quest 3 only: immersive-AR availability, passthrough, floor alignment, recenter behavior, and stability.
-
-## Quest test boundary
-
-Do not mark immersive AR, passthrough, `local-floor`, or floor alignment as passed without physical Quest 3 evidence.
+1. Tested device, OS, browser, URL, and commit are recorded.
+2. Every checklist criterion has PASS, FAIL, or NOT RUN with concise evidence.
+3. Passthrough and `local-floor` claims rely on physical observation.
+4. Failures produce a bounded diagnostic/fix task rather than silent scope expansion.
+5. Milestone 1 does not begin unless the technical-spike risk is explicitly resolved or deliberately accepted.
 
 ## Stop conditions
 
-- A broader architecture decision is required.
-- Desktop fallback cannot be preserved.
-- An unsupported requirement has no boundary-preserving fallback.
-- Completion would require deployment, remote configuration, or prohibited scope.
+- No authorized HTTPS deployment is available.
+- The deployed commit cannot be identified.
+- Safe physical testing is not possible.
+- A failure requires code changes; record it and stop before fixing.
+- Completion would require an unauthorized external action.
 
 ## Expected return format
 
@@ -66,20 +70,20 @@ Do not mark immersive AR, passthrough, `local-floor`, or floor alignment as pass
 Objective:
 Status: Complete | Partial | Blocked
 
-Changes:
-- <file and purpose>
+Test target:
+- Device:
+- Quest OS:
+- Quest Browser:
+- URL:
+- Commit:
 
-Validation:
+Evidence:
 - PASS:
 - FAIL:
 - NOT RUN:
-- NOT APPLICABLE:
 
-Quest evidence:
-- <physical-test result or NOT RUN>
-
-Known limitations:
-- <item or none>
+Milestone 0 result:
+- PASS | CONDITIONAL PASS | FAIL
 
 Exact next task:
 - <one bounded task>
