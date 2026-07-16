@@ -14,10 +14,10 @@ precession-only mean pole. After two bounded remediation rounds, the final indep
 normally into `master`, which passes 239 tests and the production build. GitHub Pages workflow run
 #7 deployed commit `ca0a9d7`, and the unchanged hosted Milestone 1 interface, simulation/reset,
 subpath assets, and browser diagnostics regressed cleanly. Milestone 2B passed its independent,
-automated, and desktop gates and is integrated normally into local `master`; publication, hosted
-verification, and physical Quest acceptance remain pending. The 15-file / 270-test merged suite
-retains all 239 Milestone 2A tests. The exact next task is physical acceptance after publication
-and hosted verification:
+automated, and desktop gates and is integrated normally into `master`. GitHub Pages workflow run
+#9 deployed commit `5b657e4`; hosted observer/time/axis controls, golden cases, reset, subpath
+assets, and console health pass. Physical Quest acceptance remains NOT RUN. The 15-file / 270-test
+suite retains all 239 Milestone 2A tests. The exact next task is physical acceptance:
 
 - [Celestial reference architecture](docs/CELESTIAL_REFERENCE_ARCHITECTURE.md)
 - [Astronomy Engine evaluation](docs/ASTRONOMY_ENGINE_EVALUATION.md)
@@ -117,10 +117,10 @@ current hosted Milestone 1 site is:
 
 `https://thinksql1.github.io/cosmic-calibration-webxr/`
 
-GitHub Pages workflow run #7 deployed integrated Milestone 2A commit `ca0a9d7`. Hosted desktop
-verification confirmed the unchanged Physical North controls, simulation/reset behavior,
-repository-subpath assets, and clean browser diagnostics. Integrated Milestone 2B publication
-and hosted verification are pending.
+GitHub Pages workflow run #9 deployed integrated Milestone 2B commit `5b657e4`. Hosted desktop
+verification confirmed the observer/time/axis controls, NCP/SCP geometry, equator/northern/
+southern cases, display controls, simulation/reset behavior, repository-subpath assets, and clean
+browser diagnostics.
 
 ## Validation boundary
 
@@ -131,7 +131,7 @@ laboratory-grade angular accuracy, broad device coverage, or unreported edge-cas
 Milestone 2B's automated and local development/production-preview checks pass for frame mapping,
 exact antipodes, latitude/horizon cases, controls, visibility, reset/rebuild behavior,
 OrbitControls, resize, relative assets, and console health. Physical Quest axis/pole validation is
-**NOT RUN** and remains required after publication and hosted verification.
+**NOT RUN** and is the exact next acceptance gate.
 
 ## Explicitly deferred
 

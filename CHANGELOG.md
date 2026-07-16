@@ -42,6 +42,9 @@
 
 ### Changed
 
+- Published integrated Milestone 2B `master` normally at `5b657e4`; GitHub Pages workflow run #9
+  passed install, type-check, 270 tests, build, artifact upload, and deployment. Physical Quest
+  acceptance remains NOT RUN.
 - Passed the independent Milestone 2B scientific/visual gate and integrated the retained
   `feature/milestone-2b-earth-axis-poles` branch normally into local `master` with merge commit
   `09a6e67`. Presentation consumes the immutable scientific snapshot, maps ENU once under the
@@ -114,6 +117,10 @@
 
 ### Validated
 
+- Hosted Milestone 2B verification passes for visible observer/time/axis controls, ready NCP/SCP
+  geometry, equator/mid-north/mid-south diagnostics, labels and below-horizon controls,
+  reset/not-ready clearing, repository-subpath assets, and a clean browser console. This is
+  desktop hosted evidence, not physical Quest world-locking or directional-accuracy evidence.
 - Independent Milestone 2B probes pass for equator, both hemispheres, high latitude, longitude
   cancellation, explicit time provenance, exact antipodes, same-yaw calibration identity,
   out-of-domain readiness rejection, ENU/application signs, and single geographic-yaw application.

@@ -2,9 +2,10 @@
 
 ## Status
 
-Milestone 2B passed independent scientific/visual review and was integrated normally into local
-`master` at merge commit `09a6e67`. Automated and desktop development/production-preview
-validation pass. Publication, hosted verification, and physical Quest acceptance have not run.
+Milestone 2B passed independent scientific/visual review and was integrated normally into
+`master` at merge commit `09a6e67`. Automated, desktop development/production-preview, GitHub
+Pages run #9, and hosted desktop validation pass at published commit `5b657e4`. Physical Quest
+acceptance is NOT RUN.
 
 This layer renders only one coherent IAU P03 precession-only mean Earth axis and its exact
 antipodal north and south celestial-pole endpoints. It is a Tier 1 structural display, not a true,
