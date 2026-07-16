@@ -15,6 +15,11 @@ that Astronomy Engine exposes a useful true-equator-of-date frame but does not d
 precession-only mean-equator-of-date transform. The project must prove the application adapter and
 mean-pole provider before selecting visible axis or precession geometry.
 
+**Current status:** Milestone 2A0 is complete on
+`feature/milestone-2a0-astronomy-validation`. Astronomy Engine `2.1.19`, the canonical ENU
+boundary, and the application-owned P03 mean-pole provider passed their bounded fixture gates.
+Milestone 2A remains the next task; no visible layer has started.
+
 ## Sequence overview
 
 ```text
@@ -30,6 +35,10 @@ Every milestone consumes the same observer, time, frame, provenance, and correct
 Later layers may extend those contracts; they may not bypass them.
 
 ## Milestone 2A0 - astronomy adapter and pole-model validation spike
+
+**Result:** PASS for the bounded Tier 1 non-visual contract. See
+[Astronomy Adapter Contract](ASTRONOMY_ADAPTER_CONTRACT.md) and
+[Mean Pole Model Validation](MEAN_POLE_MODEL_VALIDATION.md).
 
 **Objective:** establish that the proposed runtime library, canonical frame mapping, and a
 precession-only mean-pole provider can satisfy the architecture before the project builds on them.

@@ -23,6 +23,70 @@ Evidence states remain `PASS`, `FAIL`, `UNCERTAIN`, `NOT RUN`, and `NOT APPLICAB
 6. **Independent scientific review:** required before promoting a new pole model, precision tier,
    or long-term precession path.
 
+## Milestone 2A0 executed evidence
+
+Milestone 2A0 captured the first bounded offline fixtures. They validate a non-visual contract,
+not a visible celestial layer or a complete product error budget.
+
+### Astronomy Engine versus NASA/JPL Horizons
+
+The comparison tolerance was fixed at `0.02 degrees` before Astronomy Engine output was inspected.
+Astronomy Engine documents a plus-or-minus-one-arcminute design target; the slightly larger test
+threshold allows for provider-model and printed-reference differences while remaining small
+enough to expose sign, unit, epoch, and hemisphere mistakes.
+
+| Body/case | Observer | UTC | Horizons profile | Largest coordinate difference | Largest directional separation | Result |
+|---|---|---|---|---:|---:|---|
+| Sun, June-solstice date (not the exact event instant) | `38.8977 N`, `77.0365 W`, 17 m numeric height | `2025-06-21T16:00:00Z` | DE441, airless apparent topocentric | `0.000181 degrees` | `0.000170 degrees` | PASS |
+| Moon, ordinary date, below horizon | `33.8688 S`, `151.2093 E`, 58 m numeric height | `2025-10-15T10:00:00Z` | DE441, airless apparent topocentric | `0.004592 degrees` | `0.001276 degrees` | PASS |
+| Sun, equator on the March-equinox date (not the exact event instant), below horizon | `0`, `0`, 0 m numeric height | `2025-03-20T00:00:00Z` | DE441, airless apparent topocentric | `0.008280 degrees` | `0.000300 degrees` | PASS |
+
+The fixtures use Horizons API version `1.2`, DE441, `TIME_TYPE=UT`, `REF_SYSTEM=ICRF`,
+`QUANTITIES=2,4`, `APPARENT=AIRLESS`, decimal degrees, and exact user geodetic sites. The complete
+query URLs, settings, retrieval date `2026-07-16`, expected values, and tolerance are stored in
+`tests/science/fixtures.ts`. No test calls Horizons over the network.
+
+The frozen text prints RA/declination to `0.00001 degrees` and azimuth/altitude to `0.000001
+degrees`; those resolutions are recorded in every fixture. The allowed `0.02 degrees` is governed
+by provider/profile differences rather than by output rounding alone.
+
+The query's height is above the Horizons reference ellipsoid; Astronomy Engine's input is above
+mean sea level. Each fixture tags both conventions and the fact that the same numeric height was
+compared without geoid conversion. JPL documents that these datums can differ by more than 100
+meters. These fixtures therefore validate the bounded direction/sign/time/profile contract, not
+an exact identical physical observer or a vertical-datum conversion.
+
+Horizons `a-app` uses its documented EOP-corrected IAU76/80 equator/equinox of date and notes a
+small offset from IAU06/00A. These cases validate bounded apparent directions and sign/time/profile
+contracts; they do not establish identical internal precession-nutation implementations. Horizons
+uses EOP-aware UT and apparent-place deflection; this Tier 1 adapter declares UTC approximately
+equal to UT1 and does not claim an undocumented provider deflection correction.
+
+The coordinate checks intentionally remain alongside the preferred angular-separation checks so
+an azimuth sign/unit error cannot hide behind spherical comparison. The largest coordinate error
+occurs near nadir, where azimuth is ill-conditioned; its much smaller directional separation is
+the physically relevant comparison.
+
+### P03 mean pole versus IAU SOFA
+
+The application P03 matrix is checked against all nine components of IAU SOFA C release
+2023-10-11 `pmat06` at JD(TT) `2450124.4999`. The component tolerance is `1e-12`, based on SOFA's
+own published test scale and declared before application output was judged.
+
+A separate temporary C# calculation reproduced the published matrix first, then generated frozen
+J2000, present-era, and future-domain pole vectors. The provider tests also require exact
+north/south negation, unit length, mean-equator perpendicularity, continuity, determinism,
+mean/true discrimination, and domain rejection. All pass. The process and values are recorded in
+[Mean Pole Model Validation](MEAN_POLE_MODEL_VALIDATION.md).
+
+### Current automated boundary
+
+- Existing Milestone 0/1 tests: 66 retained and passing.
+- New scientific tests: 69 passing.
+- Total: 8 files / 135 tests passing.
+- Type-check and production build: PASS.
+- Desktop visual and Quest celestial validation: NOT APPLICABLE; no visible behavior changed.
+
 ## Pure mathematical test plan
 
 ### Vector and matrix invariants
@@ -112,7 +176,7 @@ tolerance before production code is judged.
 | High northern | a frozen observer at 70 degrees north | circumpolar/horizon behavior and rise/set edge cases |
 | Mid-southern | a frozen observer near 34 degrees south | SCP-above-horizon signs, east/west convention, Sun/Moon positions |
 | Date-domain edges | each provider's declared earliest/latest supported validation dates | graceful rejection or bounded agreement; no silent extrapolation |
-| Current-era frozen | one explicitly recorded 2026 UTC instant | present-era body and true-of-date comparisons without using live `now` |
+| Current-era frozen | one explicitly recorded present-era UTC instant | present-era body and true-of-date comparisons without using live `now` |
 | Historical/future precession | dates selected from the approved P03 or long-term-model validation corpus | mean pole samples, direction of motion, north/south coherence |
 | DST gap/fold | authoritative IANA zones/dates from a pinned tzdb fixture | solar and midnight schedules/labels only; astronomy instants remain UTC |
 

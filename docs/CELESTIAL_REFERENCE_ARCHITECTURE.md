@@ -307,17 +307,17 @@ Rules:
 ### Selected initial structural model
 
 The first visible axis milestone is specified as the **IAU P03 mean pole/equator of date,
-precession-only**, subject to the adapter-validation spike proving a standards-aligned provider and
-valid date domain. It is a structural teaching model and deliberately excludes nutation, polar
-motion, Chandler wobble, and observed celestial-pole offsets.
+precession-only**. Milestone 2A0 proved an application-owned provider against IAU SOFA `pmat06`
+and bounded it to J2000.0 plus or minus one Julian century. It is a structural teaching model and
+deliberately excludes nutation, polar motion, Chandler wobble, and observed celestial-pole offsets.
 
 This mean model is not asserted to be Earth's physical instantaneous spin axis. The later
 standards-level CIP, a terrestrial pole affected by polar motion, and an observation-corrected pole
 are distinct quantities; none is an alias for the P03 mean structural axis.
 
-If the spike cannot supply that model without unsupported custom math, the visible axis milestone
-is blocked. It must not silently substitute Astronomy Engine `EQD`, `RotationAxis(Earth)`, or a
-fixed tilted line.
+The validated provider must not be replaced silently by Astronomy Engine `EQD`,
+`RotationAxis(Earth)`, or a fixed tilted line. Visible work remains blocked until the
+production-quality non-visual Milestone 2A foundation is independently accepted.
 
 An optional later **true pole of date** uses an explicitly named IAU 2006/2000A
 precession-nutation/CIP-compatible provider. Astronomy Engine's combined `EQD` may support a Tier
@@ -553,7 +553,7 @@ different direction, or replace missing science with decorative geometry.
 
 | Risk / question | Current disposition |
 |---|---|
-| Public mean-pole-of-date provider is unproven | First implementation is an adapter/pole-model validation spike |
+| Astronomy Engine has no public precession-only mean-pole-of-date provider | Milestone 2A0 validated a separate application-owned P03 provider; preserve its frame/time/domain contract |
 | P03 cannot safely cover a full visual precession cycle | Use a validated long-term model or defer the full path |
 | Library EQJ versus ICRS/GCRS frame bias | Keep the `EQJ` tag and validate before any aliasing |
 | UTC approximated as UT1 | Allowed only in Tier 1 with disclosure; EOP is Tier 3 |

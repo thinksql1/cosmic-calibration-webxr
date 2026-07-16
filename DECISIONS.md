@@ -149,6 +149,40 @@
   scientifically misleading. Sampling the adopted model preserves coherent contact points and
   allows the rendered shape to express the actual model rather than visual preference.
 
+### DEC-016: Pin the Tier 1 astronomy adapter to Astronomy Engine 2.1.19
+- **Date:** 2026-07-16
+- **Status:** Accepted
+- **Owner:** Darrell Wright / project control
+- **Decision:** The initial application-level ephemeris provider is exactly
+  `astronomy-engine@2.1.19`, contained behind project-owned observer, instant, frame, correction,
+  provenance, and ENU contracts. The initial body profile is provider-apparent topocentric and
+  airless: light-time, parallax, aberration, precession, and nutation are explicit, while
+  undocumented gravitational deflection is not claimed. Normal refraction is a separate explicit
+  profile. Observer longitude is east-positive and
+  provider elevation must be mean-sea-level meters. UTC is converted to TT with Astronomy
+  Engine's Espenak-Meeus delta-T implementation under its documented UT1 approximately equal to
+  UTC policy. This establishes Tier 1 only; changing provider/version/profile is a scientific
+  change requiring fixture comparison.
+- **Rationale:** The exact package passes TypeScript/Vite integration and bounded NASA/JPL
+  Horizons Sun/Moon comparisons, while the wrapper prevents raw provider semantics, silent datum
+  conversion, refraction, or time-scale assumptions from leaking into application code.
+
+### DEC-017: Use the validated application-owned P03 mean-pole provider
+- **Date:** 2026-07-16
+- **Status:** Accepted
+- **Owner:** Darrell Wright / project control
+- **Decision:** The initial mean structural axis uses an application implementation of the
+  published IAU P03 Fukushima-Williams bias-precession matrix with TT Julian centuries from
+  J2000.0. The matrix direction is GCRS to P03 mean equator/equinox of date; its transposed +Z axis
+  is returned as the mean north pole in GCRS, and south is exact component negation. Nutation,
+  CIP/true-pole terms, observed offsets, polar motion, and Chandler wobble are excluded. The
+  current project validation domain is J2000.0 plus or minus one Julian century; values outside it
+  are rejected. The celestial equator must later derive from this same normal/basis.
+- **Rationale:** The implementation reproduces all nine components of the IAU SOFA `pmat06`
+  published fixture and separately frozen J2000/present/future pole vectors. Astronomy Engine does
+  not expose this mean-only quantity, and substituting its true-of-date frame would silently add
+  nutation.
+
 ## Proposed decisions awaiting review
 
 None yet.
