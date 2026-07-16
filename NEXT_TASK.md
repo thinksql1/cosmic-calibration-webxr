@@ -4,78 +4,117 @@ This file contains exactly one bounded next task.
 
 ## Task
 
-**Title:** Define Milestone 2 celestial reference-frame architecture
+**Title:** Validate the Milestone 2 astronomy adapter and pole-model contract
+
+## Recommended execution
+
+- **Codex model:** GPT-5.6 Sol
+- **Reasoning effort:** Max
+- **Branch:** `feature/milestone-2-astronomy-validation`
+- **Starting point:** the accepted local `master` tip containing the Milestone 2 architecture;
+  preserve the existing unpushed Milestone 1 completion and architecture commits.
 
 ## Why this is next
 
-Milestone 1 is complete: the local geographic frame can be physically calibrated on the tested
-Quest 3 flow. Milestone 2 must first define a traceable celestial architecture before adding any
-astronomy library, celestial geometry, temporal data, or new XR behavior.
+The architecture recommends Astronomy Engine for application-level ephemerides and supported
+transforms, but its public interface does not document the precession-only mean-equator-of-date
+orientation required by the selected P03 structural axis. A narrow, non-visual spike must prove
+the library adapter, frame signs, deterministic fixtures, and mean-pole provider before the full
+scientific foundation or any celestial geometry is implemented.
 
 ## Objective
 
-Produce an architecture-and-sequencing proposal for scientifically traceable, horizon-relative
-celestial reference frames and optional temporal display layers. The proposal must preserve the
-existing separation between room/floor, local geographic, and future celestial frames.
+Implement and independently validate the smallest non-visual astronomy boundary that can prove:
 
-## Required planning work
+1. an exact reviewed Astronomy Engine release works in the current static browser toolchain;
+2. scientific values remain strongly tagged with frame, origin, units, time, observer,
+   corrections, provider, version, and precision provenance;
+3. the `EQJ -> HOR -> canonical ENU -> Three.js` basis/sign mapping is correct; and
+4. the application has a supportable, independently validated route to an IAU P03
+   precession-only mean pole/equator of date.
 
-1. Define the intended coordinate/frame chain, ownership, units, epoch/date conventions, and
-   transformation boundaries for room/floor, geographic, Earth-rotational, celestial, and
-   horizon-relative display frames.
-2. Define how Earth’s rotational axis, north/south celestial poles, and celestial equator relate
-   to the calibrated local geographic frame without rotating the room frame, XR camera, or
-   scientific source coordinates.
-3. Evaluate astronomy-library candidates and a validation strategy using authoritative reference
-   data. Specify the required date/time, location, civil-time, and observer assumptions before
-   selecting or adding a dependency.
-4. Define module boundaries and an incremental delivery sequence with explicit validation gates,
-   performance/comfort constraints, and a desktop-plus-Quest evidence plan.
-5. Define the future precession-circle model:
-   - Extend one Earth rotational axis toward both celestial poles.
-   - Attach one long-term precession-path circle at each pole end.
-   - Compute each pole’s astronomically correct, date-dependent contact point on its circle.
-   - Keep north and south as one coherent axis system; never substitute decorative generic circles.
-   - Model nutation and smaller motions separately, or explicitly defer them with a reason.
-6. Define the future solar temporal-clock model:
-   - apparent Sun path;
-   - 24 hourly position ticks and optional hour labels;
-   - current-Sun emphasis and below-horizon positions;
-   - date, location, season, and civil-time handling; and
-   - minimal, selectable display modes.
-7. Define the future lunar temporal-clock model:
-   - Moon next-24-hour path markers and optional hourly labels;
-   - local-midnight Moon position;
-   - successive local-midnight markers across a lunar cycle;
-   - optional date/day labels and lunar-phase symbols; and
-   - scientifically accurate non-circular motion.
-8. Record the visual/contemplative presentation rule: minimalism is functional; every layer must
-   be independently optional; focused attention must be supported rather than interrupted;
-   accuracy outranks decorative complexity; and no metaphysical state claim may be presented as
-   scientific fact.
+## Authorized scope
 
-## Deliverables
+- Create the feature branch named above from the accepted local `master` tip.
+- Recheck Astronomy Engine's current official package metadata and MIT terms, select and pin one
+  exact version, and add only that runtime dependency if all review gates pass.
+- Add a focused adapter/prototype module with no visible scene output.
+- Add the minimum immutable observer/time snapshot types needed to test the adapter; do not build
+  user-facing location or time state.
+- Implement explicit tagged results and canonical ENU conversions without importing Three.js into
+  the scientific provider layer.
+- Establish the precession-only mean-pole approach through a documented provider or minimal
+  validated application calculation. Compare its semantics with SOFA/P03 evidence.
+- Capture only bounded, reviewable offline fixtures from authoritative sources with source,
+  version, query/configuration, time scale, observer, correction, retrieval date, and tolerance
+  provenance.
+- Update architecture records only to reflect evidence actually established by the spike.
 
-- A proposed Milestone 2 architecture document or clearly scoped amendment describing frame
-  contracts, data flow, library-evaluation criteria, validation sources, module boundaries, and
-  delivery order.
-- Explicit deferred-items and risk notes for precision, timezone/civil-time handling, location
-  assumptions, precession/nutation fidelity, and visual comfort.
-- Any genuinely durable decision candidates for review; do not mark them accepted without evidence.
+## Required tests
 
-## Acceptance rules
+1. Exact basis vectors and handedness for Astronomy Engine horizontal north/west/zenith,
+   canonical east/north/up, and Three.js `(east, up, -north)`.
+2. Forward/inverse round trips, normalization, angle normalization, and units conversion.
+3. Tagged-frame mismatch, non-finite input, invalid observer, and mismatched-time rejection.
+4. Deterministic clock behavior with no hidden system-time reads.
+5. At least one fixed observer/time Sun case and one Moon case against versioned independent
+   reference fixtures, with tolerances declared before results are compared.
+6. True `EQD` behavior named and checked separately from the precession-only mean-pole result.
+7. Mean north/south poles are exact antipodes; their equator normal is the same axis.
+8. Provider/cache invalidation across observer, instant, correction, model, and version revisions.
+9. Existing 66-test Milestone 0/1 suite remains passing and unchanged in strength.
 
-- The plan distinguishes local geographic calibration from celestial calculations and display.
-- It preserves a single coherent north/south rotational-axis and date-dependent precession model.
-- It treats Sun and Moon paths as optional temporal layers backed by defined scientific inputs.
-- It defines validation before implementation and makes no unsupported precision or metaphysical
-  claim.
-- No runtime, dependency, source, workflow, or deployment change occurs.
+## Validation
 
-## Prohibited scope
+Run at minimum:
 
-- Do not implement or install Astronomy Engine.
-- Do not add Earth-axis geometry, celestial poles, celestial equator, ecliptic, precession circles,
-  nutation, Sun, Moon, planets, geolocation, time controls, temporal ticks, orbital paths, audio,
-  or contemplative sequencing.
-- Do not alter Milestone 1 behavior, publish, deploy, or begin a new physical test.
+```powershell
+npm ci
+npm run typecheck
+npm run test
+npm run build
+git diff --check
+npm ls --depth=0
+```
+
+Also inspect the exact dependency/license delta, production bundle impact, emitted relative asset
+paths, absence of live-network runtime calls, all fixture provenance, and the complete diff. Run
+development and production-preview regression checks for the existing Milestone 0/1 scene,
+desktop north simulation, reset, OrbitControls, resize, fallback status, and console health.
+
+An independent gate must review the mean-pole semantics and reference comparisons before the
+result is accepted. Physical Quest celestial validation is **NOT APPLICABLE** because this task
+adds no visible celestial feature; existing XR behavior receives regression checks only if the
+runtime bundle changes materially.
+
+## Explicit exclusions
+
+- No visible Earth axis, celestial poles, celestial equator, ecliptic, precession paths, Sun,
+  Moon, planets, stars, or temporal markers.
+- No geolocation, automatic time-zone choice, user-facing date/time controls, EOP download,
+  persistence, spatial anchors, or calibration changes.
+- No nutation visualization, polar motion, Chandler wobble, observed pole offsets, or Tier 3
+  reference mode.
+- No labels, new XR controls, contemplative sequencing, audio, deployment, or push.
+- Do not port SOFA code or copy formulas without a separate license and scientific review.
+
+## Stop conditions
+
+Stop and return a bounded research/remediation task without inventing a fallback if:
+
+- the exact Astronomy Engine package/license/import contract cannot be established;
+- installation requires unrelated dependencies or a package/toolchain upgrade;
+- authoritative fixtures cannot be reproduced with fully matched semantics;
+- the proposed mean-pole result cannot be shown to be precession-only P03 or an explicitly
+  equivalent supported model;
+- the only available result mixes nutation, polar motion, observed offsets, or unknown corrections;
+- a numerical tolerance would need to be chosen after seeing the comparison result;
+- a source, workflow, deployment, or visible-feature change becomes necessary; or
+- existing Milestone 0/1 behavior regresses.
+
+## Completion boundary
+
+The task completes with a reviewed non-visual adapter/prototype, deterministic evidence, an
+accepted or rejected mean-pole route, reconciled documentation, and a clean feature-branch
+checkpoint. It does not proceed into the full Milestone 2 scientific foundation or any visible
+celestial layer.

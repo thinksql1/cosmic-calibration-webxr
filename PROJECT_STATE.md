@@ -4,11 +4,11 @@
 
 **Updated by:** Codex / project control
 
-**Current phase:** Milestone 2 celestial reference-frame architecture planning
+**Current phase:** Milestone 2 architecture complete; astronomy-adapter validation pending
 
 **Overall status:** **Milestone 1 COMPLETE.** Automated, desktop, hosted, and reported physical
-Quest 3 acceptance validation pass. Milestone 2 is planning-only; no celestial implementation has
-started.
+Quest 3 acceptance validation pass. Milestone 2 architecture and sequencing are defined from
+official/primary research; no celestial implementation or astronomy dependency has started.
 
 ## One-paragraph state summary
 
@@ -29,6 +29,12 @@ controller-based north capture, coherent N/S/E/W geometry, world locking, floor 
 cancel/recalibrate/reset, and session lifecycle were usable with no blocking defect observed.
 Milestone 1 is complete. This establishes physical usability for the tested flow, not
 laboratory-grade angular accuracy, broad device coverage, or unreported edge-case outcomes.
+Milestone 2 planning now defines explicit scientific frames, an adopt-with-validation-wrappers
+Astronomy Engine boundary, a single UTC simulation clock, a P03 precession-only mean structural
+axis target, sampled rather than decorative precession paths, independently optional solar/lunar
+temporal layers, precision tiers, error sources, validation gates, and a conservative delivery
+sequence. Because the public library interface does not establish the required precession-only
+mean-pole transform, the next task is a non-visual adapter and pole-model validation spike.
 
 ## Working and verified
 
@@ -74,6 +80,15 @@ laboratory-grade angular accuracy, broad device coverage, or unreported edge-cas
 - Milestone 1 physical evidence establishes usability of the tested north-marker flow. It does not
   include a reported angular-error measurement, Quest OS/browser versions, controller-by-controller
   coverage, DOM-overlay availability, or a separately observed tracking-loss/pose-rejection result.
+- Milestone 2 focused research is recorded against official Astronomy Engine, IAU/SOFA, IERS,
+  USNO/NOVAS, JPL, NGA, IANA, W3C, and primary long-term-precession sources, with capabilities,
+  limits, versions/dates where available, evidence class, and license implications.
+- Documentation defines explicit tracking, room, calibrated geographic, Earth-fixed, mean-axis,
+  celestial-source, horizontal, and presentation boundaries. Canonical ENU maps to Three.js as
+  `(east, up, -north)` before the existing geographic parent applies its calibrated room yaw.
+- Architecture validation confirms scope is documentation-only: no runtime/source/test/package,
+  lockfile, workflow, Vite, or deployment configuration was changed, and no dependency was
+  installed.
 
 ## Implemented but not fully verified
 
@@ -96,12 +111,14 @@ laboratory-grade angular accuracy, broad device coverage, or unreported edge-cas
 
 ## In progress
 
-- Define the Milestone 2 celestial reference-frame architecture and sequencing only.
+- No implementation is in progress. The completed Milestone 2 architecture checkpoint is ready
+  for review; the next authorized work is the bounded non-visual validation spike in
+  `NEXT_TASK.md`.
 
 ## Blocked
 
-- None. Milestone 2 implementation remains intentionally out of scope until architecture planning
-  is reviewed and accepted.
+- None. Visible celestial implementation remains intentionally gated on architecture acceptance
+  and the adapter/mean-pole validation result.
 
 ## Known defects or limitations
 
@@ -126,8 +143,14 @@ laboratory-grade angular accuracy, broad device coverage, or unreported edge-cas
 - Exact Quest OS and Quest Browser versions, numerical north-alignment error, controller-specific
   coverage, DOM-overlay availability, and targeted pose-loss behavior for the accepted Milestone 1
   test were not reported.
-- Astronomy-library selection, time/location input contract, coordinate/epoch conventions, and
-  quantitative astronomical validation tolerances for Milestone 2.
+- The exact Astronomy Engine version and browser-bundle impact remain unverified because no
+  dependency was installed during architecture work.
+- The public Astronomy Engine interface does not document a P03 precession-only mean-equator-of-
+  date transform. The next spike must prove a supportable provider and predeclare comparison
+  tolerances before visible axis or precession work.
+- Tier 2/Tier 3 quantitative tolerances, the adopted long-term precession model/date domain, and
+  production observer/location provenance remain deliberately unresolved until bounded reference
+  fixtures and implementation evidence exist.
 
 ## Active artifacts
 
@@ -141,11 +164,17 @@ laboratory-grade angular accuracy, broad device coverage, or unreported edge-cas
 | `docs/ARCHITECTURE.md` | Frame separation, yaw convention, lifecycle, and module boundaries | Current |
 | `docs/CALIBRATION.md` | Physical setup, calibration procedure, limits, and troubleshooting | Current |
 | `docs/QUEST_TESTING.md` | Milestone 0 evidence and Milestone 1 acceptance checklist | Milestone 1 Quest 3 acceptance PASS |
+| `docs/CELESTIAL_REFERENCE_ARCHITECTURE.md` | Explicit frame hierarchy, transforms, axis/poles/equator, horizon, precision tiers, and layer contracts | Architecture complete; implementation NOT STARTED |
+| `docs/ASTRONOMY_ENGINE_EVALUATION.md` | Runtime-library capability, limits, responsibility split, alternatives, and adoption gates | Adopt-with-validation-wrappers recommendation |
+| `docs/CELESTIAL_VALIDATION_STRATEGY.md` | Pure, golden, cross-reference, visual/Quest, and error-budget validation plan | Planning complete; fixtures NOT CAPTURED |
+| `docs/TEMPORAL_LAYER_ARCHITECTURE.md` | Central simulation clock and future solar/lunar sampling and label policies | Architecture only |
+| `docs/MILESTONE_2_SEQUENCE.md` | Bounded 2A0 through later-layer dependency and acceptance sequence | Current sequence |
+| `docs/OFFICIAL_ASTRONOMY_SOURCES.md` | Official/primary source, capability, limitation, version, and license register | Research evidence current as of 2026-07-16 |
 | `.github/workflows/deploy-pages.yml` | Pages validation/build/deploy configuration | Run #5 passed for Milestone 1 at `ddcf676` |
 | `COSMIC_CALIBRATION_WEBXR_PROJECT_BRIEF.md` | Product concept and long-term context | Active reference |
 | `PROJECT_CHARTER.md` | Project definition and boundaries | Active |
-| `DECISIONS.md` | Accepted foundation and geographic-frame convention decisions | Current |
-| `NEXT_TASK.md` | One Milestone 2 celestial reference-frame architecture task | Active; planning only |
+| `DECISIONS.md` | Accepted foundation, geographic-frame, astronomy, time, and precession decisions | Current |
+| `NEXT_TASK.md` | One non-visual astronomy-adapter and pole-model validation task | Pending authorization |
 
 ## Environment
 
@@ -169,11 +198,17 @@ laboratory-grade angular accuracy, broad device coverage, or unreported edge-cas
 | Passthrough behavior differs outside the tested Quest 3 environment | Low/unknown | Medium | Revalidate on device after future rendering changes; do not generalize the tested Quest 3 result |
 | Bundle size affects Quest startup/performance | Low/unknown | Medium | Measure on device before adding optimization complexity |
 | Scientific and contemplative layers become conflated later | Medium | High | Preserve traceable scientific modules and explicit framing |
+| A true-of-date or body-axis helper is mistaken for a precession-only mean pole | Medium | High | Gate visible axis/precession work on the 2A0 semantics proof against SOFA/P03 evidence |
+| Frame, handedness, or correction metadata are lost at a library/display boundary | Medium | High | Use tagged adapters, canonical ENU, exact basis/round-trip tests, and immutable snapshots |
+| A visually perfect precession circle overrides the scientific trajectory | Medium | High | Sample the adopted long-term model, derive south as the exact antipode, and disclose its date domain |
+| Civil-time labels drift from astronomical instants across DST/rule changes | Medium | Medium | Store UTC instants, explicit IANA zone IDs, disambiguation metadata, and versioned fixtures separately |
+| A library accuracy claim is misreported as complete XR accuracy | Medium | High | Keep ephemeris, observer, calibration, tracking, floor/up, time-label, and display errors separate |
 
 ## Parking Lot
 
-- Milestone 2 celestial architecture: Astronomy Engine, celestial bodies, ecliptic, poles, and
-  real-time astronomy are planned but not implemented.
+- Milestone 2 implementation: the astronomy adapter/foundation, visible axis/poles/equator,
+  validated precession trajectories, ecliptic, bodies, and real-time temporal layers remain
+  planned but not implemented.
 - Geolocation, persistent room calibration, automatic heading, and magnetic declination.
 - Orbital-awareness, time navigation, and teaching-scale modes.
 - Contemplative, sacred-geometry, cultural, and symbolic layers, clearly distinct from scientific claims.
@@ -203,8 +238,10 @@ laboratory-grade angular accuracy, broad device coverage, or unreported edge-cas
 | 2026-07-16 | Local Milestone 1 integration and revalidation | PASS; normal no-fast-forward merge, retained feature branch, 66/66 merged-master tests, build, dependency/diff, and desktop development/preview checks | Merge commit `8a20899` on `master` |
 | 2026-07-16 | Milestone 1 publication | PASS; normal push of `ddcf676`, workflow run #5 build/deploy success, hosted Physical North UI, simulation/reset, subpath assets, and console verified | `https://github.com/thinksql1/cosmic-calibration-webxr/actions/runs/29494408661` |
 | 2026-07-16 | Milestone 1 physical Quest 3 acceptance | PASS; user reported the deployed hosted flow passed for AR/passthrough, controller start/capture separation, north capture, coherent cardinal geometry, world/floor stability, cancel/recalibrate/reset, and lifecycle; no blocking defect observed | User-reported Quest 3 evidence; no angular measurement or version details supplied |
+| 2026-07-16 | Milestone 2 celestial architecture research | PASS for documentation scope; official/primary sources define the library boundary, frames, mean-axis target, time/observer contracts, precession semantics, temporal schedules, validation/error budget, and bounded sequence; no source or dependency change | `docs/CELESTIAL_REFERENCE_ARCHITECTURE.md` and five companion documents |
 
 ## Current decision horizon
 
-Define the Milestone 2 celestial reference-frame architecture and sequencing. Do not implement
-astronomy, temporal layers, or celestial geometry until the planning work is accepted.
+Review the completed Milestone 2 architecture, then validate the astronomy adapter and P03
+precession-only mean-pole contract in one non-visual feature-branch spike. Do not begin visible
+axis, equator, precession, body, temporal, or contemplative layers until that gate passes.

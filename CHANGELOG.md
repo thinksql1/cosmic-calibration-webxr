@@ -11,6 +11,9 @@
 - Physical setup and troubleshooting guidance in `docs/CALIBRATION.md`, architecture details, and a separate Milestone 1 Quest checklist.
 - Deterministic coverage for controller-only calibration, explicit release gating, exact event-frame
   target-ray poses, tracking failure, overlay input isolation, and late-session cleanup.
+- Milestone 2 documentation for the celestial reference-frame hierarchy, Astronomy Engine
+  evaluation, observer/time and temporal-layer contracts, scientific validation strategy,
+  conservative implementation sequence, and official astronomy source register.
 
 ### Changed
 
@@ -51,6 +54,14 @@
   physical-test task with one Milestone 2 celestial reference-frame architecture task.
 - Began Milestone 2 planning only. No celestial, astronomy-library, temporal, source, dependency,
   workflow, deployment, or configuration implementation was performed.
+- Defined Astronomy Engine adoption behind validation wrappers; selected canonical ENU as the
+  scientific horizontal boundary and P03 precession-only mean pole/equator of date as the initial
+  structural target, gated by a dedicated provider proof.
+- Defined one UTC simulation clock, explicit IANA civil-time schedules, sampled scientific
+  precession trajectories, independently optional temporal layers, and strict separation between
+  scientific coordinates and contemplative presentation.
+- Replaced the architecture-planning task with one bounded non-visual astronomy-adapter and
+  mean-pole validation spike. No dependency was installed and no Milestone 2 source work began.
 
 ### Validated
 
@@ -85,6 +96,12 @@
   immersive AR/passthrough, controller start/capture separation, north capture, coherent N/S/E/W
   geometry, world locking/floor alignment, cancel, recalibration, reset, and session lifecycle
   were usable with no blocking physical defect observed.
+- Milestone 2 research used official Astronomy Engine, IAU SOFA, IAU, IERS, USNO/NOVAS, JPL,
+  NGA, IANA, and W3C sources; confirmed capabilities, model boundaries, time-scale limitations,
+  license implications, and reference-validation roles are recorded with URLs and versions where
+  available.
+- Documentation-only scope validation confirmed no source, test, package, lockfile, workflow, or
+  deployment-configuration change in the Milestone 2 architecture checkpoint.
 
 ### Known limitations
 

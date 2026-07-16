@@ -92,6 +92,63 @@
   requirements. Frame separation preserves scientific traceability; optional layers prevent
   temporal complexity from obscuring orientation; accuracy-first presentation preserves trust.
 
+### DEC-012: Adopt Astronomy Engine behind validation wrappers
+- **Date:** 2026-07-16
+- **Status:** Accepted
+- **Owner:** Darrell Wright / project control
+- **Decision:** Astronomy Engine is the preferred application-level browser library for supported
+  ephemerides, body events, and documented coordinate transforms, but it must be isolated behind
+  strongly tagged project adapters and independently checked against SOFA, IERS, JPL Horizons,
+  and/or NOVAS evidence appropriate to each operation. It is not the authority for a
+  precession-only mean pole, live Earth Orientation Parameters, polar motion, or a combined XR
+  accuracy claim. Adding an exact package version remains an implementation task with its own
+  license, bundle, and validation gate.
+- **Rationale:** The official JavaScript/TypeScript API fits static browser delivery and covers the
+  future application ephemerides, while the standards/reference sources expose important pole,
+  time-scale, and Earth-orientation boundaries that a single library abstraction must not hide.
+
+### DEC-013: Use explicit tagged frames and a P03 mean structural axis
+- **Date:** 2026-07-16
+- **Status:** Accepted
+- **Owner:** Darrell Wright / project control
+- **Decision:** Celestial calculations use explicit tracking, room, geographic, Earth-fixed,
+  celestial, observer-horizontal, and presentation boundaries. Canonical scientific horizontal
+  directions use east/north/up; the final display mapping is `(east, up, -north)` before the
+  calibrated geographic parent applies its room yaw. The initial structural Earth-axis target is
+  the IAU P03 precession-only mean pole/equator of date, subject to a validated provider proof.
+  North and south poles are exact antipodes, and the mean celestial equator is derived from that
+  same axis. True/CIP-like, observed, and polar-motion modes remain separately named layers.
+- **Rationale:** Tagged frame provenance prevents sign, epoch, origin, and correction ambiguity.
+  A precession-only mean structural model supports coherent poles, equator, and long-term-path
+  planning without silently mixing nutation or observed Earth-orientation effects.
+
+### DEC-014: Drive all celestial layers from one UTC simulation clock
+- **Date:** 2026-07-16
+- **Status:** Accepted
+- **Owner:** Darrell Wright / project control
+- **Decision:** All scientific layers consume one immutable simulation snapshot anchored to an
+  absolute UTC instant. Local civil time is an explicit IANA-zone view used for labels and civil
+  schedules, not an astronomy input by itself. UT1, TT, delta-T, and leap-second policies are
+  recorded by precision tier and provider. No celestial layer reads the system clock or resolves
+  civil time independently during rendering.
+- **Rationale:** A central deterministic clock prevents inter-layer time drift and keeps daylight-
+  saving labels, historical/future dates, accelerated time, and astronomical time-scale limits
+  testable and explainable.
+
+### DEC-015: Render precession as a validated sampled trajectory
+- **Date:** 2026-07-16
+- **Status:** Accepted
+- **Owner:** Darrell Wright / project control
+- **Decision:** The product term `precession circle` denotes a scientifically sampled long-term
+  mean-pole trajectory, not a presentation primitive constrained to a perfect circle. Northern
+  and southern samples are exact antipodes from one model; the selected-date pole is the same
+  sample used for the current path-contact marker. A full-cycle display requires a separately
+  validated long-term model and declared date domain. Nutation, polar motion, Chandler wobble,
+  and observed celestial-pole offsets are never baked into the mean precession path.
+- **Rationale:** Obliquity changes and model validity domains make a generic decorative ring
+  scientifically misleading. Sampling the adopted model preserves coherent contact points and
+  allows the rendered shape to express the actual model rather than visual preference.
+
 ## Proposed decisions awaiting review
 
 None yet.

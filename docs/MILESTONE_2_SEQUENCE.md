@@ -1,0 +1,346 @@
+# Milestone 2 Sequence
+
+## Purpose
+
+This sequence turns the accepted celestial architecture into bounded, reviewable work. It is a
+dependency order, not authorization to begin implementation. Each step must preserve the tested
+room/geographic frame and must pass its own independent review before the next visible layer is
+started.
+
+The scientific evidence behind this order is indexed in the [official astronomy source
+register](OFFICIAL_ASTRONOMY_SOURCES.md).
+
+The first step is deliberately narrower than the complete scientific foundation. Research found
+that Astronomy Engine exposes a useful true-equator-of-date frame but does not document a public
+precession-only mean-equator-of-date transform. The project must prove the application adapter and
+mean-pole provider before selecting visible axis or precession geometry.
+
+## Sequence overview
+
+```text
+2A0 astronomy adapter and pole-model validation spike
+  -> 2A scientific foundation
+      -> 2B mean Earth axis and antipodal celestial poles
+          -> 2C mean celestial equator
+              -> 2D validated precession trajectories
+                  -> later ecliptic/body/temporal/presentation milestones
+```
+
+Every milestone consumes the same observer, time, frame, provenance, and correction contracts.
+Later layers may extend those contracts; they may not bypass them.
+
+## Milestone 2A0 - astronomy adapter and pole-model validation spike
+
+**Objective:** establish that the proposed runtime library, canonical frame mapping, and a
+precession-only mean-pole provider can satisfy the architecture before the project builds on them.
+
+**Inputs**
+
+- The six Milestone 2 architecture and research documents.
+- The existing room/geographic frame convention and north calibration.
+- A reviewed, exact Astronomy Engine package version and license notice.
+- Bounded SOFA, NOVAS, and/or JPL Horizons reference fixtures with complete provenance.
+
+**Outputs**
+
+- A minimal, non-visual Astronomy Engine adapter with strongly tagged vectors and correction
+  profiles.
+- An immutable observer/time snapshot boundary sufficient for deterministic tests.
+- Proven `EQJ -> HOR -> canonical ENU -> Three.js` basis/sign mappings.
+- A written and tested determination of how the application will obtain an IAU P03
+  precession-only mean pole/equator of date.
+- Measured bundle/build impact and an exact dependency/license record.
+
+**Dependencies:** architecture approval only. This spike does not depend on visible celestial
+geometry.
+
+**Acceptance criteria**
+
+1. The pinned package imports in the current browser/Vite/TypeScript target without unrelated
+   dependencies.
+2. All scientific outputs carry frame, origin, instant, observer, correction, units, provider,
+   version, and precision metadata.
+3. Basis-vector, round-trip, invalid-input, and deterministic-clock tests pass.
+4. Bounded Sun/Moon or frame cases agree with recorded independent fixtures within tolerances
+   declared before comparison.
+5. The precession-only mean-pole provider is demonstrated against SOFA/P03 evidence, or the spike
+   stops without inventing a fallback.
+6. Astronomy Engine true `EQD`, mean-axis geometry, and any future observed/CIP mode remain
+   explicitly distinct.
+7. Type-check, tests, production build, dependency inspection, and documentation review pass.
+
+**Physical Quest boundary:** no physical astronomical-placement claim is made. A production build
+may receive a smoke test only if dependency or performance behavior warrants it; there is no new
+visible XR feature to accept.
+
+**Explicit exclusions:** visible Earth axis, poles, equator, ecliptic, precession paths, Sun, Moon,
+planets, geolocation, user-facing time controls, persistence, and contemplative sequencing.
+
+**Stop condition:** if no supportable mean-pole provider or validation route is found, stop and
+return a bounded scientific-model remediation/research task. Do not substitute `EQD`, a body-axis
+helper with different semantics, or a decorative circle.
+
+## Milestone 2A - scientific foundation
+
+**Objective:** implement the production-quality, non-visual observer, simulation-time, reference-
+frame, and astronomy-provider foundation validated by 2A0.
+
+**Inputs**
+
+- Accepted 2A0 adapter and pole-provider result.
+- Explicit observer values with datum, uncertainty, and provenance.
+- One UTC simulation instant plus an explicit IANA time-zone ID for labels/schedules.
+
+**Outputs**
+
+- Validated observer state and revision/invalidation rules.
+- One central deterministic simulation clock and immutable calculation snapshot.
+- Tagged frame/vector/matrix types and canonical ENU conversions.
+- Provider cache keyed by observer, time, correction, model, and provider revisions.
+- Offline golden fixtures and a reproducible fixture manifest.
+
+**Dependencies:** 2A0 PASS and explicit approval to adopt the exact dependency.
+
+**Acceptance criteria**
+
+1. No celestial layer calls `new Date()` or reads location independently.
+2. UTC calculation and civil label/schedule concerns are separated.
+3. Unit, handedness, sign, time-scale, datum, and correction boundaries are tested.
+4. Observer/time/provider changes invalidate exactly the affected results.
+5. Existing Milestone 0/1 automated, desktop, and north-frame behavior do not regress.
+6. No visible celestial geometry or unverified precision claim is introduced.
+
+**Physical Quest boundary:** existing scene and north calibration regression only; celestial
+scientific correctness remains an automated/reference-fixture gate.
+
+**Explicit exclusions:** automatic geolocation/time-zone selection, EOP feeds, visible celestial
+layers, temporal clocks, and time controls.
+
+## Milestone 2B - mean Earth axis and celestial poles
+
+**Objective:** render one coherent observer-centered P03 mean-axis-of-date system with exact
+antipodal north and south celestial poles.
+
+**Inputs**
+
+- Validated mean-axis provider and scientific snapshot from 2A.
+- Observer geodetic latitude/longitude and calibrated geographic frame.
+- Initial geodetic geometric horizon contract.
+
+**Outputs**
+
+- One mean Earth-axis line with antipodal NCP/SCP endpoints.
+- Optional, clearly styled below-horizon continuation and pole labels.
+- Proven latitude/horizon relationship and model/provenance disclosure.
+
+**Dependencies:** 2A PASS; accepted presentation radius and below-horizon policy.
+
+**Acceptance criteria**
+
+1. The two pole endpoints are normalized exact negatives derived from one mean-axis value.
+2. Pole altitude/azimuth behavior passes authoritative latitude/date fixtures, including both
+   hemispheres and the equator.
+3. North recalibration remaps the presentation parent only; it never mutates scientific values.
+4. The layer says `P03 mean pole/equator of date`, not generic, true, instantaneous, or observed
+   pole.
+5. Existing floor, horizon diagnostic, cardinal, controller, and session behavior remain intact.
+
+**Physical Quest boundary:** verify floor/up and north alignment, pole altitude relationship,
+world locking, below-horizon semantics, readability, and comfort. Do not claim angular precision
+beyond the combined evidence budget.
+
+**Explicit exclusions:** celestial equator, precession path, nutation, polar motion, EOP, ecliptic,
+Sun, Moon, planets, and time controls.
+
+## Milestone 2C - mean celestial equator
+
+**Objective:** render the great circle perpendicular to the exact same P03 mean axis used by 2B.
+
+**Inputs:** accepted 2B axis, shared presentation radius, and geometric-horizon relationship.
+
+**Outputs:** a segmented, optionally below-horizon mean equator-of-date layer with sparse optional
+labels.
+
+**Dependencies:** 2B PASS; no independent orientation control is permitted.
+
+**Acceptance criteria**
+
+1. Every sampled equator point is orthogonal to the selected axis within a predeclared numerical
+   tolerance.
+2. The equator is a closed great circle, and its plane normal is the axis used for NCP/SCP.
+3. Equator/horizon behavior passes equatorial, mid-latitude, high-latitude, and southern cases.
+4. Below-horizon continuity can be inspected without confusing the room floor with the
+   astronomical horizon.
+5. Visibility and labels are independently optional; minimal mode remains low-noise.
+
+**Physical Quest boundary:** verify world locking, expected horizon crossings/orientation,
+below-horizon continuity, readability, and comfort after north/floor setup.
+
+**Explicit exclusions:** true equator/nutation mode, precession path, ecliptic, bodies, temporal
+ticks, and contemplative sequencing.
+
+## Milestone 2D - validated precession trajectories
+
+**Objective:** add scientifically computed north/south long-term mean-pole trajectories and a
+date-dependent current contact marker without forcing the result into a perfect decorative ring.
+
+**Inputs**
+
+- Accepted axis/equator model and current mean-axis provider.
+- A separately reviewed long-term precession model, validity domain, epoch, direction, sampling
+  policy, and independent reference fixtures.
+- A selected historical/future display interval and adaptive sampling tolerance.
+
+**Outputs**
+
+- One sampled north mean-pole trajectory and an exact-negated south trajectory.
+- Current-date pole samples that touch the corresponding paths by construction.
+- Model/date-domain disclosure, optional time labels, and visible distinction from nutation.
+
+**Dependencies:** 2C PASS plus a dedicated scientific review of the long-term model. P03's normal
+date domain is not silently stretched to a full precession cycle.
+
+**Acceptance criteria**
+
+1. Every path vertex is produced by the adopted precession-only model with recorded epoch/date.
+2. South samples are exact negatives of matching north samples.
+3. The current axis endpoints and current path markers are the same scientific samples.
+4. Sampling error and the model's validity interval have declared, tested bounds.
+5. Nutation, polar motion, Chandler wobble, and observational pole offsets are absent or separately
+   named/controlled; none is baked into the mean path.
+6. A non-circular result remains non-circular and is described as a trajectory, not corrected by
+   presentation code.
+
+**Physical Quest boundary:** verify path/contact coherence, label clarity, scale, world locking,
+and comfort. Physical observation cannot validate a millennia-scale numerical trajectory; that
+remains a reference-fixture/scientific-review gate.
+
+**Explicit exclusions:** live EOP, combined apparent-pole animation, Sun, Moon, planets, ecliptic,
+and broad time-navigation UI.
+
+## Later milestones
+
+Proceed one scientific dependency at a time after 2D. These are intentionally ordered but are not
+part of the first Milestone 2 implementation authorization.
+
+### Post-2D E - ecliptic
+
+- **Objective:** add one explicitly named mean or true ecliptic great circle without conflating it
+  with the adopted equator.
+- **Inputs:** accepted celestial frame/time snapshot and independently validated ecliptic model.
+- **Outputs:** one optional great-circle layer with model/epoch provenance.
+- **Dependencies:** 2C PASS; the precession-path milestone is not required unless the chosen model
+  shares its long-term provider.
+- **Acceptance:** obliquity and equator/ecliptic intersections pass authoritative fixtures; the
+  layer remains independently selectable and below-horizon continuous.
+- **Quest boundary:** orientation, world locking, below-horizon style, label clarity, and comfort.
+- **Exclusions:** Sun/Moon/planets, zodiac decoration, temporal ticks, and unqualified `ecliptic`
+  naming.
+
+### Post-2D F - apparent Sun
+
+- **Objective:** add only the current apparent topocentric Sun direction.
+- **Inputs:** accepted adapter, observer/time snapshot, explicit aberration/parallax/refraction
+  profile, and Sun fixtures.
+- **Outputs:** one optional current-Sun marker with above/below-geometric-horizon state.
+- **Dependencies:** 2A PASS; ecliptic display is not a rendering dependency.
+- **Acceptance:** selected observer/date cases agree with Horizons/NOVAS within predeclared
+  tolerances; no system-clock or civil-label ambiguity exists.
+- **Quest boundary:** observed directional plausibility, world locking, below-horizon behavior,
+  scale/brightness, and comfort; never direct unprotected solar observation.
+- **Exclusions:** path, hourly ticks, rise/set claims, time controls, glow spectacle, or physical
+  arcminute-accuracy claims.
+
+### Post-2D G - solar temporal clock
+
+- **Objective:** add the selected-date apparent Sun path and independently optional civil-hour
+  ticks, labels, current emphasis, and rise/set annotations.
+- **Inputs:** accepted current-Sun layer, civil resolver, selected IANA zone/date, correction/event
+  definitions, and temporal fixtures.
+- **Outputs:** sampled path plus separate path/tick/label/current/event layers and schedule
+  provenance.
+- **Dependencies:** apparent Sun PASS and central clock/civil scheduling PASS.
+- **Acceptance:** ordinary and selected one-hour 23/25 civil-day schedules are truthful; non-hour
+  transitions retain their actual counts; below-horizon samples and event semantics are explicit.
+- **Quest boundary:** minimal modes, clutter, label readability, slow/meaningful change, world
+  locking, brightness, and comfort.
+- **Exclusions:** automatic time-zone/location, dense default labels, forced 24-marker DST days,
+  and Moon/planet paths.
+
+### Post-2D H - apparent Moon
+
+- **Objective:** add the current apparent topocentric Moon direction with separately sourced phase
+  metadata.
+- **Inputs:** accepted adapter, observer/time/correction snapshot, parallax-aware Moon fixtures,
+  and validated phase semantics.
+- **Outputs:** one optional current-Moon marker plus read-only phase/illumination metadata.
+- **Dependencies:** 2A PASS; Sun direction is needed only where the provider's phase contract
+  requires it.
+- **Acceptance:** topocentric cases distinguish material parallax from geocentric results and
+  agree with independent fixtures; phase does not determine sky direction.
+- **Quest boundary:** directional plausibility, world locking, below-horizon handling, label and
+  phase-symbol clarity, brightness, and comfort.
+- **Exclusions:** lunar path, orbit depiction, hourly/midnight samples, and circularized motion.
+
+### Post-2D I - lunar temporal clocks
+
+- **Objective:** deliver the next-24-elapsed-hour Moon path first, then the independently sampled
+  local-midnight phase-cycle clock.
+- **Inputs:** accepted Moon layer, central clock, IANA civil resolver, arbitrary-phase recurrence
+  provider, and temporal/body fixtures.
+- **Outputs:** 25 next-24-hour samples; a variable-length local-midnight sequence ending at the
+  first sampled midnight on/after the validated matching-phase recurrence; independent labels and
+  phase symbols.
+- **Dependencies:** apparent Moon PASS and both elapsed-time/civil-schedule test suites PASS.
+- **Acceptance:** exact 24-hour elapsed span, correctly resolved midnights/folds/gaps, non-circular
+  apparent directions, phase/direction separation, and sparse default labels.
+- **Quest boundary:** path comprehension, clutter modes, world locking, below-horizon continuity,
+  label/phase clarity, brightness, and comfort.
+- **Exclusions:** assumed 29/30-day fixed cycles, circular observer-centered orbit, dense default
+  labels, and combined solar/lunar controls without separate validation.
+
+### Post-2D J - planets and other bodies
+
+- **Objective:** enable one body at a time only after its own scientific and presentation gate.
+- **Inputs:** accepted adapter, body-specific correction profile/date domain, and independent
+  golden fixtures.
+- **Outputs:** optional current marker; a path only after separate temporal validation.
+- **Dependencies:** 2A PASS plus that body's ephemeris/reference review.
+- **Acceptance:** body-specific cases and supported-date edges pass; labels identify the object and
+  model without implying telescope-grade pointing.
+- **Quest boundary:** world locking, visibility modes, scale/brightness, label density, and comfort.
+- **Exclusions:** all-at-once planetarium mode, decorative stars, orbital traces without sampled
+  apparent-direction semantics, and unsupported bodies.
+
+### Post-2D K - contemplative sequencing
+
+- **Objective:** add optional visibility, emphasis, fades, and attention pacing over already
+  accepted scientific layers.
+- **Inputs:** immutable scientific snapshots, independent layer visibility controls, and an
+  explicitly separate presentation clock/state.
+- **Outputs:** calm minimal compositions and reversible sequences that never change a scientific
+  coordinate.
+- **Dependencies:** each participating layer has already passed its scientific, desktop, and Quest
+  gate.
+- **Acceptance:** switching/sequencing changes only presentation state; labels and layers remain
+  independently optional; no forced camera motion, gratuitous animation, scientific distortion,
+  or guaranteed altered-state claim appears.
+- **Quest boundary:** pacing, distraction, readability, brightness, accidental activation,
+  comfort, and an immediate stop/exit path.
+- **Exclusions:** metaphysical claims as science, biometric inference, therapeutic claims, audio
+  unless separately authorized, and scientific coordinates driven by presentation timing.
+
+Do not turn this sequence into a general-purpose planetarium backlog. Each later authorization
+must still predeclare its correction profile, cadence, error sources, fixtures, visibility
+default, and evidence boundary.
+
+## Sequence-wide controls
+
+- One coherent unit is reviewed and committed at a time.
+- Every new visible scientific layer requires automated reference evidence and a physical Quest
+  presentation check; neither substitutes for the other.
+- Precision promotion is explicit. Tier 1 limits are not relabelled Tier 2 or Tier 3.
+- Existing floor and geographic calibration remain prerequisites and are regression-tested.
+- Source/model/version updates are scientific changes with fixture comparison, not routine
+  dependency maintenance.
+- No layer is enabled by default merely because it has been implemented.

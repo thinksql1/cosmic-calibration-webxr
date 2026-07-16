@@ -4,6 +4,18 @@ Cosmic Calibration is a mixed-reality cosmic-navigation project. Milestone 0 est
 
 Scientific geometry and contemplative interpretation remain separate layers. This milestone adds no astronomy, automatic heading, compass, geolocation, or magnetic-declination behavior.
 
+## Milestone 2 architecture status
+
+Milestone 2 is defined in documentation only; no astronomy dependency or celestial display is
+implemented. The accepted plan begins with a non-visual adapter and pole-model validation spike:
+
+- [Celestial reference architecture](docs/CELESTIAL_REFERENCE_ARCHITECTURE.md)
+- [Astronomy Engine evaluation](docs/ASTRONOMY_ENGINE_EVALUATION.md)
+- [Celestial validation strategy](docs/CELESTIAL_VALIDATION_STRATEGY.md)
+- [Temporal-layer architecture](docs/TEMPORAL_LAYER_ARCHITECTURE.md)
+- [Milestone 2 sequence](docs/MILESTONE_2_SEQUENCE.md)
+- [Official astronomy source register](docs/OFFICIAL_ASTRONOMY_SOURCES.md)
+
 ## Current scope
 
 The shared desktop/XR scene contains:
