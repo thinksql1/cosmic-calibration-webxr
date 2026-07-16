@@ -33,16 +33,17 @@ function normalize(vector: Vector): CartesianUnitDirection<'GCRS'> {
 export function createMeanEquatorBasis(
   north: CartesianUnitDirection<'GCRS'>,
 ): MeanEquatorBasis {
-  const normal: Vector = [north.x, north.y, north.z];
-  const reference: Vector = Math.abs(north.z) < 0.9 ? [0, 0, 1] : [1, 0, 0];
-  const first = normalize(cross(reference, normal));
-  const second = normalize(cross(normal, [first.x, first.y, first.z]));
+  const normal = normalize([north.x, north.y, north.z]);
+  const normalVector: Vector = [normal.x, normal.y, normal.z];
+  const reference: Vector = Math.abs(normal.z) < 0.9 ? [0, 0, 1] : [1, 0, 0];
+  const first = normalize(cross(reference, normalVector));
+  const second = normalize(cross(normalVector, [first.x, first.y, first.z]));
   return Object.freeze({
     frame: 'GCRS',
     model: 'IAU_P03_PRECESSION_ONLY',
     first,
     second,
-    normal: north,
+    normal,
     handedness: 'right-handed',
   });
 }

@@ -1,5 +1,6 @@
 import { AstronomyContractError } from '../astronomy/errors';
 import type { CorrectionProfileId } from '../astronomy/types';
+import { isValidScientificRevision } from './runtimeValidation';
 
 export const SCIENTIFIC_CONFIGURATION_VERSION = 1 as const;
 export const SCIENTIFIC_PROVIDER_IDS = Object.freeze([
@@ -34,6 +35,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function reject(message: string): never {
   throw new AstronomyContractError('UNSUPPORTED_CORRECTION_PROFILE', message);
+}
+
+function rejectRevision(message: string): never {
+  throw new AstronomyContractError('INVALID_REVISION', message);
 }
 
 export function normalizeEnabledProviders(
@@ -94,7 +99,7 @@ export function isSupportedScientificConfiguration(
 ): value is ScientificConfiguration {
   try {
     if (!isRecord(value) || value.version !== SCIENTIFIC_CONFIGURATION_VERSION) return false;
-    if (!Number.isInteger(value.revision) || (value.revision as number) < 0) return false;
+    if (!isValidScientificRevision(value.revision)) return false;
     const normalized = normalizeScientificConfiguration(value);
     return (
       value.precisionTier === normalized.precisionTier &&
@@ -174,6 +179,9 @@ export class ScientificConfigurationStore {
   restore(serialized: unknown): ScientificConfiguration {
     if (!isRecord(serialized) || serialized.version !== SCIENTIFIC_CONFIGURATION_VERSION) {
       return reject('Unsupported scientific-configuration serialization version.');
+    }
+    if (!isValidScientificRevision(serialized.revision)) {
+      return rejectRevision('Serialized scientific configuration requires a finite, safe, non-negative integer revision.');
     }
     return this.replace(normalizeScientificConfiguration(serialized));
   }

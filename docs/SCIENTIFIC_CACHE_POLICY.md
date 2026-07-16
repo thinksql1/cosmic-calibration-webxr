@@ -4,11 +4,11 @@ The scientific snapshot cache is bounded, in-memory only, and exact-key only. It
 
 ## Key and invalidation
 
-The key includes observer revision/content, time revision/exact UTC/mode/paused status, calibration revision/yaw/origin/accepted-capture identity, configuration revision/precision/model/profile/refraction/canonical enabled providers, and Astronomy Engine/P03 provider names and versions. A new accepted calibration event misses even when it has the same yaw and origin. Provider input order is normalized and duplicates are rejected before a key exists. Any observer update, selected instant, calibration reset/recalibration, configuration replacement, or provider version replacement therefore misses. No mutable object identity is trusted.
+The key includes observer revision/content; clock version, time revision, exact UTC, instant source, mode, signed rate, and paused status; calibration readiness, generic revision, explicit accepted-capture revision, yaw, and origin; configuration revision/precision/model/profile/refraction/canonical enabled providers; and Astronomy Engine/P03 provider names and versions. A new accepted calibration event misses even when it has the same yaw and origin. Equal UTC with a different source or returned clock rate also misses so a cached snapshot cannot report stale provenance. Provider input order is normalized and duplicates are rejected before a key exists. Any observer update, selected instant, calibration reset/recalibration, configuration replacement, or provider version replacement therefore misses. No mutable object identity is trusted.
 
 ## Time policy
 
-Frozen and paused selections cache at the exact UTC instant. A running, unpaused clock deliberately bypasses the cache: it builds synchronously for the explicitly ticked instant and increments misses. There is no time bucketing or quantization of body positions or the P03 axis. This prioritizes scientific correctness and predictable invalidation over cache-hit rate.
+Frozen and paused selections cache at the exact owned UTC instant and source. The structural clock contract is revalidated and copied before keying. A running, unpaused clock deliberately bypasses the cache: it builds synchronously for the explicitly ticked instant and increments misses. There is no time bucketing or quantization of body positions or the P03 axis. This prioritizes scientific correctness, provenance fidelity, and predictable invalidation over cache-hit rate.
 
 ## Boundaries
 

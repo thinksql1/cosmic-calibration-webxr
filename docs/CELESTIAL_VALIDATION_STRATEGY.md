@@ -2,7 +2,7 @@
 
 ## Milestone 2A implemented checks
 
-The non-visual foundation adds deterministic store, serialization, explicit-tick clock, calibration-adapter, configuration, snapshot, exact-cache, LRU, axis-basis, and boundary tests. Remediation adds accepted-event same-yaw invalidation, nested mutation resistance, malformed restore rejection, provider-version consistency, semantic clock no-op behavior, true-LRU recency, and the height-datum warning. They retain the frozen 2A0 JPL/SOFA/P03 fixtures unchanged. Snapshot checks verify exact pole antipodes, unit/perpendicular/right-handed equator preparation, frame/provenance metadata, structured readiness, warnings, and no stale cache reuse after observer/time/calibration/profile changes. The checks are not a visual or Quest celestial validation.
+The non-visual foundation adds deterministic store, serialization, explicit-tick clock, calibration-adapter, configuration, snapshot, exact-cache, LRU, axis-basis, and boundary tests. The two bounded remediation passes add accepted-event same-yaw invalidation, caller-owned instant isolation, complete direct-clock validation and provider suppression, safe configuration-revision restoration, instant-source/rate/calibration key identity, nested vector mutation resistance, provider-version consistency, semantic clock no-op behavior, true-LRU recency, and conditional structured height-datum warnings. They retain the frozen 2A0 JPL/SOFA/P03 fixtures unchanged. Snapshot checks verify exact pole antipodes, unit/perpendicular/right-handed equator preparation, frame/provenance metadata, structured readiness, and no stale cache reuse after observer/time/calibration/profile changes. The checks are not a visual or Quest celestial validation.
 
 ## Purpose
 
@@ -86,10 +86,12 @@ mean/true discrimination, and domain rejection. All pass. The process and values
 ### Current automated boundary
 
 - Existing Milestone 0/1 tests: 66 retained and passing.
-- New scientific tests: 69 passing.
-- Total: 8 files / 135 tests passing.
+- Scientific adapter/foundation tests: 173 passing, including 49 deterministic regressions added by the second runtime-boundary remediation.
+- Total: 12 files / 239 tests passing.
 - Type-check and production build: PASS.
 - Desktop visual and Quest celestial validation: NOT APPLICABLE; no visible behavior changed.
+
+The committed second-gate regressions reproduce the previously failing probes: mutable clock inputs, malformed direct clock states, missing/unsafe configuration revisions, equal UTC with different instant sources, explicit accepted-calibration identity, caller-owned equator-basis normals, missing-observer warning suppression, and ready-observer warning metadata/content. Provider spies prove invalid clock state performs no P03 or body-provider work. Cache tests also preserve true LRU recency and verify that returned clock provenance matches the request.
 
 ## Pure mathematical test plan
 

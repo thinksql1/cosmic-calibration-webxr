@@ -20,7 +20,7 @@ mean-pole provider before selecting visible axis or precession geometry.
 boundary, and the application-owned P03 mean-pole provider passed their bounded fixture gates.
 Milestone 2A's non-visual state/snapshot/cache foundation is implemented on
 `feature/milestone-2a-scientific-foundation`; no visible layer has started. The next bounded
-implementation is 2B: consume its validated snapshot for only a coherent Earth-axis and NCP/SCP
+implementation is 2B, only after the independent Milestone 2A integration re-gate passes: consume its validated snapshot for only a coherent Earth-axis and NCP/SCP
 presentation layer. It must not add equator geometry, precession, bodies, ecliptic, temporal
 clocks, media, or contemplative logic.
 

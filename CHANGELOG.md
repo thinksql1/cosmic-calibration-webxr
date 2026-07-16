@@ -4,9 +4,9 @@
 
 ### Added
 
-- Milestone 2A remediation coverage for same-yaw accepted recalibration, strict configuration/clock restoration, nested immutability, provider-version identity, semantic clock equality, exact cache identity, true LRU recency, and the observer-height datum warning; the suite now has 12 files / 190 tests.
+- Milestone 2A remediation coverage for same-yaw accepted recalibration, owned simulation instants, strict configuration/clock restoration and direct snapshot validation, nested vector immutability, provider/version/time-source/calibration cache identity, semantic clock equality, true LRU recency, and conditional observer-height datum warnings; the suite now has 12 files / 239 tests.
 - Non-visual Milestone 2A revisioned observer, explicit-tick UTC clock, read-only geographic-calibration adapter, validated Tier 1 configuration, provider registry, immutable P03 axis/equator-basis snapshot, structured readiness, and bounded exact-key LRU cache.
-- Deterministic state, serialization, clock, calibration, snapshot, basis, cache, and orchestration tests; expanded by remediation coverage to 12 files / 190 tests.
+- Deterministic state, serialization, clock, calibration, snapshot, basis, cache, and orchestration tests; expanded by both remediation passes to 12 files / 239 tests.
 - Scientific state, snapshot-contract, and cache-policy documentation plus DEC-018, preserving the presentation-only calibrated-yaw boundary.
 - Deterministic Vitest coverage for pending requests, renderer binding, active sessions, cleanup, retry, cleanup failure, and end-during-binding lifecycle transitions.
 - Pure horizontal projection, signed-yaw, bearing, and cardinal-direction calibration math with an explicit `-Z` application-north convention.
@@ -32,7 +32,8 @@
 
 ### Changed
 
-- Hardened non-visual Milestone 2A state/cache contracts after the first independent gate: accepted calibration events now have their own invalidation identity; clock revisions remain value-based; configuration and snapshots recursively isolate nested values; restoration uses strict runtime validation; P03 provider identity is unified at `1.0.0`; and the documented MSL-versus-ellipsoid height distinction is a structured Tier 1 warning. Independent re-gating remains required; no visible celestial behavior, merge, push, or deployment occurred.
+- Recorded the second independent Milestone 2A gate failure and completed its bounded local remediation: clocks now own canonical immutable instants, direct malformed clock state cannot invoke providers, configuration revisions are runtime-validated, cache identity includes time source/rate and explicit accepted-capture identity, equator normals are owned, and the datum warning is conditional with frozen provenance metadata. Independent re-gating remains required; no visible celestial behavior, merge, push, or deployment occurred.
+- The first Milestone 2A remediation established accepted-event invalidation, value-based clock revisions, nested snapshot isolation, strict supported-profile restoration, unified P03 provider identity at `1.0.0`, and true-LRU evidence; its subsequent independent gate exposed the remaining bounded runtime contracts above.
 - Hardened the WebXR session controller so an acquired session is owned and subscribed before renderer binding.
 - Added binding-failure cleanup through `session.end()`, blocked retry during unresolved work, and prevented an end-during-binding race from reporting false active state.
 - Added restrained phase-labelled browser-console diagnostics for unexpected binding and cleanup failures.

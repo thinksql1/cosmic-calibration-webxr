@@ -5,6 +5,7 @@ import type { GeographicCalibrationState } from '../state/geographicCalibrationS
 import type { ObserverStateReady } from '../state/observerState';
 import type { SimulationClockState } from '../state/simulationClock';
 import type { ScientificConfiguration } from '../state/scientificConfiguration';
+import type { VerticalDatum } from '../astronomy/types';
 
 export type ScientificIssueCode =
   | 'OBSERVER_MISSING'
@@ -32,6 +33,15 @@ export type ScientificWarningCode =
 export interface ScientificWarning {
   readonly code: ScientificWarningCode;
   readonly message: string;
+  readonly metadata?: {
+    readonly applicability: 'ACTIVE_OBSERVER_RELATIVE_PROFILE_PREPARED';
+    readonly applicationVerticalDatum: VerticalDatum;
+    readonly observerProvenance: string | 'unspecified';
+    readonly providerElevationConvention: 'MEAN_SEA_LEVEL_METERS';
+    readonly comparisonReferenceConvention: 'REFERENCE_ELLIPSOID_HEIGHT_MAY_APPLY';
+    readonly effectCategory: 'POSSIBLE_SMALL_TOPOCENTRIC_POSITION_DIFFERENCE';
+    readonly precisionClassification: 'TIER_1_NON_FATAL';
+  };
 }
 
 export interface ScientificSnapshot {

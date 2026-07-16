@@ -1,7 +1,10 @@
 import type { ScientificProviderRegistry } from '../providers/scientificProviderRegistry';
 import type { GeographicCalibrationState } from '../state/geographicCalibrationState';
 import type { ObserverState } from '../state/observerState';
-import type { SimulationClockState } from '../state/simulationClock';
+import {
+  validateSimulationClockState,
+  type SimulationClockState,
+} from '../state/simulationClock';
 import type { ScientificConfiguration } from '../state/scientificConfiguration';
 import type { ScientificSnapshotBuildResult } from './scientificSnapshot';
 import { ScientificSnapshotCache } from './scientificSnapshotCache';
@@ -28,10 +31,17 @@ export class ScientificSnapshotService {
   ) {}
 
   capture(state: ScientificFoundationState): ScientificSnapshotBuildResult {
-    const input = { ...state, providers: this.providers, creationSequence: ++this.sequence };
+    const rawInput = { ...state, providers: this.providers, creationSequence: ++this.sequence };
+    let clock: SimulationClockState;
+    try {
+      clock = validateSimulationClockState(state.clock);
+    } catch {
+      return buildScientificSnapshot(rawInput);
+    }
+    const input = { ...rawInput, clock };
     return this.cache.getOrBuild(
       createScientificSnapshotKey(input),
-      isCacheableTime(state.clock),
+      isCacheableTime(clock),
       () => buildScientificSnapshot(input),
     );
   }

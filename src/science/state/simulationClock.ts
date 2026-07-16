@@ -1,6 +1,10 @@
 import { AstronomyContractError } from '../astronomy/errors';
-import { createSimulationInstant } from '../astronomy/time';
+import {
+  cloneImmutableSimulationInstant,
+  createSimulationInstant,
+} from '../astronomy/time';
 import type { SimulationInstant, SimulationInstantSource } from '../astronomy/types';
+import { isValidScientificRevision } from './runtimeValidation';
 
 export const SIMULATION_CLOCK_VERSION = 1 as const;
 export type SimulationClockMode = 'frozen' | 'realtime';
@@ -20,7 +24,10 @@ export interface SerializedSimulationClock {
 }
 
 function freezeState(state: SimulationClockState): SimulationClockState {
-  return Object.freeze(state);
+  return Object.freeze({
+    ...state,
+    instant: cloneImmutableSimulationInstant(state.instant),
+  });
 }
 
 function reject(message: string): never {
@@ -54,49 +61,34 @@ function updateInstant(
   return createSimulationInstant(new Date(nextMilliseconds).toISOString(), source);
 }
 
-function normalizeSerializedState(value: unknown): Omit<SimulationClockState, 'revision'> {
-  if (!isRecord(value)) return reject('Serialized simulation clock state must be an object.');
+export function validateSimulationClockState(value: unknown): SimulationClockState {
+  if (!isRecord(value)) return reject('Simulation clock state must be an object.');
   if (value.version !== SIMULATION_CLOCK_VERSION) {
-    return reject('Unsupported simulation-clock state serialization version.');
+    return reject('Simulation clock state has an unsupported version.');
   }
   if (value.mode !== 'frozen' && value.mode !== 'realtime') {
-    return reject('Serialized simulation clock has an unsupported mode.');
+    return reject('Simulation clock state has an unsupported mode.');
   }
   if (typeof value.paused !== 'boolean') {
-    return reject('Serialized simulation clock paused state must be boolean.');
+    return reject('Simulation clock paused state must be boolean.');
   }
   if (value.mode === 'frozen' && value.paused !== true) {
     return reject('Frozen simulation clocks must be paused.');
   }
   if (typeof value.timeRate !== 'number' || !Number.isFinite(value.timeRate)) {
-    return reject('Serialized simulation clock has an invalid time rate.');
+    return reject('Simulation clock state has an invalid time rate.');
   }
-  if (!Number.isInteger(value.revision) || (value.revision as number) < 0) {
-    return reject('Serialized simulation clock has an invalid revision.');
+  if (!isValidScientificRevision(value.revision)) {
+    return reject('Simulation clock state has an invalid revision.');
   }
-  if (!isRecord(value.instant) || typeof value.instant.utcIso !== 'string') {
-    return reject('Serialized simulation clock has an invalid instant.');
-  }
-  if (
-    value.instant.source !== 'frozen-test' &&
-    value.instant.source !== 'user-selected' &&
-    value.instant.source !== 'system-selected'
-  ) {
-    return reject('Serialized simulation clock has an invalid instant source.');
-  }
-  if (!Number.isFinite(value.instant.unixMilliseconds)) {
-    return reject('Serialized simulation clock instant milliseconds must be finite.');
-  }
-  const instant = createSimulationInstant(value.instant.utcIso, value.instant.source);
-  if (instant.unixMilliseconds !== value.instant.unixMilliseconds) {
-    return reject('Serialized simulation clock instant fields disagree.');
-  }
-  return Object.freeze({
+  const instant = cloneImmutableSimulationInstant(value.instant);
+  return freezeState({
     version: SIMULATION_CLOCK_VERSION,
     mode: value.mode,
     paused: value.paused,
     timeRate: value.timeRate,
     instant,
+    revision: value.revision,
   });
 }
 
@@ -104,12 +96,13 @@ export class SimulationClock {
   private state: SimulationClockState;
 
   constructor(initial: SimulationInstant) {
+    const instant = cloneImmutableSimulationInstant(initial);
     this.state = freezeState({
       version: SIMULATION_CLOCK_VERSION,
       mode: 'frozen',
       paused: true,
       timeRate: 1,
-      instant: initial,
+      instant,
       revision: 0,
     });
   }
@@ -119,10 +112,11 @@ export class SimulationClock {
   }
 
   selectFrozen(instant: SimulationInstant): SimulationClockState {
+    const ownedInstant = cloneImmutableSimulationInstant(instant);
     if (
       this.state.mode === 'frozen' &&
       this.state.paused &&
-      sameInstant(this.state.instant, instant)
+      sameInstant(this.state.instant, ownedInstant)
     ) {
       return this.state;
     }
@@ -130,7 +124,7 @@ export class SimulationClock {
       ...this.state,
       mode: 'frozen',
       paused: true,
-      instant,
+      instant: ownedInstant,
       revision: this.state.revision + 1,
     });
     return this.state;
@@ -180,7 +174,7 @@ export class SimulationClock {
     if (!isRecord(serialized) || serialized.version !== SIMULATION_CLOCK_VERSION) {
       return reject('Unsupported simulation-clock serialization version.');
     }
-    const next = normalizeSerializedState(serialized.state);
+    const next = validateSimulationClockState(serialized.state);
     if (
       this.state.mode === next.mode &&
       this.state.paused === next.paused &&

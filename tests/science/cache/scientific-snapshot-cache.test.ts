@@ -8,6 +8,8 @@ import { ScientificConfigurationStore } from '../../../src/science/state/scienti
 import { ScientificSnapshotCache } from '../../../src/science/snapshot/scientificSnapshotCache';
 import { buildScientificSnapshot } from '../../../src/science/snapshot/scientificSnapshotBuilder';
 import { createScientificSnapshotKey, isCacheableTime } from '../../../src/science/snapshot/scientificSnapshotKey';
+import { ScientificSnapshotService } from '../../../src/science/snapshot/scientificSnapshotService';
+import { NorthCalibrationController } from '../../../src/calibration/state';
 
 function fixture(acceptedRevision?: number) {
   const observer = new ObserverStateStore(); observer.set({ latitudeDeg: 1, longitudeDegEast: 2, elevationMeters: 3 });
@@ -23,6 +25,13 @@ describe('bounded exact-key snapshot cache', () => {
     const f = fixture();
     const base = { observer: f.observer.current, clock: f.clock.current, calibration: f.calibration.current, configuration: f.configuration.current, providers: f.providers };
     const baseKey = createScientificSnapshotKey(base);
+    expect(JSON.parse(baseKey)).toMatchObject({
+      clockVersion: 1,
+      instantSource: 'frozen-test',
+      timeRate: 1,
+      calibrationReadiness: 'ready',
+      acceptedCalibrationRevision: null,
+    });
     const nextClock = new SimulationClock(createSimulationInstant('2025-06-22T16:00:00Z', 'frozen-test'));
     const changedProvider = { ...f.providers, meanPole: { ...f.providers.meanPole, version: '2.0.0' as never } };
     const normalConfiguration = new ScientificConfigurationStore();
@@ -37,6 +46,151 @@ describe('bounded exact-key snapshot cache', () => {
     const reordered = new ScientificConfigurationStore();
     reordered.replace({ precisionTier: 'TIER_1', bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS', meanPoleModel: 'IAU_P03_PRECESSION_ONLY', refractionPolicy: 'disabled', enabledProviders: ['P03 Mean Pole', 'Astronomy Engine'] });
     expect(createScientificSnapshotKey({ ...base, configuration: reordered.current })).toBe(baseKey);
+  });
+
+  it('separates instant provenance, rate, and explicit accepted-capture identity', () => {
+    const f = fixture(1);
+    const base = {
+      observer: f.observer.current,
+      clock: f.clock.current,
+      calibration: f.calibration.current,
+      configuration: f.configuration.current,
+      providers: f.providers,
+    };
+    const baseKey = createScientificSnapshotKey(base);
+    const differentSource = new SimulationClock(
+      createSimulationInstant('2025-06-21T16:00:00Z', 'user-selected'),
+    );
+    expect(createScientificSnapshotKey({ ...base, clock: differentSource.current })).not.toBe(baseKey);
+    expect(createScientificSnapshotKey({
+      ...base,
+      clock: { ...base.clock, timeRate: 2 },
+    })).not.toBe(baseKey);
+    expect(base.calibration.kind).toBe('ready');
+    if (base.calibration.kind !== 'ready') return;
+    const changedAcceptedIdentity = {
+      ...base.calibration,
+      revision: base.calibration.revision,
+      acceptedCalibrationRevision: 2,
+    };
+    const changedKey = createScientificSnapshotKey({
+      ...base,
+      calibration: changedAcceptedIdentity,
+    });
+    expect(changedKey).not.toBe(baseKey);
+    expect(JSON.parse(baseKey).acceptedCalibrationRevision).toBe(1);
+    expect(JSON.parse(changedKey).acceptedCalibrationRevision).toBe(2);
+  });
+
+  it('freezes key identity at construction despite later caller mutation', () => {
+    const f = fixture(1);
+    const mutableInstant = { ...f.clock.current.instant };
+    const mutableClock = { ...f.clock.current, instant: mutableInstant };
+    const request = {
+      observer: f.observer.current,
+      clock: mutableClock,
+      calibration: f.calibration.current,
+      configuration: f.configuration.current,
+      providers: f.providers,
+    };
+    const frozenKey = createScientificSnapshotKey(request);
+    mutableInstant.source = 'user-selected';
+    expect(JSON.parse(frozenKey).instantSource).toBe('frozen-test');
+    expect(createScientificSnapshotKey(request)).not.toBe(frozenKey);
+  });
+
+  it('keeps clock state, snapshot time, and key stable after original instant mutation', () => {
+    const f = fixture(1);
+    const originalInstant: {
+      utcIso: string;
+      unixMilliseconds: number;
+      source: Parameters<typeof createSimulationInstant>[1];
+    } = {
+      ...createSimulationInstant('2025-06-21T16:00:00Z', 'user-selected'),
+    };
+    const clock = new SimulationClock(originalInstant);
+    const service = new ScientificSnapshotService(f.providers);
+    const state = {
+      observer: f.observer.current,
+      clock: clock.current,
+      calibration: f.calibration.current,
+      configuration: f.configuration.current,
+    };
+    const key = createScientificSnapshotKey({ ...state, providers: f.providers });
+    const result = service.capture(state);
+    originalInstant.utcIso = '2025-06-22T16:00:00.000Z';
+    originalInstant.unixMilliseconds = 0;
+    originalInstant.source = 'system-selected';
+    expect(clock.current.revision).toBe(0);
+    expect(createScientificSnapshotKey({ ...state, providers: f.providers })).toBe(key);
+    expect(result.kind).toBe('ready');
+    if (result.kind !== 'ready') return;
+    expect(result.snapshot.clock.instant).toMatchObject({
+      utcIso: '2025-06-21T16:00:00.000Z',
+      source: 'user-selected',
+    });
+  });
+
+  it('rejects malformed clock state before constructing a cache key', () => {
+    const f = fixture(1);
+    expect(() => createScientificSnapshotKey({
+      observer: f.observer.current,
+      clock: { ...f.clock.current, mode: 'unsupported' } as never,
+      calibration: f.calibration.current,
+      configuration: f.configuration.current,
+      providers: f.providers,
+    })).toThrowError(expect.objectContaining({ code: 'INVALID_INSTANT' }));
+  });
+
+  it('never returns cached clock provenance from a different instant source', () => {
+    const f = fixture(1);
+    const service = new ScientificSnapshotService(f.providers);
+    const state = {
+      observer: f.observer.current,
+      calibration: f.calibration.current,
+      configuration: f.configuration.current,
+    };
+    const frozenClock = new SimulationClock(
+      createSimulationInstant('2025-06-21T16:00:00Z', 'frozen-test'),
+    );
+    const selectedClock = new SimulationClock(
+      createSimulationInstant('2025-06-21T16:00:00Z', 'user-selected'),
+    );
+    const equivalentSelectedClock = new SimulationClock(
+      createSimulationInstant('2025-06-21T16:00:00Z', 'user-selected'),
+    );
+    const first = service.capture({ ...state, clock: frozenClock.current });
+    const second = service.capture({ ...state, clock: selectedClock.current });
+    const third = service.capture({ ...state, clock: equivalentSelectedClock.current });
+    expect(first.kind).toBe('ready');
+    expect(second.kind).toBe('ready');
+    expect(third.kind).toBe('ready');
+    if (first.kind !== 'ready' || second.kind !== 'ready' || third.kind !== 'ready') return;
+    expect(first.snapshot.clock.instant.source).toBe('frozen-test');
+    expect(second.snapshot.clock.instant.source).toBe('user-selected');
+    expect(third.snapshot).toBe(second.snapshot);
+    expect(service.cacheDiagnostics).toEqual({ hits: 1, misses: 2, entries: 2 });
+  });
+
+  it('does not reuse a cached snapshot with a different clock rate', () => {
+    const f = fixture(1);
+    const service = new ScientificSnapshotService(f.providers);
+    const state = {
+      observer: f.observer.current,
+      calibration: f.calibration.current,
+      configuration: f.configuration.current,
+    };
+    const firstClock = { ...f.clock.current, timeRate: 1 };
+    const secondClock = { ...f.clock.current, timeRate: 2 };
+    const first = service.capture({ ...state, clock: firstClock });
+    const second = service.capture({ ...state, clock: secondClock });
+    expect(first.kind).toBe('ready');
+    expect(second.kind).toBe('ready');
+    if (first.kind !== 'ready' || second.kind !== 'ready') return;
+    expect(first.snapshot.clock.timeRate).toBe(1);
+    expect(second.snapshot.clock.timeRate).toBe(2);
+    expect(first.snapshot).not.toBe(second.snapshot);
+    expect(service.cacheDiagnostics).toEqual({ hits: 0, misses: 2, entries: 2 });
   });
 
   it('hits equal frozen inputs and misses every relevant revision/profile change', () => {
@@ -61,6 +215,43 @@ describe('bounded exact-key snapshot cache', () => {
     f.calibration.update({ kind: 'calibrated', calibration: { yawRadians: 0, capturedDirection: { x: 0, y: 0, z: -1 }, timestamp: 2, simulated: true, acceptedRevision: 2 } });
     call();
     expect(cache.diagnostics).toMatchObject({ hits: 0, misses: 2, entries: 2 });
+  });
+
+  it('misses end to end after an actual same-yaw accepted capture and reset', () => {
+    const f = fixture();
+    const controller = new NorthCalibrationController();
+    const service = new ScientificSnapshotService(f.providers);
+    controller.simulateBearing(0, 1);
+    f.calibration.update(controller.current, 'session-a');
+    const state = () => ({
+      observer: f.observer.current,
+      clock: f.clock.current,
+      calibration: f.calibration.current,
+      configuration: f.configuration.current,
+    });
+    const first = service.capture(state());
+    controller.simulateBearing(0, 2);
+    f.calibration.update(controller.current, 'session-a');
+    const second = service.capture(state());
+    expect(first.kind).toBe('ready');
+    expect(second.kind).toBe('ready');
+    if (first.kind !== 'ready' || second.kind !== 'ready') return;
+    expect(first.snapshot.geographicCalibration.yawRadians).toBe(
+      second.snapshot.geographicCalibration.yawRadians,
+    );
+    expect(first.snapshot.geographicCalibration.acceptedCalibrationRevision).toBe(1);
+    expect(second.snapshot.geographicCalibration.acceptedCalibrationRevision).toBe(2);
+    expect(first.snapshot).not.toBe(second.snapshot);
+    expect(service.cacheDiagnostics).toMatchObject({ hits: 0, misses: 2, entries: 2 });
+
+    controller.reset();
+    f.calibration.update(controller.current, 'session-a');
+    const reset = service.capture(state());
+    expect(reset).toMatchObject({
+      kind: 'not-ready',
+      errors: [expect.objectContaining({ code: 'CALIBRATION_MISSING' })],
+    });
+    expect(service.cacheDiagnostics).toMatchObject({ hits: 0, misses: 3, entries: 2 });
   });
 
   it('bypasses live running clocks, evicts LRU entries, and clears', () => {

@@ -1,11 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { GeographicCalibrationStateAdapter } from '../../../src/science/state/geographicCalibrationState';
 import { ObserverStateStore } from '../../../src/science/state/observerState';
-import { SimulationClock } from '../../../src/science/state/simulationClock';
+import {
+  SimulationClock,
+  validateSimulationClockState,
+} from '../../../src/science/state/simulationClock';
 import { ScientificConfigurationStore } from '../../../src/science/state/scientificConfiguration';
 import { createSimulationInstant } from '../../../src/science/astronomy/time';
 
 const instant = () => createSimulationInstant('2025-06-21T16:00:00Z', 'frozen-test');
+const mutableInstant = (
+  utcIso = '2025-06-21T16:00:00Z',
+  source: Parameters<typeof createSimulationInstant>[1] = 'frozen-test',
+) => ({ ...createSimulationInstant(utcIso, source) });
+const serializedConfiguration = (revision: unknown = 0) => ({
+  version: 1,
+  revision,
+  precisionTier: 'TIER_1',
+  bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS',
+  meanPoleModel: 'IAU_P03_PRECESSION_ONLY',
+  refractionPolicy: 'disabled',
+  enabledProviders: ['Astronomy Engine', 'P03 Mean Pole'],
+});
 const calibrated = (yawRadians = 0.25, acceptedRevision?: number) => ({
   kind: 'calibrated' as const,
   calibration: {
@@ -42,6 +58,118 @@ describe('revisioned observer state', () => {
 });
 
 describe('explicit simulation clock', () => {
+  it('owns immutable instant values across construction, selection, ticking, and restoration', () => {
+    const initialInput = mutableInstant();
+    const clock = new SimulationClock(initialInput);
+    const initialState = clock.current;
+    initialInput.utcIso = '2025-06-22T16:00:00.000Z';
+    initialInput.unixMilliseconds = 0;
+    initialInput.source = 'user-selected';
+    expect(clock.current).toBe(initialState);
+    expect(clock.current).toMatchObject({
+      instant: {
+        utcIso: '2025-06-21T16:00:00.000Z',
+        source: 'frozen-test',
+      },
+      revision: 0,
+    });
+    expect(Object.isFrozen(clock.current.instant)).toBe(true);
+    expect(() => {
+      (clock.current.instant as { utcIso: string }).utcIso = 'mutated';
+    }).toThrow();
+
+    const selectedInput = mutableInstant('2025-06-22T16:00:00Z', 'user-selected');
+    const selected = clock.selectFrozen(selectedInput);
+    selectedInput.utcIso = '2025-06-23T16:00:00.000Z';
+    selectedInput.unixMilliseconds = 0;
+    selectedInput.source = 'system-selected';
+    expect(selected.instant).toMatchObject({
+      utcIso: '2025-06-22T16:00:00.000Z',
+      source: 'user-selected',
+    });
+    expect(selected.revision).toBe(1);
+
+    clock.startRealtime();
+    const ticked = clock.tick(1_000);
+    expect(ticked.instant.utcIso).toBe('2025-06-22T16:00:01.000Z');
+    expect(Object.isFrozen(ticked.instant)).toBe(true);
+
+    const serialized = JSON.parse(JSON.stringify(clock.serialize()));
+    const restoredClock = new SimulationClock(instant());
+    const restored = restoredClock.restore(serialized);
+    serialized.state.instant.utcIso = '2025-06-24T16:00:00.000Z';
+    serialized.state.instant.source = 'frozen-test';
+    expect(restored.instant.utcIso).toBe('2025-06-22T16:00:01.000Z');
+    expect(restored.instant.source).toBe('system-selected');
+    expect(Object.isFrozen(restored.instant)).toBe(true);
+  });
+
+  it('does not share owned instant objects between clock instances', () => {
+    const sharedInput = mutableInstant();
+    const first = new SimulationClock(sharedInput);
+    const second = new SimulationClock(sharedInput);
+    expect(first.current.instant).not.toBe(sharedInput);
+    expect(second.current.instant).not.toBe(sharedInput);
+    expect(first.current.instant).not.toBe(second.current.instant);
+    sharedInput.unixMilliseconds = 0;
+    expect(first.current.instant.unixMilliseconds).toBe(Date.parse('2025-06-21T16:00:00Z'));
+    expect(second.current.instant.unixMilliseconds).toBe(Date.parse('2025-06-21T16:00:00Z'));
+  });
+
+  it('rejects invalid structural instants at clock construction and selection boundaries', () => {
+    expect(() => new SimulationClock({ ...instant(), unixMilliseconds: 0 })).toThrowError(
+      expect.objectContaining({ code: 'INVALID_INSTANT' }),
+    );
+    const clock = new SimulationClock(instant());
+    const before = clock.current;
+    expect(() => clock.selectFrozen({ ...instant(), source: 'ambient' as never })).toThrowError(
+      expect.objectContaining({ code: 'INVALID_INSTANT' }),
+    );
+    expect(clock.current).toBe(before);
+  });
+
+  it('validates and owns complete structural clock states at runtime', () => {
+    const sourceInstant = mutableInstant();
+    const normalized = validateSimulationClockState({
+      version: 1,
+      mode: 'frozen',
+      paused: true,
+      timeRate: 1,
+      instant: sourceInstant,
+      revision: 0,
+    });
+    expect(normalized.instant).not.toBe(sourceInstant);
+    expect(Object.isFrozen(normalized)).toBe(true);
+    expect(Object.isFrozen(normalized.instant)).toBe(true);
+    sourceInstant.unixMilliseconds = 0;
+    expect(normalized.instant.unixMilliseconds).toBe(Date.parse('2025-06-21T16:00:00Z'));
+  });
+
+  it.each([
+    ['unsupported version', { version: 2, mode: 'frozen', paused: true, timeRate: 1, instant: instant(), revision: 0 }],
+    ['unknown mode', { version: 1, mode: 'other', paused: true, timeRate: 1, instant: instant(), revision: 0 }],
+    ['missing mode', { version: 1, paused: true, timeRate: 1, instant: instant(), revision: 0 }],
+    ['missing paused state', { version: 1, mode: 'frozen', timeRate: 1, instant: instant(), revision: 0 }],
+    ['missing rate', { version: 1, mode: 'frozen', paused: true, instant: instant(), revision: 0 }],
+    ['negative revision', { version: 1, mode: 'frozen', paused: true, timeRate: 1, instant: instant(), revision: -1 }],
+    ['fractional revision', { version: 1, mode: 'frozen', paused: true, timeRate: 1, instant: instant(), revision: 1.5 }],
+    ['string revision', { version: 1, mode: 'frozen', paused: true, timeRate: 1, instant: instant(), revision: '1' }],
+    ['missing revision', { version: 1, mode: 'frozen', paused: true, timeRate: 1, instant: instant() }],
+    ['unsafe revision', { version: 1, mode: 'frozen', paused: true, timeRate: 1, instant: instant(), revision: Number.MAX_SAFE_INTEGER + 1 }],
+    ['NaN rate', { version: 1, mode: 'frozen', paused: true, timeRate: Number.NaN, instant: instant(), revision: 0 }],
+    ['infinite rate', { version: 1, mode: 'frozen', paused: true, timeRate: Number.POSITIVE_INFINITY, instant: instant(), revision: 0 }],
+    ['contradictory frozen state', { version: 1, mode: 'frozen', paused: false, timeRate: 1, instant: instant(), revision: 0 }],
+    ['invalid instant source', { version: 1, mode: 'frozen', paused: true, timeRate: 1, instant: { ...instant(), source: 'ambient' }, revision: 0 }],
+    ['disagreeing instant fields', { version: 1, mode: 'frozen', paused: true, timeRate: 1, instant: { ...instant(), unixMilliseconds: 0 }, revision: 0 }],
+    ['missing instant', { version: 1, mode: 'frozen', paused: true, timeRate: 1, revision: 0 }],
+    ['null', null],
+    ['scalar', 'clock'],
+  ])('rejects invalid runtime clock state: %s', (_name, value) => {
+    expect(() => validateSimulationClockState(value)).toThrowError(
+      expect.objectContaining({ code: 'INVALID_INSTANT' }),
+    );
+  });
+
   it('advances only through an explicit running tick and supports negative rates', () => {
     const clock = new SimulationClock(instant());
     expect(clock.tick(10_000)).toBe(clock.current);
@@ -85,6 +213,16 @@ describe('explicit simulation clock', () => {
     clock.setRate(0);
     const zeroRate = clock.current;
     expect(clock.tick(500)).toBe(zeroRate);
+  });
+
+  it('keeps semantic restoration and already-running transitions as revision no-ops', () => {
+    const clock = new SimulationClock(instant());
+    const initial = clock.current;
+    expect(clock.restore(JSON.parse(JSON.stringify(clock.serialize())))).toBe(initial);
+    expect(clock.current.revision).toBe(0);
+    const running = clock.startRealtime();
+    expect(clock.startRealtime()).toBe(running);
+    expect(clock.current.revision).toBe(1);
   });
 
   it.each([
@@ -164,15 +302,15 @@ describe('scientific configuration', () => {
   });
 
   it.each([
-    { version: 2 },
-    { version: 1, precisionTier: 'TIER_2', bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS', meanPoleModel: 'IAU_P03_PRECESSION_ONLY', refractionPolicy: 'disabled', enabledProviders: ['Astronomy Engine', 'P03 Mean Pole'] },
-    { version: 1, precisionTier: 'TIER_1', bodyCorrectionProfile: 'UNSUPPORTED', meanPoleModel: 'IAU_P03_PRECESSION_ONLY', refractionPolicy: 'disabled', enabledProviders: ['Astronomy Engine', 'P03 Mean Pole'] },
-    { version: 1, precisionTier: 'TIER_1', bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS', meanPoleModel: 'IAU_P03_PRECESSION_ONLY', refractionPolicy: 'normal', enabledProviders: ['Astronomy Engine', 'P03 Mean Pole'] },
-    { version: 1, precisionTier: 'TIER_1', bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS', meanPoleModel: 'OTHER', refractionPolicy: 'disabled', enabledProviders: ['Astronomy Engine', 'P03 Mean Pole'] },
-    { version: 1, precisionTier: 'TIER_1', bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS', meanPoleModel: 'IAU_P03_PRECESSION_ONLY', refractionPolicy: 'disabled', enabledProviders: ['Unknown', 'P03 Mean Pole'] },
-    { version: 1, precisionTier: 'TIER_1', bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS', meanPoleModel: 'IAU_P03_PRECESSION_ONLY', refractionPolicy: 'disabled', enabledProviders: ['Astronomy Engine', 'Astronomy Engine'] },
-    { version: 1, precisionTier: 'TIER_1', bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS', meanPoleModel: 'IAU_P03_PRECESSION_ONLY', refractionPolicy: 'disabled', enabledProviders: 'P03 Mean Pole' },
-    { version: 1, precisionTier: 'TIER_1', bodyCorrectionProfile: 'AE_APPARENT_TOPOCENTRIC_AIRLESS', meanPoleModel: 'IAU_P03_PRECESSION_ONLY', refractionPolicy: 'disabled' },
+    { ...serializedConfiguration(), version: 2 },
+    { ...serializedConfiguration(), precisionTier: 'TIER_2' },
+    { ...serializedConfiguration(), bodyCorrectionProfile: 'UNSUPPORTED' },
+    { ...serializedConfiguration(), refractionPolicy: 'normal' },
+    { ...serializedConfiguration(), meanPoleModel: 'OTHER' },
+    { ...serializedConfiguration(), enabledProviders: ['Unknown', 'P03 Mean Pole'] },
+    { ...serializedConfiguration(), enabledProviders: ['Astronomy Engine', 'Astronomy Engine'] },
+    { ...serializedConfiguration(), enabledProviders: 'P03 Mean Pole' },
+    (() => { const value = serializedConfiguration(); delete (value as { enabledProviders?: unknown }).enabledProviders; return value; })(),
     null,
     3,
   ])('rejects malformed scientific-configuration restoration payload %#', (serialized) => {
@@ -180,4 +318,28 @@ describe('scientific configuration', () => {
       expect.objectContaining({ code: 'UNSUPPORTED_CORRECTION_PROFILE' }),
     );
   });
+
+  it.each([
+    ['missing', (() => { const value = serializedConfiguration(); delete (value as { revision?: unknown }).revision; return value; })()],
+    ['negative', serializedConfiguration(-1)],
+    ['fractional', serializedConfiguration(1.5)],
+    ['string', serializedConfiguration('1')],
+    ['NaN', serializedConfiguration(Number.NaN)],
+    ['infinite', serializedConfiguration(Number.POSITIVE_INFINITY)],
+    ['null', serializedConfiguration(null)],
+    ['unsafe integer', serializedConfiguration(Number.MAX_SAFE_INTEGER + 1)],
+  ])('rejects an invalid serialized configuration revision: %s', (_name, serialized) => {
+    expect(() => new ScientificConfigurationStore().restore(serialized)).toThrowError(
+      expect.objectContaining({ code: 'INVALID_REVISION' }),
+    );
+  });
+
+  it.each([0, 7, Number.MAX_SAFE_INTEGER])(
+    'accepts safe non-negative serialized configuration revision %s',
+    (revision) => {
+      const store = new ScientificConfigurationStore();
+      expect(() => store.restore(serializedConfiguration(revision))).not.toThrow();
+      expect(store.current.revision).toBe(0);
+    },
+  );
 });
