@@ -4,43 +4,52 @@ This file contains exactly one bounded next task.
 
 ## Task
 
-**Title:** Re-run the Milestone 2A independent scientific integration gate
+**Title:** Implement the coherent Earth axis and celestial poles
 
 ## Recommended execution
 
 - **Codex model:** GPT-5.6 Sol Max
 - **Reasoning effort:** High
-- **Why:** an independent reviewer must verify scientific state, frame provenance, restoration, immutability, and cache invalidation without repairing the implementation.
-- **Branch:** `feature/milestone-2a-scientific-foundation`
+- **Why:** this is the first visible consumer of validated scientific snapshots and requires careful frame, observer-horizontal, presentation, and physical-XR review.
+- **Branch:** `feature/milestone-2b-earth-axis-poles`
 
 ## Objective
 
-Independently re-gate the local Milestone 2A remediation before any integration or visible celestial work.
+Implement the smallest calm visual layer that consumes a ready Milestone 2A scientific snapshot and presents one coherent P03 mean Earth axis with exact antipodal north and south celestial-pole endpoints.
 
-## Required review scope
+## Required scope
 
-- Verify accepted calibration events invalidate scientific snapshots even for equal yaw/origin; failed and cancelled captures do not.
-- Verify clock revisions are semantic/value-based while calibration revisions are accepted-event-based, and explicitly appear in cache identity.
-- Verify clocks own canonical immutable instant copies and that complete direct clock validation suppresses all provider work for malformed state.
-- Verify recursive immutability of configuration, snapshots, provenance, warnings, Earth-axis/equator vectors, and cache values without caller-owned aliases.
-- Verify restore paths reject malformed versions, modes, time values, safe-integer revisions, profiles, policies, models, providers, and provider arrays.
-- Verify P03 provider/version identity agrees across registry, provenance, snapshot, cache key, documentation, and tests.
-- Verify exact time-source/rate/accepted-calibration key coverage, true LRU recency, warning/error separation, and conditional MSL-versus-ellipsoid warning metadata/content.
-- Re-run `npm ci`, `npm run typecheck`, `npm run test`, `npm run build`, `git diff --check`, and `npm ls --depth=0`.
+- Consume the validated scientific snapshot; do not recompute P03 or create an independent pole model in presentation code.
+- Preserve the established tracking, room, calibrated geographic, scientific, horizontal, and presentation-frame boundaries.
+- Transform the shared mean axis into the observer-centered display contract with explicit tagged math and deterministic tests.
+- Add only one coherent axis line and its antipodal north/south pole endpoints, with restrained optional labels and an explicit below-horizon policy.
+- Keep calibration yaw at the existing geographic presentation parent; never rotate the XR camera, renderer, `local-floor`, room diagnostics, controllers, or scientific source coordinates.
+- Preserve minimal, calm, low-noise presentation and distinguish the selected P03 mean model from a true, CIP, observed, or instantaneous pole.
 
 ## Explicit exclusions
 
-- No implementation changes during independent review.
-- No Earth-axis/pole/equator/precession geometry, bodies, time/location UI, geolocation, media, or contemplative sequencing.
-- No merge, push, deployment, new dependency, workflow change, or Quest test unless a later explicit authorization follows a passing gate.
+- No celestial-equator geometry.
+- No precession trajectories, nutation, polar motion, Chandler wobble, or live EOP.
+- No Sun, Moon, planets, ecliptic, temporal clocks, observer/time UI, geolocation, media layers, relational circuits, contemplative sequencing, or new dependency.
+- No recomputation of provider/P03 results in Three.js or presentation code.
+- No deployment or physical Quest claim until separately authorized and observed.
+
+## Tests and validation
+
+- Prove axis/pole antipodes, unit length, frame tags, handedness, observer-latitude/horizon relationships, below-horizon continuity, and presentation-only calibrated-yaw application.
+- Prove missing/invalid snapshots create no partial celestial geometry and state changes replace rather than accumulate visual objects.
+- Preserve all 239 existing tests; run clean install, type-check, tests, build, diff, and dependency checks.
+- Verify the existing Milestone 0/1 desktop scene, simulation/reset, OrbitControls, resize, relative assets, and console remain healthy.
+- Prepare a bounded later Quest acceptance procedure for floor/up/north alignment, expected pole altitude, world locking, below-horizon behavior, readability, and comfort.
 
 ## Acceptance criteria
 
-1. All confirmed Milestone 2A gate findings are resolved by actual control flow and meaningful deterministic tests.
-2. The scientific state/cache contracts remain non-visual, frame-tagged, and Three.js-free.
-3. All automated checks pass with no dependency change or visible application change.
-4. Project records accurately distinguish local remediation from independent acceptance.
+1. One axis and two exact antipodal endpoints derive from the ready scientific snapshot.
+2. No P03 calculation or hidden scientific transform exists in presentation code.
+3. The selected model is labeled accurately and remains separate from true/CIP/polar-motion concepts.
+4. The layer preserves existing room/geographic/XR behavior and minimal visual design.
+5. Automated and desktop validation pass; Quest physical validation remains separately observed evidence.
 
 ## Stop conditions
 
-Stop and return one bounded remediation task if a stale snapshot can survive a meaningful input change, any nested result is mutable, restoration accepts unsupported runtime values, provider identity differs across boundaries, or a scientific/frame invariant is ambiguous.
+Stop if the snapshot lacks enough tagged information for a scientifically explicit observer-horizontal transform, the axis/pole relationship cannot be validated without broadening scope, a new dependency appears necessary, or the implementation would require equator, precession, body, temporal, media, relational, or contemplative work.

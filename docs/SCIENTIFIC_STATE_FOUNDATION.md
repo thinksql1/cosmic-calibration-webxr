@@ -2,7 +2,7 @@
 
 ## Status
 
-Milestone 2A implementation and its second bounded runtime-contract remediation are complete locally on `feature/milestone-2a-scientific-foundation`; an independent re-gate is still required. This is a non-visual, in-memory foundation. It does not create celestial geometry, UI, timers, network requests, persistence, or XR/controller behavior.
+Milestone 2A implementation and its second bounded runtime-contract remediation passed the final independent gate and are integrated into local `master`. Publication regression is pending. This is a non-visual, in-memory foundation. It does not create celestial geometry, UI, timers, network requests, persistence, or XR/controller behavior.
 
 ## Explicit state
 

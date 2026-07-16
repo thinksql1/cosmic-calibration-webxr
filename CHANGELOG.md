@@ -32,6 +32,10 @@
 
 ### Changed
 
+- Passed the final independent Milestone 2A scientific gate and integrated the retained 2A0 and
+  2A branches normally into local `master` with merge commits `1757781` and `6fcaa33`. Merged
+  validation passes 239 tests, type-check, production build, diff, and dependency checks; no
+  visible celestial geometry was introduced and publication remains pending.
 - Recorded the second independent Milestone 2A gate failure and completed its bounded local remediation: clocks now own canonical immutable instants, direct malformed clock state cannot invoke providers, configuration revisions are runtime-validated, cache identity includes time source/rate and explicit accepted-capture identity, equator normals are owned, and the datum warning is conditional with frozen provenance metadata. Independent re-gating remains required; no visible celestial behavior, merge, push, or deployment occurred.
 - The first Milestone 2A remediation established accepted-event invalidation, value-based clock revisions, nested snapshot isolation, strict supported-profile restoration, unified P03 provider identity at `1.0.0`, and true-LRU evidence; its subsequent independent gate exposed the remaining bounded runtime contracts above.
 - Hardened the WebXR session controller so an acquired session is owned and subscribed before renderer binding.
