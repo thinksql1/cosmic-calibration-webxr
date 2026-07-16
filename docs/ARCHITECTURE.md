@@ -51,9 +51,39 @@ Error states remain recoverable calibration attempts. Cancel restores the prior 
 
 `src/xr/controllerCalibration.ts` prepares Three.js target-ray spaces for indices 0 and 1 before session binding so connection events are observable. It accepts either left or right `tracked-pointer` input and deliberately excludes hand input.
 
-During calibration only, each usable connected controller shows a restrained 1.8 m target-ray line. A 300 ms arming delay prevents the UI action that begins calibration from also becoming the capture action. A later `select` event resolves controller target-ray forward as local `-Z` transformed by its world quaternion, then calls the shared calibration state/math path. Successful capture immediately leaves calibration mode, suppressing duplicate select capture. Session end removes listeners, controller objects, and rays and clears transient calibration.
+The interaction coordinator distinguishes uncalibrated idle, calibrated idle,
+`awaiting-release`, ready-to-capture, capture processing, calibrated success, recoverable error,
+cancellation, and reset. From either idle state, a controller `selectstart` begins calibration and
+the completed first action only arms capture. Capture cannot occur until its `selectend`, and a
+second controller cannot bypass that global release gate. A later completed primary action
+captures once. While calibrating, squeeze cancels; a deliberate 1.2-second primary hold is the
+no-squeeze fallback. From calibrated idle, short primary/squeeze begins recalibration and a
+deliberate long primary/squeeze resets. The state transitions, not a debounce timeout, enforce
+start/capture separation and duplicate suppression.
 
-DOM overlay is optional in the XR session request. `local-floor` remains the sole required feature.
+During calibration, each usable controller shows a restrained 1.8 m aiming ray. Without DOM
+overlay, a controller-attached canvas sprite provides instructions, with a world-space fallback
+when controller tracking cannot render that sprite. Capture synchronously calls
+`event.frame.getPose(event.inputSource.targetRaySpace, activeReferenceSpace)` during the native
+XR `select` event. It requires the exact connected input source, a current pose, a visible Three.js
+target-ray group, and finite pose data. The pose quaternion rotates local `-Z`; no retained
+Three.js world transform is accepted as proof of current tracking. A transform can remain stale
+or default after pose loss, while an identity quaternion returned by a valid current XR pose is
+legitimate.
+
+Missing, disconnected, invisible, non-finite, or nearly vertical input leaves calibration in a
+recoverable error state and does not replace the rollback calibration. A successful capture is
+the only operation that replaces the previous calibration.
+
+Native input listeners are attached only after Three.js renderer binding succeeds, because
+Three.js first updates its controller target-ray state from that XR event. Session end removes
+native input and overlay listeners. Binding and overlay setup are no-ops after manager
+deactivation, preventing late renderer-binding continuation from reattaching listeners.
+
+DOM overlay is optional in the XR session request. When present, every interactive overlay
+control cancels `beforexrselect`; the DOM action remains available while the browser suppresses
+the paired XR select sequence. Controller events outside the overlay remain functional.
+`local-floor` remains the sole required feature.
 
 ## Geographic-reference rendering
 
@@ -65,7 +95,9 @@ The existing horizon ring and zenith/nadir line stay in the room/floor group and
 
 `src/main.ts` maps calibration state to the panel, buttons, geographic group, and controller rays. Desktop simulation converts a clockwise bearing—`0°` north, `90°` east, `180°` south, `270°` west—to a horizontal vector and calls the same state/math functions used by physical capture. It contains no separate yaw logic.
 
-The panel exposes uncalibrated, calibrating, calibrated, and readable error states; yaw is labelled as a diagnostic. Recalibration replaces the previous result, cancel restores it, and reset removes it.
+The panel exposes uncalibrated, awaiting-release, ready, calibrated, and readable recoverable
+error states; yaw is labelled as a diagnostic. Recalibration replaces the previous result only
+after valid capture, cancel restores it, and reset removes it.
 
 ## Session and persistence lifecycle
 

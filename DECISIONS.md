@@ -65,6 +65,19 @@
 - **Decision:** Unrotated application north is local `-Z`, east is local `+X`, and physical north calibration applies signed Y-axis yaw only to a dedicated geographic-reference group. The room/floor frame, XR camera, renderer, controllers, and future scientific source coordinates are not rotated by calibration.
 - **Rationale:** An explicit tested convention prevents visual trial-and-error from becoming an implicit scientific coordinate rule and keeps future astronomy data traceable.
 
+### DEC-010: Keep north calibration operable without DOM overlay
+- **Date:** 2026-07-15
+- **Status:** Accepted
+- **Owner:** Darrell Wright / project control
+- **Decision:** DOM overlay is an optional enhancement. Standard tracked-controller events provide
+  the complete north-calibration flow: an initial completed primary action begins and arms
+  calibration, a later primary action captures an exact current-event target-ray pose, squeeze or
+  deliberate holds provide cancel/recalibrate/reset actions, and overlay controls cancel
+  `beforexrselect` to avoid dual DOM/XR actions.
+- **Rationale:** Optional WebXR features cannot be the only path to a required in-headset task.
+  Explicit release gating separates start from capture, current-event pose proof prevents stale
+  headings, and overlay isolation keeps both interaction paths coherent.
+
 ## Proposed decisions awaiting review
 
 None yet.

@@ -42,21 +42,38 @@ See [Architecture](docs/ARCHITECTURE.md) and [Calibration](docs/CALIBRATION.md) 
 
 ## Physical north-marker workflow
 
-Milestone 1 assumes the physical marker already represents true north.
+Milestone 1 assumes the physical marker already represents true north. DOM overlay is an
+optional enhancement; calibration remains operable with standard tracked-controller events
+when the overlay is absent.
 
 1. Establish a safe standing/room-scale Quest boundary and correct physical floor.
 2. Stand at the chosen physical origin marker and enter AR.
-3. Select **Calibrate North**.
-4. Point either tracked controller at the true-north marker while holding the target ray approximately level.
-5. Press that controller’s trigger/select action once.
-6. Verify the N/S/E/W group, diagnostic yaw, and physical marker alignment.
-7. Use **Recalibrate North** to replace the result or **Reset North** to return to an explicitly uncalibrated state.
+3. Use **Calibrate North** in the optional overlay, or press and release either controller
+   trigger once. This first controller action begins calibration but cannot capture.
+4. Point either tracked controller at the true-north marker while holding its target ray
+   approximately level.
+5. Press and release that controller’s trigger again to capture.
+6. Squeeze while calibrating to cancel. Holding the trigger for at least 1.2 seconds is the
+   no-squeeze cancel fallback.
+7. From a saved calibration, press/release trigger or short-squeeze to recalibrate; long-hold
+   trigger or squeeze for at least 1.2 seconds to reset.
+8. Verify the N/S/E/W group, diagnostic yaw, and physical marker alignment.
 
-Target rays are visible only during active calibration for usable tracked controllers. A ray with horizontal magnitude below `0.25` is rejected because it is within roughly `14.5°` of vertical and cannot provide a stable horizontal bearing.
+Target rays are visible only during active calibration for usable tracked controllers. When
+DOM overlay is unavailable, controller-attached instructions and a world-space fallback convey
+the active state. Capture uses the exact `XRInputSourceEvent` frame and active reference space;
+a missing, invisible, disconnected, stale/default-only, non-finite, or nearly vertical pose is
+rejected without replacing a prior accepted calibration. A ray with horizontal magnitude below
+`0.25` is rejected because it is within roughly `14.5°` of vertical and cannot provide a stable
+horizontal bearing.
 
 ## Session and persistence limits
 
-Immersive AR still requires `local-floor`; DOM overlay is requested only as an optional feature for calibration controls. Acquired-session ownership, renderer binding, cleanup, and duplicate-start protection remain unchanged.
+Immersive AR still requires `local-floor`; DOM overlay is requested only as an optional feature
+for calibration controls. Interactive overlay controls cancel `beforexrselect` so a DOM action
+cannot also become an XR capture. Those listeners and the native controller-event listeners are
+removed on session cleanup. Acquired-session ownership, renderer binding, cleanup, and
+duplicate-start protection remain unchanged.
 
 Calibration is in memory only. Reloading, session exit, boundary reset, room change, or tracking-origin change requires deliberate recalibration. Recenter behavior must be checked physically; a displayed yaw is a room-relative diagnostic, not magnetic heading or scientific data.
 

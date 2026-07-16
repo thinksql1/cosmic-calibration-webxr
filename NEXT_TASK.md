@@ -4,73 +4,44 @@ This file contains exactly one bounded next task.
 
 ## Task
 
-**Title:** Run the Milestone 1 physical north-calibration acceptance test
+**Title:** Re-run the Milestone 1 independent integration gate
 
 ## Why this is next
 
-Milestone 1 north-marker calibration passes automated validation and desktop simulation on `feature/milestone-1-north-calibration`. Physical Quest behavior—controller detection, optional DOM overlay, target-ray capture, marker alignment, and tracking-origin changes—cannot be established without a deployed HTTPS build and a Quest 3.
-
-## Recommended execution
-
-**Model:** GPT-5.6 Sol
-
-**Reasoning effort:** High
-
-**Mode:** Guided physical-device validation
-
-**Thread:** Main control thread
+The first gate found three material XR-input defects. The feature branch now includes bounded
+remediation for controller-only calibration, exact current-event target-ray pose validation, and
+DOM-overlay `beforexrselect` isolation. Those changes require independent inspection and
+reproduction before integration, publication, or physical Quest acceptance.
 
 ## Objective
 
-After separate authorization to publish the exact feature commit, execute the Milestone 1 checklist in `docs/QUEST_TESTING.md` against a deliberately established true-north marker and record PASS, FAIL, UNCERTAIN, or NOT RUN evidence without changing application code during the test.
+Independently review the complete Milestone 1 branch and the remediation diff, reproduce all
+automated and desktop checks, and confirm that no blocking or material finding remains.
 
 ## Required work
 
-1. Obtain explicit authorization before merge, push, or deployment; record the deployed URL and exact commit.
-2. Establish a safe standing/room-scale boundary, correct Quest floor, standing origin marker, and externally determined true-north marker.
-3. Verify available tracked controllers, calibration-only ray visibility, and readable in-headset controls.
-4. Verify nearly vertical target-ray rejection and successful level-controller trigger capture with either hand where available.
-5. Compare N against the physical marker; verify S opposite, E/W perpendicular, room/floor geometry unchanged, and world locking stable.
-6. Verify duplicate capture suppression, recalibration replacement, cancel restoration, and reset to uncalibrated.
-7. Record exit/re-entry and recenter invalidation behavior; require deliberate recalibration.
-8. Record Quest model, OS, Browser, room setup, controller handedness, approximate alignment error, comfort, and privacy-safe evidence.
-9. Reconcile project state only from observed physical results.
+1. Review the feature against its Milestone 0 baseline and inspect the remediation separately.
+2. Verify the controller-only begin, release, capture, cancel, recalibrate, reset, feedback, and
+   cross-controller gating paths from actual control flow.
+3. Verify capture requires the exact current input-event frame pose and rejects missing,
+   stale/default-only, disconnected, invisible, non-finite, and nearly vertical inputs.
+4. Verify failed recalibration preserves the prior accepted calibration.
+5. Verify interactive overlay controls cancel `beforexrselect`, outside-overlay controller input
+   remains functional, and all session/overlay listeners are cleaned up, including late binding.
+6. Re-run clean install, type-check, all tests, production build, diff check, and dependency review.
+7. Inspect development and production-preview desktop behavior, simulation, controls, resize,
+   relative assets, and browser console.
+8. Confirm documentation matches actual behavior and physical Quest validation remains NOT RUN.
+9. Integrate, publish, or begin physical validation only under separate explicit authorization.
 
 ## Acceptance rules
 
-- **PASS:** All critical calibration, alignment, stability, lifecycle, and recovery criteria pass with physical evidence.
-- **FAIL:** A repeatable implementation defect prevents trustworthy physical-north alignment or recovery.
-- **UNCERTAIN:** Setup, marker accuracy, browser behavior, or evidence is insufficient to distinguish application behavior.
+- **PASS:** No blocking or material finding remains and all required local validation passes.
+- **FAIL:** Any input race, invalid-pose capture, overlay collision, regression, unsupported claim,
+  or validation failure remains; return one bounded remediation task and do not integrate.
 
 ## Prohibited scope
 
-- Do not infer physical PASS from automated or desktop simulation results.
-- Do not implement fixes during acceptance testing; record findings and create one bounded remediation task if needed.
-- Do not add astronomy, geolocation, compass, magnetic correction, persistence, spatial anchors, or other deferred features.
-
-## Stop conditions
-
-- Publication authorization, exact commit, safe physical setup, or trusted true-north marker is unavailable.
-- The test would require destructive Git operations or scope expansion.
-
-## Expected return format
-
-```text
-Objective:
-Status: Complete | Partial | Blocked
-
-Quest evidence:
-- Controllers:
-- Ray visibility:
-- Invalid-direction rejection:
-- North-marker alignment:
-- Cardinal geometry:
-- Recalibration/cancel/reset:
-- Exit/re-entry/recenter:
-- Stability/comfort:
-
-Milestone 1 result: PASS | CONDITIONAL PASS | FAIL
-
-Exact next task:
-- <one bounded task>
-```
+- Do not infer physical Quest PASS from source, tests, or desktop behavior.
+- Do not begin Milestone 2, astronomy, geolocation, magnetic correction, persistence, or anchors.
+- Do not merge, push, deploy, or test on Quest without the authorization required by the gate task.

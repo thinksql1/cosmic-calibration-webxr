@@ -40,6 +40,18 @@ const desktopSimulation = requireElement<HTMLDivElement>('#desktop-simulation');
 const bearingInput = requireElement<HTMLInputElement>('#simulated-bearing');
 const bearingOutput = requireElement<HTMLOutputElement>('#bearing-output');
 const simulateNorthButton = requireElement<HTMLButtonElement>('#simulate-north');
+const bearingPresetButtons = [
+  ...document.querySelectorAll<HTMLButtonElement>('[data-bearing]'),
+];
+const domOverlayControls: EventTarget[] = [
+  enterArButton,
+  calibrateButton,
+  cancelCalibrationButton,
+  resetNorthButton,
+  bearingInput,
+  simulateNorthButton,
+  ...bearingPresetButtons,
+];
 
 const desktopBackground = new THREE.Color(0x071014);
 const scene = createReferenceScene();
@@ -122,6 +134,7 @@ function formatYaw(yawRadians: number): string {
 function renderCalibrationState(state: NorthCalibrationState): void {
   const xrActive = currentXrState.kind === 'session-active';
   const calibrationActive = isCalibrationActive(state);
+  const interaction = controllerManager?.currentInteraction;
   applyCalibrationToGeographicGroup(geographicReference, state);
   controllerManager?.updateRayVisibility();
   document.body.dataset.northState = state.kind;
@@ -129,17 +142,21 @@ function renderCalibrationState(state: NorthCalibrationState): void {
   if (state.kind === 'uncalibrated') {
     calibrationStatus.textContent = 'North not calibrated.';
     calibrationDetail.textContent = xrActive
-      ? 'Stand at the physical origin, then begin calibration.'
+      ? interaction?.kind === 'reset'
+        ? 'North reset. Press and release either controller trigger to begin again.'
+        : 'Press and release either controller trigger once to begin calibration. The first press only arms capture.'
       : 'Enter AR for physical calibration or use the desktop simulation.';
   } else if (state.kind === 'calibrating') {
     calibrationStatus.textContent = 'North calibration active.';
     calibrationDetail.textContent =
-      'Point either controller at the true-north marker, hold it approximately level, and press the trigger.';
+      interaction?.kind === 'awaiting-release'
+        ? 'Release the starting trigger. A later deliberate trigger press captures north.'
+        : 'Point either tracked controller at true north and press its trigger. Squeeze cancels; holding trigger for 1.2 seconds is the no-squeeze cancel fallback.';
   } else if (state.kind === 'calibrated') {
     calibrationStatus.textContent = state.calibration.simulated
       ? 'North calibrated (desktop simulation).'
       : 'North calibrated.';
-    calibrationDetail.textContent = `Geographic-group yaw: ${formatYaw(state.calibration.yawRadians)}. Recalibrate after recentering, changing rooms, or resetting the boundary.`;
+    calibrationDetail.textContent = `Geographic-group yaw: ${formatYaw(state.calibration.yawRadians)}. Trigger starts recalibration; hold trigger or grip for 1.2 seconds to reset. Recalibrate after recentering, changing rooms, or resetting the boundary.`;
   } else {
     calibrationStatus.textContent =
       state.kind === 'controller-unavailable'
@@ -147,7 +164,9 @@ function renderCalibrationState(state: NorthCalibrationState): void {
         : state.kind === 'invalid-direction'
           ? 'Direction not usable.'
           : 'North capture failed.';
-    calibrationDetail.textContent = state.message;
+    calibrationDetail.textContent = state.previousCalibration
+      ? `${state.message} Squeeze or hold trigger to cancel and restore the prior accepted calibration.`
+      : state.message;
   }
 
   calibrateButton.hidden = !xrActive || calibrationActive;
@@ -162,8 +181,12 @@ northCalibration.subscribe(renderCalibrationState);
 controllerManager = new NorthCalibrationControllerManager(
   scene,
   (index) => renderer.xr.getController(index),
+  () => renderer.xr.getReferenceSpace(),
   northCalibration,
 );
+controllerManager.subscribeInteraction(() => {
+  renderCalibrationState(northCalibration.current);
+});
 
 const browserXr = navigator.xr;
 const xrApi = browserXr
@@ -180,7 +203,13 @@ if (xrApi) {
   sessionController = new ImmersiveArSessionController(
     xrApi,
     async (session: ImmersiveArSession) => {
-      await renderer.xr.setSession(session as XRSession);
+      const xrSession = session as XRSession;
+      await renderer.xr.setSession(xrSession);
+      controllerManager?.bindSession(xrSession);
+      controllerManager?.configureDomOverlay(
+        domOverlayControls,
+        Boolean(xrSession.domOverlayState),
+      );
     },
     renderState,
     (phase, error) => {
@@ -203,11 +232,11 @@ calibrateButton.addEventListener('click', () => {
 });
 
 cancelCalibrationButton.addEventListener('click', () => {
-  northCalibration.cancel();
+  controllerManager?.cancelCalibration();
 });
 
 resetNorthButton.addEventListener('click', () => {
-  northCalibration.reset();
+  controllerManager?.resetCalibration();
 });
 
 function updateBearingOutput(): void {
@@ -224,7 +253,7 @@ bearingInput.addEventListener('input', updateBearingOutput);
 simulateNorthButton.addEventListener('click', () => {
   simulateBearing(Number(bearingInput.value));
 });
-document.querySelectorAll<HTMLButtonElement>('[data-bearing]').forEach((button) => {
+bearingPresetButtons.forEach((button) => {
   button.addEventListener('click', () => {
     simulateBearing(Number(button.dataset.bearing));
   });
