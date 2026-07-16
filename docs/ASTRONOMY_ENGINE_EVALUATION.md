@@ -5,17 +5,47 @@ register](OFFICIAL_ASTRONOMY_SOURCES.md).
 
 ## Decision
 
-**Recommendation: adopt Astronomy Engine with validation wrappers.**
+**Decision: adopt Astronomy Engine `2.1.19` with validation wrappers for the bounded Tier 1
+operations proven by Milestone 2A0.**
 
-The evaluated package metadata reports `astronomy-engine` `2.1.19`, Donald Cross as author, MIT
-licensing, ESM and TypeScript declarations, and no side effects. No package was installed during
-this architecture task. The exact version must be rechecked and pinned when implementation is
-authorized.
+The official npm and repository metadata identify `astronomy-engine` `2.1.19`, Donald Cross as
+author, MIT licensing, CommonJS/ESM/browser entry points, bundled TypeScript declarations, no
+declared package dependencies, and `sideEffects: false`. Milestone 2A0 installed that exact
+version and pinned it in the lockfile. Registry metadata reports `1,838,627` unpacked bytes. The
+installed tarball declares MIT in `package.json` but does not contain a standalone license file;
+future distribution must preserve the upstream repository notice. No
+other package was added or upgraded; unpacked package size is not treated as a browser-bundle
+measurement.
 
 Astronomy Engine is recommended for browser-level ephemerides, observer-relative Sun/Moon/planet
 positions, supported event searches, and its documented coordinate transforms. It is not the sole
 authority for Earth orientation, a precession-only mean pole, long-term precession trajectories,
 UT1, polar motion, or a combined product accuracy claim.
+
+## Milestone 2A0 measured result
+
+- The official ESM/types import passes TypeScript `7.0.2` and Vite `8.1.4`.
+- A no-write Vite/Oxc library-mode check bundles the adapter and provider as one ESM chunk with no
+  remaining imports (`75,901` bytes minified, `25,178` bytes gzip); this is a compatibility datum,
+  not the future production bundle size.
+- Raw imports are isolated to `src/science/astronomy/astronomyEngineAdapter.ts`.
+- Observer longitude is east-positive; provider elevation is explicitly mean-sea-level meters.
+- `Equator(..., true, true)` is exposed only as topocentric `EQD_TRUE`; it is never relabelled as
+  a precession-only mean result.
+- `Horizon` north-zero/east-positive azimuth is converted to canonical ENU with pure basis tests.
+- Three frozen Sun/Moon cases agree with NASA/JPL Horizons DE441 within the predeclared `0.02
+  degrees` limit; the largest coordinate difference is `0.008280 degrees` and the largest
+  directional angular separation is `0.001276 degrees`. The ellipsoid/MSL height-datum mismatch
+  is tagged and is not represented as a geoid conversion or exact same-observer comparison.
+- Airless and `normal` refraction are separate profiles; below-horizon results are preserved.
+- The provider-apparent label enumerates light-time, parallax, aberration, precession, and
+  nutation; it does not claim an undocumented gravitational-deflection correction.
+- A separate application-owned P03 provider, not Astronomy Engine, reproduces the IAU SOFA
+  `pmat06` matrix fixture and frozen mean-pole vectors.
+- The production entry point does not yet consume the science modules, so the emitted 574.29 kB
+  application/Three.js chunk is unchanged and no visible runtime behavior was added.
+
+The implemented contract is detailed in [Astronomy Adapter Contract](ASTRONOMY_ADAPTER_CONTRACT.md).
 
 ## Evaluation matrix
 
@@ -36,14 +66,14 @@ UT1, polar motion, or a combined product accuracy claim.
 | Rise/set | Supported, including elevated-observer options in current releases | Future solar/lunar event annotations | Event definitions and refraction/limb choices must be displayed and tested |
 | Lunar phase | `MoonPhase`, `SearchMoonPhase`, and quarter searches are supported | Future phase symbols and cycle endpoint search | Phase is geocentric elongation; it is not a circular sky path |
 | UTC/time handling | `AstroTime` accepts JavaScript `Date`/UTC | Runtime astronomy instant | Library approximates UT1 = UTC and supplies its own TT/delta-T model |
-| JavaScript/TypeScript | Browser and Node builds plus declarations | Compatible with Vite/static hosting | Bundle impact must be measured on Quest after installation |
+| JavaScript/TypeScript | Browser and Node builds plus declarations | Compatible with Vite/static hosting | Bundle/runtime impact must be measured when the provider enters the production path and later on Quest |
 | Browser/static hosting | Explicitly supported, no server required | Compatible with GitHub Pages | No online astronomy service should be needed at runtime |
 | License | MIT | Acceptable in principle | Preserve notice and record exact dependency version |
 | Deterministic tests | Library is deterministic for fixed inputs; upstream describes cross-language/reference validation | Offline test fixtures | Project tests must not depend on current time or live network responses |
 
 ## Why the recommendation is not unqualified adoption
 
-### 1. Pole-model gap
+### 1. Pole-model gap and resolution
 
 The public frame list distinguishes J2000 mean equator (`EQJ`) from true equator of date (`EQD`).
 It does not document a mean-equator-of-date transform that cleanly exposes precession without
@@ -52,8 +82,10 @@ nutation into that path and violate the product requirement.
 
 `RotationAxis(Body.Earth, time)` is documented as a body rotational-elements calculation in
 J2000 coordinates. It must not be assumed to be the IAU 2006 mean pole or the IAU 2006/2000A
-Celestial Intermediate Pole. The first implementation task must prove its semantics or reject it
-for this purpose.
+Celestial Intermediate Pole. Milestone 2A0 did not use it. Instead, the application now owns a
+direct P03 bias-precession provider validated against IAU SOFA `pmat06`. This resolves the bounded
+mean-axis contract without pretending Astronomy Engine exposes that quantity. Full-cycle
+precession trajectories remain unresolved and separately gated.
 
 ### 2. Earth-orientation gap
 
@@ -112,9 +144,11 @@ placement, and time-label errors remain separate and may dominate.
   settings.
 - NOVAS: an additional independent apparent/topocentric reference where practical.
 
-## Proposed adapter boundary
+## Implemented adapter boundary and next-foundation target
 
-This is a contract proposal, not code:
+Milestone 2A0 implements immutable instant/observer inputs and tagged equatorial/horizontal
+results. The following facade is the Milestone 2A target, not current 2A0 behavior; revisioned
+snapshots, caching, and event schedules remain unimplemented:
 
 ```text
 SimulationSnapshot + ObserverState + CorrectionProfile
@@ -136,18 +170,20 @@ TaggedHorizontalDirection
     observerRevision, timeRevision, provenance
 ```
 
-Wrapper rules:
+Current and target wrapper rules:
 
 1. No untagged numeric vector crosses the provider boundary.
 2. Degrees, radians, sidereal hours, AU, meters, and unit vectors are distinct at the type and test
    boundary.
 3. A correction is never implied by a generic name such as `apparent` without an enumerated
    profile.
-4. The wrapper rejects non-finite values, impossible observer inputs, mismatched timestamps, and
-   unknown frame tags.
-5. All calculations in one scene update consume the same immutable simulation snapshot.
-6. Provider results are cached by observer revision, time revision, body, frame, and correction
-   profile, never by render frame alone.
+4. Current factories reject non-finite/impossible observer and instant values; current runtime
+   boundaries reject unsupported correction and mean-pole frame contracts. Snapshot mismatch
+   rejection is not yet implemented.
+5. **Milestone 2A target:** all calculations in one scene update consume the same immutable
+   simulation snapshot.
+6. **Milestone 2A target:** results are cached by observer revision, time revision, body, frame,
+   model, provider version, and correction profile, never by render frame alone.
 
 ## Comparison with credible alternatives
 
@@ -170,21 +206,25 @@ not a deterministic offline browser library. Both are excellent independent comp
 
 **Decision:** use them as bounded reference evidence, not production runtime services.
 
-## Adoption gates
+## Adoption gates and disposition
 
-Astronomy Engine may be added only in a later authorized implementation task after all of these
-pass:
+Milestone 2A0 evaluated the gates as follows:
 
-1. Exact version and MIT notice are recorded.
-2. Clean browser bundle and TypeScript import are proven without adding unrelated dependencies.
-3. Fixed observer/time Sun and Moon cases reproduce versioned Horizons fixtures within a
-   predeclared per-case tolerance.
-4. `EQJ -> HOR -> canonical ENU -> Three.js` basis vectors and round trips pass pure tests.
-5. True `EQD` behavior is compared with SOFA/NOVAS fixtures and named accurately.
-6. A precession-only mean-pole provider is either demonstrated and validated or explicitly kept
-   unavailable; no fallback decorative path is allowed.
-7. UT1=UTC and delta-T limitations are exposed in the precision tier.
-8. Bundle size and production build remain acceptable enough to proceed to Quest measurement.
+1. **PASS:** exact package/version and MIT license are recorded.
+2. **PASS:** ESM/types/build work with no added transitive package; no unrelated dependency changed.
+3. **PASS:** fixed Sun and Moon cases pass predeclared JPL Horizons tolerances.
+4. **PASS for the implemented path:** provider azimuth/altitude to canonical ENU and separate
+   `(east, up, -north)` presentation mapping pass basis tests. The adapter uses `EQD_TRUE` rather
+   than disguising it as `EQJ`.
+5. **PASS for naming and JPL comparison:** true `EQD` is tagged and tested. A broader SOFA/NOVAS
+   true-frame corpus remains a Tier 2 gate.
+6. **PASS:** the direct P03 precession-only provider reproduces SOFA evidence; no decorative or
+   nutation-inclusive fallback exists.
+7. **PASS:** `UTC_APPROXIMATES_UT1`, TT, and the Espenak-Meeus delta-T policy are explicit.
+8. **PASS for this non-visual spike:** production build passes and remains unchanged because the
+   modules are not imported by the application entry point. Physical performance remains a later
+   visible-feature check.
 
-Failure of gate 6 blocks the precession-path milestone, not the use of Astronomy Engine for
-Sun/Moon/planet positions.
+Astronomy Engine adoption is therefore **validated for the named Tier 1 adapter operations**.
+Every new body, event, frame, refraction mode, or precision promotion still requires a bounded
+profile and independent fixture review.

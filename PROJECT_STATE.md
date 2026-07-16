@@ -4,11 +4,12 @@
 
 **Updated by:** Codex / project control
 
-**Current phase:** Milestone 2 architecture complete; astronomy-adapter validation pending
+**Current phase:** Milestone 2A0 scientific adapter/pole contract validated; Milestone 2A foundation next
 
-**Overall status:** **Milestone 1 COMPLETE.** Automated, desktop, hosted, and reported physical
-Quest 3 acceptance validation pass. Milestone 2 architecture and sequencing are defined from
-official/primary research; no celestial implementation or astronomy dependency has started.
+**Overall status:** **Milestone 1 COMPLETE; Milestone 2A0 PASS.** Automated, desktop, hosted, and
+reported physical Quest 3 Milestone 1 acceptance validation pass. The non-visual Milestone 2A0
+adapter and P03 mean-pole contracts pass bounded JPL/SOFA reference gates. No visible celestial
+feature, merge, push, deployment, or Quest celestial behavior exists.
 
 ## One-paragraph state summary
 
@@ -29,21 +30,26 @@ controller-based north capture, coherent N/S/E/W geometry, world locking, floor 
 cancel/recalibrate/reset, and session lifecycle were usable with no blocking defect observed.
 Milestone 1 is complete. This establishes physical usability for the tested flow, not
 laboratory-grade angular accuracy, broad device coverage, or unreported edge-case outcomes.
-Milestone 2 planning now defines explicit scientific frames, an adopt-with-validation-wrappers
-Astronomy Engine boundary, a single UTC simulation clock, a P03 precession-only mean structural
-axis target, sampled rather than decorative precession paths, independently optional solar/lunar
-temporal layers, precision tiers, error sources, validation gates, and a conservative delivery
-sequence. Because the public library interface does not establish the required precession-only
-mean-pole transform, the next task is a non-visual adapter and pole-model validation spike.
+Milestone 2 planning defines explicit scientific frames, a single UTC simulation clock, sampled
+rather than decorative precession paths, independently optional solar/lunar temporal layers,
+precision tiers, error sources, validation gates, and a conservative delivery sequence. Milestone
+2A0 now pins `astronomy-engine@2.1.19` behind application-owned contracts, validates apparent
+topocentric Sun/Moon and canonical ENU against three NASA/JPL Horizons DE441 fixtures, and
+validates an application-owned IAU P03 precession-only mean-pole provider against the full IAU
+SOFA `pmat06` matrix fixture plus J2000/present/future pole vectors. The provider uses explicit TT,
+keeps mean and true frames distinct, derives south by exact negation, and exposes the same axis as
+the future equator normal. All 135 tests, type-check, and the unchanged production build pass. The
+next task is the production-quality non-visual observer/snapshot/provider/cache foundation.
 
 ## Working and verified
 
 - `npm ci`: passed from the committed lockfile.
 - `npm run typecheck`: passed with TypeScript `7.0.2`.
-- Current `npm run test`: 3 files and 66 tests passed with Vitest `4.1.10`.
+- Current `npm run test`: 8 files and 135 tests passed with Vitest `4.1.10`.
 - `npm run build`: passed with Vite `8.1.4`; `dist/` contains relative `./assets/...` references.
-- Current remediation `git diff --check` and `npm ls --depth=0`: passed; no dependency or
-  workflow file changed. Earlier Milestone 0 integration checks also passed on `master`.
+- Current Milestone 2A0 `git diff --check` and `npm ls --depth=0`: passed; exact
+  `astronomy-engine@2.1.19` is the only dependency delta and no workflow changed. Earlier
+  Milestone 0/1 integration checks also passed on `master`.
 - Independent Milestone 0 re-gate: no blocking or material findings; implementation/workflow gate passed, with overall result **CONDITIONAL PASS** solely because physical Quest validation is pending.
 - Desktop development scene rendered with origin, X/Y/Z axes, floor ring, and zenith/nadir line.
 - OrbitControls interaction changed the camera view; resize updated the canvas to the tested viewport; unsupported WebXR messaging remained readable with no console errors or warnings.
@@ -89,6 +95,25 @@ mean-pole transform, the next task is a non-visual adapter and pole-model valida
 - Architecture validation confirms scope is documentation-only: no runtime/source/test/package,
   lockfile, workflow, Vite, or deployment configuration was changed, and no dependency was
   installed.
+- Milestone 2A0 package verification: official `astronomy-engine@2.1.19`, MIT, ESM/CommonJS/browser
+  exports, bundled TypeScript declarations, no declared package dependencies, and one exact pinned
+  runtime dependency change. The tarball declares MIT but has no standalone license file, so a
+  future distributing bundle must preserve the upstream repository notice.
+- Milestone 2A0 adapter validation: three NASA/JPL Horizons DE441 airless apparent topocentric
+  Sun/Moon fixtures pass the predeclared `0.02 degrees` threshold; maximum measured coordinate
+  difference is `0.008280 degrees` and maximum directional separation is `0.001276 degrees`.
+  Each fixture discloses the Horizons ellipsoid-height versus Astronomy Engine mean-sea-level
+  height mismatch. Northern, southern, equatorial, solstice/equinox-date, ordinary, and
+  below-horizon evidence is represented.
+- Milestone 2A0 mean-axis validation: all nine IAU SOFA `pmat06` matrix components and four frozen
+  P03 pole vectors pass `1e-12` component thresholds; north/south exact antipodes,
+  mean-equator-axis perpendicularity, continuity, determinism, mean/true tags, and domain rejection
+  pass.
+- Current local scientific validation: `npm run typecheck` PASS, 8 files / 135 tests PASS, and
+  `npm run build` PASS. The entry point does not import the science spike, so the emitted 574.29 kB
+  application/Three.js chunk and visible Milestone 1 behavior are unchanged. A separate no-write
+  Vite/Oxc adapter bundle check passed at 75,901 bytes minified / 25,178 bytes gzip with no external
+  imports; this is compatibility evidence, not a production-size promise.
 
 ## Implemented but not fully verified
 
@@ -111,14 +136,14 @@ mean-pole transform, the next task is a non-visual adapter and pole-model valida
 
 ## In progress
 
-- No implementation is in progress. The completed Milestone 2 architecture checkpoint is ready
-  for review; the next authorized work is the bounded non-visual validation spike in
-  `NEXT_TASK.md`.
+- Milestone 2A0 implementation and local validation are complete on
+  `feature/milestone-2a0-astronomy-validation`. Independent review/integration is not part of this
+  task. `NEXT_TASK.md` defines the next bounded non-visual Milestone 2A foundation.
 
 ## Blocked
 
-- None. Visible celestial implementation remains intentionally gated on architecture acceptance
-  and the adapter/mean-pole validation result.
+- None. Visible celestial implementation remains intentionally gated on independent acceptance of
+  2A0 and completion of the non-visual Milestone 2A foundation.
 
 ## Known defects or limitations
 
@@ -137,17 +162,28 @@ mean-pole transform, the next task is a non-visual adapter and pole-model valida
 - GitHub Pages run #5 deployed the Milestone 1 application at `ddcf676`; no custom domain is configured.
 - Calibration remains session-scoped and in memory. Session exit, reload, recenter, boundary reset,
   tracking-origin change, or room change requires deliberate recalibration as documented.
+- Astronomy Engine validation is bounded to `2.1.19`, the named Sun/Moon operations, and Tier 1
+  fixture semantics. It is not a general provider-accuracy or complete XR pointing claim.
+- JPL Horizons fixture heights are reference-ellipsoid values while Astronomy Engine accepts
+  mean-sea-level height. The same numeric values were compared without geoid conversion, tagged
+  explicitly, and accepted only within the bounded direction tolerance; this is not vertical-datum
+  validation or an exact same-observer Tier 2 comparison.
+- The P03 provider is validated only for J2000.0 plus or minus one Julian century. It is not a
+  full-cycle precession-path model and excludes nutation, CIP, polar motion, Chandler wobble, and
+  observed offsets.
+- UTC-to-TT uses Astronomy Engine's Espenak-Meeus delta-T implementation and its documented UT1
+  approximately equal to UTC policy. No live EOP or leap-second service exists.
 
 ## Important unknowns
 
 - Exact Quest OS and Quest Browser versions, numerical north-alignment error, controller-specific
   coverage, DOM-overlay availability, and targeted pose-loss behavior for the accepted Milestone 1
   test were not reported.
-- The exact Astronomy Engine version and browser-bundle impact remain unverified because no
-  dependency was installed during architecture work.
-- The public Astronomy Engine interface does not document a P03 precession-only mean-equator-of-
-  date transform. The next spike must prove a supportable provider and predeclare comparison
-  tolerances before visible axis or precession work.
+- Observer/location acquisition, revisioned calculation snapshots, provider caching/invalidation,
+  civil-time label resolution, and user-facing observer/time controls remain unimplemented.
+- Astronomy Engine does not expose the selected mean-only P03 quantity; the validated
+  application-owned provider must remain separate from true `EQD` and be independently rechecked
+  if its model/version/domain changes.
 - Tier 2/Tier 3 quantitative tolerances, the adopted long-term precession model/date domain, and
   production observer/location provenance remain deliberately unresolved until bounded reference
   fixtures and implementation evidence exist.
@@ -159,14 +195,18 @@ mean-pole transform, the next task is a non-visual adapter and pole-model valida
 | `src/calibration/` | Pure north projection/yaw math and calibration state | Implemented; automated PASS |
 | `src/scene/` | Room/floor frame plus separate geographic-reference group | Implemented; desktop PASS; Quest Milestone 1 accepted |
 | `src/xr/` | Owned session lifecycle and tracked-controller calibration adapter | Implemented; automated PASS; Quest controller-calibration flow accepted |
-| `tests/` | Capability, session, calibration math/state, and controller integration tests | 3 files / 66 tests passed |
+| `src/science/astronomy/` | Typed observer/time/frame/correction contracts, Astronomy Engine adapter, ENU math, and P03 mean-pole provider | Milestone 2A0 bounded validation PASS; not consumed by visible app |
+| `src/presentation/mapEnuToApplicationBasis.ts` | Pure ENU `(east, north, up)` to application `(east, up, -north)` mapping outside science | Automated PASS; no Three.js dependency |
+| `tests/` | Capability, session, calibration, controller, adapter, JPL fixture, SOFA/P03, and boundary tests | 8 files / 135 tests passed |
 | `README.md` | Commands, workflow, conventions, deployment, and limits | Current |
 | `docs/ARCHITECTURE.md` | Frame separation, yaw convention, lifecycle, and module boundaries | Current |
 | `docs/CALIBRATION.md` | Physical setup, calibration procedure, limits, and troubleshooting | Current |
 | `docs/QUEST_TESTING.md` | Milestone 0 evidence and Milestone 1 acceptance checklist | Milestone 1 Quest 3 acceptance PASS |
-| `docs/CELESTIAL_REFERENCE_ARCHITECTURE.md` | Explicit frame hierarchy, transforms, axis/poles/equator, horizon, precision tiers, and layer contracts | Architecture complete; implementation NOT STARTED |
-| `docs/ASTRONOMY_ENGINE_EVALUATION.md` | Runtime-library capability, limits, responsibility split, alternatives, and adoption gates | Adopt-with-validation-wrappers recommendation |
-| `docs/CELESTIAL_VALIDATION_STRATEGY.md` | Pure, golden, cross-reference, visual/Quest, and error-budget validation plan | Planning complete; fixtures NOT CAPTURED |
+| `docs/CELESTIAL_REFERENCE_ARCHITECTURE.md` | Explicit frame hierarchy, transforms, axis/poles/equator, horizon, precision tiers, and layer contracts | Architecture complete; 2A0 non-visual contracts proven; visible implementation not started |
+| `docs/ASTRONOMY_ENGINE_EVALUATION.md` | Runtime-library capability, limits, responsibility split, alternatives, and adoption gates | `2.1.19` bounded Tier 1 adapter validated |
+| `docs/ASTRONOMY_ADAPTER_CONTRACT.md` | Implemented observer, time, frame, correction, ENU, provenance, error, and provider contract | Milestone 2A0 current evidence |
+| `docs/MEAN_POLE_MODEL_VALIDATION.md` | P03 model, TT, matrix direction, fixtures, tolerances, corrections, and domain | Direct bounded provider validated |
+| `docs/CELESTIAL_VALIDATION_STRATEGY.md` | Pure, golden, cross-reference, visual/Quest, and error-budget validation plan | First JPL/SOFA fixtures captured; later layers pending |
 | `docs/TEMPORAL_LAYER_ARCHITECTURE.md` | Central simulation clock and future solar/lunar sampling and label policies | Architecture only |
 | `docs/MILESTONE_2_SEQUENCE.md` | Bounded 2A0 through later-layer dependency and acceptance sequence | Current sequence |
 | `docs/OFFICIAL_ASTRONOMY_SOURCES.md` | Official/primary source, capability, limitation, version, and license register | Research evidence current as of 2026-07-16 |
@@ -174,7 +214,7 @@ mean-pole transform, the next task is a non-visual adapter and pole-model valida
 | `COSMIC_CALIBRATION_WEBXR_PROJECT_BRIEF.md` | Product concept and long-term context | Active reference |
 | `PROJECT_CHARTER.md` | Project definition and boundaries | Active |
 | `DECISIONS.md` | Accepted foundation, geographic-frame, astronomy, time, and precession decisions | Current |
-| `NEXT_TASK.md` | One non-visual astronomy-adapter and pole-model validation task | Pending authorization |
+| `NEXT_TASK.md` | One production-quality non-visual scientific-foundation task | Ready after 2A0 review/integration |
 
 ## Environment
 
@@ -182,10 +222,10 @@ mean-pole transform, the next task is a non-visual adapter and pole-model valida
 |---|---|---|
 | Operating system | Windows | Yes |
 | Runtime/toolchain | Node.js `v24.18.0`; npm `11.16.0` | Yes |
-| Runtime dependency | Three.js `0.185.1` | Yes |
+| Runtime dependencies | Three.js `0.185.1`; Astronomy Engine `2.1.19` | Yes; exact versions pinned |
 | Development dependencies | Vite `8.1.4`; TypeScript `7.0.2`; Vitest `4.1.10`; Three/WebXR types | Yes |
 | Build command | `npm run build` | Passed |
-| Test command | `npm run test` | 66/66 passed for remediation |
+| Test command | `npm run test` | 135/135 passed across 8 files |
 | Deployment target | GitHub Pages at `https://thinksql1.github.io/cosmic-calibration-webxr/` | Run #5 passed; Milestone 1 UI verified |
 
 ## Risks
@@ -198,17 +238,18 @@ mean-pole transform, the next task is a non-visual adapter and pole-model valida
 | Passthrough behavior differs outside the tested Quest 3 environment | Low/unknown | Medium | Revalidate on device after future rendering changes; do not generalize the tested Quest 3 result |
 | Bundle size affects Quest startup/performance | Low/unknown | Medium | Measure on device before adding optimization complexity |
 | Scientific and contemplative layers become conflated later | Medium | High | Preserve traceable scientific modules and explicit framing |
-| A true-of-date or body-axis helper is mistaken for a precession-only mean pole | Medium | High | Gate visible axis/precession work on the 2A0 semantics proof against SOFA/P03 evidence |
+| A true-of-date or body-axis helper is mistaken for a precession-only mean pole | Low/medium | High | Preserve distinct `EQD_TRUE` and `IAU_P03_PRECESSION_ONLY` types plus the passing SOFA/P03 corpus |
 | Frame, handedness, or correction metadata are lost at a library/display boundary | Medium | High | Use tagged adapters, canonical ENU, exact basis/round-trip tests, and immutable snapshots |
 | A visually perfect precession circle overrides the scientific trajectory | Medium | High | Sample the adopted long-term model, derive south as the exact antipode, and disclose its date domain |
 | Civil-time labels drift from astronomical instants across DST/rule changes | Medium | Medium | Store UTC instants, explicit IANA zone IDs, disambiguation metadata, and versioned fixtures separately |
 | A library accuracy claim is misreported as complete XR accuracy | Medium | High | Keep ephemeris, observer, calibration, tracking, floor/up, time-label, and display errors separate |
+| Tier 1 UTC/UT1/delta-T policy is reused as a Tier 2/3 claim | Medium | High | Keep time-scale provenance attached; require a separate EOP/leap-second precision decision before promotion |
 
 ## Parking Lot
 
-- Milestone 2 implementation: the astronomy adapter/foundation, visible axis/poles/equator,
-  validated precession trajectories, ecliptic, bodies, and real-time temporal layers remain
-  planned but not implemented.
+- Milestone 2 implementation beyond 2A0: revisioned observer/snapshot/provider caching, visible
+  axis/poles/equator, validated long-term precession trajectories, ecliptic, bodies, and temporal
+  layers remain planned but not implemented.
 - Geolocation, persistent room calibration, automatic heading, and magnetic declination.
 - Orbital-awareness, time navigation, and teaching-scale modes.
 - Contemplative, sacred-geometry, cultural, and symbolic layers, clearly distinct from scientific claims.
@@ -239,9 +280,10 @@ mean-pole transform, the next task is a non-visual adapter and pole-model valida
 | 2026-07-16 | Milestone 1 publication | PASS; normal push of `ddcf676`, workflow run #5 build/deploy success, hosted Physical North UI, simulation/reset, subpath assets, and console verified | `https://github.com/thinksql1/cosmic-calibration-webxr/actions/runs/29494408661` |
 | 2026-07-16 | Milestone 1 physical Quest 3 acceptance | PASS; user reported the deployed hosted flow passed for AR/passthrough, controller start/capture separation, north capture, coherent cardinal geometry, world/floor stability, cancel/recalibrate/reset, and lifecycle; no blocking defect observed | User-reported Quest 3 evidence; no angular measurement or version details supplied |
 | 2026-07-16 | Milestone 2 celestial architecture research | PASS for documentation scope; official/primary sources define the library boundary, frames, mean-axis target, time/observer contracts, precession semantics, temporal schedules, validation/error budget, and bounded sequence; no source or dependency change | `docs/CELESTIAL_REFERENCE_ARCHITECTURE.md` and five companion documents |
+| 2026-07-16 | Milestone 2A0 astronomy adapter and mean-pole spike | PASS locally; exact `astronomy-engine@2.1.19`, three JPL Horizons DE441 fixtures, full SOFA `pmat06` matrix, J2000/present/future P03 poles, 135/135 tests, type-check, and unchanged production build. No visible geometry, merge, push, deployment, or Quest celestial test | `feature/milestone-2a0-astronomy-validation`; `docs/ASTRONOMY_ADAPTER_CONTRACT.md`; `docs/MEAN_POLE_MODEL_VALIDATION.md` |
 
 ## Current decision horizon
 
-Review the completed Milestone 2 architecture, then validate the astronomy adapter and P03
-precession-only mean-pole contract in one non-visual feature-branch spike. Do not begin visible
-axis, equator, precession, body, temporal, or contemplative layers until that gate passes.
+Independently review and integrate the bounded Milestone 2A0 result, then implement the
+production-quality non-visual observer/snapshot/provider/cache foundation in `NEXT_TASK.md`. Do
+not begin visible axis, pole, equator, precession, body, temporal, or contemplative layers.

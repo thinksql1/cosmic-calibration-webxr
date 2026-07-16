@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "astronomy-engine": "2.1.19",
     "three": "^0.185.1"
   },
   "devDependencies": {

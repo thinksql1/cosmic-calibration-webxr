@@ -1,13 +1,16 @@
 # Cosmic Calibration WebXR
 
-Cosmic Calibration is a mixed-reality cosmic-navigation project. Milestone 0 established a physically validated Quest 3 passthrough and floor-relative reference frame. Milestone 1 adds an explicit, user-driven calibration from the room-relative frame to a pre-marked true-north direction.
+Cosmic Calibration is a mixed-reality cosmic-navigation project. Milestone 0 established a physically validated Quest 3 passthrough and floor-relative reference frame. Milestone 1 adds an explicit, user-driven calibration from the room-relative frame to a pre-marked true-north direction. Milestone 2A0 now provides a tested, non-visual astronomy adapter and P03 mean-pole contract.
 
-Scientific geometry and contemplative interpretation remain separate layers. This milestone adds no astronomy, automatic heading, compass, geolocation, or magnetic-declination behavior.
+Scientific geometry and contemplative interpretation remain separate layers. The current science spike renders nothing and adds no automatic heading, compass, geolocation, magnetic-declination behavior, or user-facing celestial feature.
 
 ## Milestone 2 architecture status
 
-Milestone 2 is defined in documentation only; no astronomy dependency or celestial display is
-implemented. The accepted plan begins with a non-visual adapter and pole-model validation spike:
+Milestone 2 architecture is complete and its bounded 2A0 validation spike passes. The exact
+`astronomy-engine@2.1.19` dependency is isolated behind typed application contracts; NASA/JPL
+Horizons fixtures validate the Sun/Moon adapter, and IAU SOFA/P03 fixtures validate the
+precession-only mean pole. No celestial display is implemented. The next step remains a
+production-quality non-visual scientific foundation:
 
 - [Celestial reference architecture](docs/CELESTIAL_REFERENCE_ARCHITECTURE.md)
 - [Astronomy Engine evaluation](docs/ASTRONOMY_ENGINE_EVALUATION.md)
@@ -15,6 +18,8 @@ implemented. The accepted plan begins with a non-visual adapter and pole-model v
 - [Temporal-layer architecture](docs/TEMPORAL_LAYER_ARCHITECTURE.md)
 - [Milestone 2 sequence](docs/MILESTONE_2_SEQUENCE.md)
 - [Official astronomy source register](docs/OFFICIAL_ASTRONOMY_SOURCES.md)
+- [Astronomy adapter contract](docs/ASTRONOMY_ADAPTER_CONTRACT.md)
+- [Mean pole model validation](docs/MEAN_POLE_MODEL_VALIDATION.md)
 
 ## Current scope
 
@@ -25,6 +30,8 @@ The shared desktop/XR scene contains:
 - explicit in-memory calibration, recalibration, cancellation, and reset states;
 - left- or right-controller target-ray capture during immersive AR;
 - a desktop bearing simulation using the same projection, yaw, and state logic as XR capture.
+- non-visual immutable observer/time contracts, tagged scientific frames and correction profiles,
+  canonical ENU conversion, frozen provider provenance, and a bounded P03 mean-pole provider.
 
 The room X and Z axes have no geographic meaning before calibration. Geographic geometry is hidden until a valid physical or simulated calibration is captured.
 
@@ -105,7 +112,9 @@ Pure math, state transitions, controller integration, existing XR lifecycle, typ
 desktop simulation are locally testable. The reported Quest 3 Milestone 1 acceptance flow passed
 for controller-based calibration and usable lifecycle behavior. That evidence does not establish
 laboratory-grade angular accuracy, broad device coverage, or unreported edge-case outcomes.
+Milestone 2A0 adds deterministic reference comparisons only: no physical Quest celestial behavior
+exists to test.
 
 ## Explicitly deferred
 
-Local-storage persistence, Astronomy Engine, geolocation, automatic compass access, headset magnetometer access, magnetic declination, true-versus-magnetic-north correction, automatic north detection, spatial anchors, plane detection, hit testing, hand tracking, celestial geometry, time controls, audio, 360 video, backend services, accounts, and analytics are absent.
+Local-storage persistence, automatic geolocation, automatic compass access, headset magnetometer access, magnetic declination, true-versus-magnetic-north correction, automatic north detection, observer/time UI, provider caching, spatial anchors, plane detection, hit testing, hand tracking, visible celestial geometry, temporal clocks, time controls, audio, 360 video, backend services, accounts, and analytics are absent.

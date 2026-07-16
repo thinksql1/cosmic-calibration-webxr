@@ -14,6 +14,17 @@
 - Milestone 2 documentation for the celestial reference-frame hierarchy, Astronomy Engine
   evaluation, observer/time and temporal-layer contracts, scientific validation strategy,
   conservative implementation sequence, and official astronomy source register.
+- Exact `astronomy-engine@2.1.19` runtime dependency behind an application-owned, non-visual
+  adapter with immutable UTC instants, validated WGS84 observers, explicit vertical datum,
+  tagged true-of-date/horizontal frames, named correction profiles, provenance, and typed errors.
+- Canonical azimuth/altitude-to-ENU math plus a separate no-Three.js
+  `(east, north, up) -> (east, up, -north)` application-basis mapper.
+- An application-owned IAU P03 precession-only bias-precession provider with explicit TT input,
+  GCRS-to-mean-date matrix direction, exact antipodal poles, and a future equator normal/basis.
+- 69 deterministic scientific tests and offline NASA/JPL Horizons DE441 and IAU SOFA/P03 fixtures,
+  bringing the full suite to 8 files / 135 tests.
+- Implemented astronomy-adapter and mean-pole validation contracts with exact source, fixture,
+  tolerance, correction, domain, and precision boundaries.
 
 ### Changed
 
@@ -62,6 +73,10 @@
   scientific coordinates and contemplative presentation.
 - Replaced the architecture-planning task with one bounded non-visual astronomy-adapter and
   mean-pole validation spike. No dependency was installed and no Milestone 2 source work began.
+- Completed the bounded Milestone 2A0 spike on its feature branch without visible geometry,
+  application-entry integration, merge, push, deployment, or physical Quest celestial testing.
+- Selected one next task: implement the production-quality non-visual observer, simulation
+  snapshot, provider facade, and cache/invalidation foundation before any visible axis or pole.
 
 ### Validated
 
@@ -102,6 +117,19 @@
   available.
 - Documentation-only scope validation confirmed no source, test, package, lockfile, workflow, or
   deployment-configuration change in the Milestone 2 architecture checkpoint.
+- Milestone 2A0 verified the official package name/version/license/exports and bounded the
+  dependency delta to exact `astronomy-engine@2.1.19` with no declared runtime package dependency.
+- Three airless apparent topocentric Sun/Moon cases pass a predeclared `0.02 degrees` NASA/JPL
+  Horizons tolerance; the maximum measured coordinate difference is `0.008280 degrees`, maximum
+  directional separation is `0.001276 degrees`, and the ellipsoid/MSL height-datum mismatch is
+  explicit rather than treated as a conversion.
+- The direct P03 provider reproduces all nine published IAU SOFA `pmat06` components and four
+  frozen mean-pole vectors within `1e-12`; exact antipodes, equator perpendicularity, continuity,
+  determinism, mean/true discrimination, and bounded-domain rejection pass.
+- Milestone 2A0 type-check, 135/135 tests, and production build pass. The visible production chunk
+  remains 574.29 kB because the non-visual modules are not imported by the application entry point.
+- A no-write Vite/Oxc library check bundled the adapter/provider into one import-free ESM chunk
+  (75,901 bytes minified / 25,178 bytes gzip) without adding the absent `esbuild` package.
 
 ### Known limitations
 
@@ -112,7 +140,12 @@
   angular-error measurement, Quest OS/browser version, controller-by-controller coverage,
   DOM-overlay availability, or targeted pose-loss observation was supplied.
 - The physical marker remains the trusted reference. Automatic heading, compass, geolocation,
-  magnetic correction, persistence, and astronomy remain absent.
+  magnetic correction, persistence, and visible astronomy remain absent.
+- Milestone 2A0 validation is Tier 1 and operation-specific. It does not establish a complete
+  astronomy-provider accuracy claim, physical XR pointing accuracy, or visible celestial behavior.
+- The P03 provider is restricted to J2000.0 plus or minus one Julian century and is not the
+  long-term precession-path model. Nutation, CIP, EOP, polar motion, Chandler wobble, and observed
+  offsets remain excluded.
 - The existing Three.js production chunk still triggers Vite’s 500 kB size advisory.
 
 ## 2026-07-15 — Initial project activation
