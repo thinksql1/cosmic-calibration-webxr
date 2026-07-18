@@ -7,6 +7,10 @@ dependency order, not authorization to begin implementation. Each step must pres
 room/geographic frame and must pass its own independent review before the next visible layer is
 started.
 
+The [long-term product roadmap](LONG_TERM_PRODUCT_ROADMAP.md) records broader possible product
+families and their guardrails. It does not reorder this sequence, select the next task, or
+authorize implementation.
+
 The scientific evidence behind this order is indexed in the [official astronomy source
 register](OFFICIAL_ASTRONOMY_SOURCES.md).
 

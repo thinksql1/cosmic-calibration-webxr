@@ -42,6 +42,8 @@ regression pass with 340 tests; physical acceptance remains pending.
 - [Celestial validation strategy](docs/CELESTIAL_VALIDATION_STRATEGY.md)
 - [Temporal-layer architecture](docs/TEMPORAL_LAYER_ARCHITECTURE.md)
 - [Milestone 2 sequence](docs/MILESTONE_2_SEQUENCE.md)
+- [Long-term product roadmap](docs/LONG_TERM_PRODUCT_ROADMAP.md) - future capability families and
+  guardrails; not an implementation schedule or an authorization to start a later feature
 - [Official astronomy source register](docs/OFFICIAL_ASTRONOMY_SOURCES.md)
 - [Astronomy adapter contract](docs/ASTRONOMY_ADAPTER_CONTRACT.md)
 - [Mean pole model validation](docs/MEAN_POLE_MODEL_VALIDATION.md)
@@ -164,4 +166,4 @@ hosted build is the geocentric replacement, not the earlier observer-centered pr
 
 ## Explicitly deferred
 
-Local-storage persistence, automatic geolocation, automatic compass access, headset magnetometer access, magnetic declination, true-versus-magnetic-north correction, automatic north detection, raw provider-result caching, spatial anchors, plane detection, hit testing, hand tracking, celestial-equator/precession/body geometry, temporal clocks, animated/general time controls, audio, 360 video, backend services, accounts, and analytics are absent.
+Local-storage persistence, automatic geolocation, automatic compass access, headset magnetometer access, magnetic declination, true-versus-magnetic-north correction, automatic north detection, raw provider-result caching, spatial anchors, plane detection, hit testing, hand tracking, precession/ecliptic/body geometry, temporal clocks, animated/general time controls, audio, 360 video, backend services, accounts, and analytics are absent. The [long-term product roadmap](docs/LONG_TERM_PRODUCT_ROADMAP.md) records possible future families without changing this current scope.

@@ -355,13 +355,15 @@ normal local integration now pass; publication must succeed before the physical 
 
 ## Parking Lot
 
-- Milestone 2 implementation beyond the local axis/poles layer: celestial equator, validated
-  long-term precession trajectories, ecliptic, bodies, and temporal layers remain planned but not
-  implemented.
-- Geolocation, persistent room calibration, automatic heading, and magnetic declination.
-- Orbital-awareness, time navigation, and teaching-scale modes.
-- Contemplative, sacred-geometry, cultural, and symbolic layers, clearly distinct from scientific claims.
-- Star catalog, audio, hand tracking, persistent anchors, multi-user use, and native applications.
+- The durable [long-term product roadmap](docs/LONG_TERM_PRODUCT_ROADMAP.md) preserves future
+  celestial, geographic, interpretive, media, and performance directions. It is not a schedule or
+  authorization: the active physical eye-mode/local-horizon acceptance remains the only next task.
+- After current physical acceptance, candidate work still requires a bounded selection from the
+  established sequence: validated long-term precession, ecliptic, bodies, temporal layers,
+  local-first observer persistence, or geographic knowledge.
+- Automatic geolocation, persistent room calibration, automatic heading, magnetic declination,
+  star catalogs, audio, hand tracking, persistent anchors, multi-user use, and native
+  applications remain deferred.
 
 ## Recent evidence
 
