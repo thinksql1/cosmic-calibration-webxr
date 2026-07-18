@@ -224,16 +224,36 @@
 - **Decision:** Compute the modeled WGS84 Earth-center displacement in local ENU from validated
   observer state, place one P03 mean-axis line through that core, and retain NCP/SCP as exact
   antipodal projective directions at infinity. The observer remains at the modeled surface origin
-  and is not moved onto the axis. The meter-based renderer uses declared asymptotic finite points
-  `10^13 m` from the core on that exact line and a `2 * 10^13 m` far range with logarithmic depth.
-  The maximum render convergence bound is below `0.14 arcseconds`; finite core/pole marker and
-  label dimensions are appearance only. Geographic calibration yaw remains parent-only.
+  and is not moved onto the axis. Declared asymptotic finite points `10^13 m` from the core remain
+  CPU-side diagnostics for a convergence bound below `0.14 arcseconds`; they are not physical
+  distances or a required GPU representation. Finite core/pole marker and label dimensions are
+  appearance only. Geographic calibration yaw remains parent-only. DEC-022 owns the revised safe
+  renderer and depth contract.
 - **Rationale:** The product requires an actual modeled Earth-core point and a world-scale axis,
   which a nearby line through the user cannot represent. Celestial poles have no finite physical
   distance, so explicitly projective directions avoid inventing one while preserving one exact
   geocentric centerline. Mean-sea-level elevation currently enters WGS84 placement as a disclosed
   Tier 1 numeric ellipsoid-height approximation. The replacement requires new independent,
   hosted, and Quest validation; prior proxy evidence cannot validate it.
+
+### DEC-022: Render the geocentric axis with camera-relative homogeneous geometry and linear XR depth
+- **Date:** 2026-07-18
+- **Status:** Accepted locally; independent integration gate pending
+- **Owner:** Darrell Wright / project control
+- **Decision:** Preserve the DEC-021 WGS84 core, P03 axis, and projective pole science in immutable
+  CPU values, but never upload its `10^13 m` diagnostic finite proxies as GPU positions. For each
+  active desktop/XR eye, apply the calibrated parent once, subtract the camera from the finite core
+  in JavaScript double precision, and rotate the core and pole direction into that eye's view
+  frame. Render the core with homogeneous `w = 1` and poles with `w = 0` using bounded
+  coefficient/quad geometry. The shared renderer uses ordinary `0.01–100 m` linear depth; all
+  celestial materials disable depth testing and writing, so compositor-visible depth remains
+  representative. The Earth-axis handle owns and idempotently disposes its geometry, materials,
+  label textures, and draw callbacks.
+- **Rationale:** Logarithmic depth distributes depth-buffer values but does not repair raw
+  large-coordinate model-view precision and may expose non-linear values to an XR compositor that
+  expects the declared linear near/far mapping. Camera-relative/homogeneous rendering preserves
+  the scientific line and per-eye world direction without large GPU translations. Explicit
+  ownership prevents repeated session/readiness transitions from leaking GPU resources.
 
 ## Proposed decisions awaiting review
 

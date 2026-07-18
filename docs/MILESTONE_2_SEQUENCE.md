@@ -132,9 +132,11 @@ layers, temporal clocks, and time controls.
 
 ## Milestone 2B - mean Earth axis and celestial poles
 
-**Published result:** independent scientific/visual review, automated validation, desktop
-validation, Pages workflow, and hosted desktop verification PASS; physical Quest acceptance
-NOT RUN.
+**Current result:** the earlier observer-centered implementation was published, then superseded
+locally by the geocentric DEC-021 model. The geodetic/P03 contract passed independent review, but
+the first geocentric renderer gate rejected raw large GPU coordinates, logarithmic XR depth, and
+missing disposal. DEC-022 remediation is complete locally; independent renderer re-gate,
+integration, publication, and physical Quest acceptance are NOT RUN.
 
 **Objective:** render one coherent world-scale P03 mean-axis-of-date system through the modeled
 WGS84 Earth core, with the observer retained at the surface and exact antipodal projective north

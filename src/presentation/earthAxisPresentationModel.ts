@@ -7,11 +7,11 @@ import {
 } from './mapEnuToApplicationBasis';
 
 export const CELESTIAL_POLE_RENDER_DISTANCE_FROM_CORE_METERS = 10_000_000_000_000;
-export const CELESTIAL_SCENE_FAR_METERS = 20_000_000_000_000;
-export const EARTH_CORE_MARKER_VISUAL_RADIUS_METERS = 85_000;
-export const CELESTIAL_POLE_MARKER_VISUAL_RADIUS_METERS = 100_000_000_000;
-export const CELESTIAL_POLE_LABEL_WIDTH_METERS = 700_000_000_000;
-export const CELESTIAL_POLE_LABEL_HEIGHT_METERS = 350_000_000_000;
+export const EARTH_AXIS_LINEAR_SCENE_FAR_METERS = 100;
+export const EARTH_CORE_MARKER_DIAMETER_PIXELS = 18;
+export const CELESTIAL_POLE_MARKER_DIAMETER_PIXELS = 18;
+export const CELESTIAL_POLE_LABEL_WIDTH_PIXELS = 88;
+export const CELESTIAL_POLE_LABEL_HEIGHT_PIXELS = 42;
 const RADIANS_TO_ARCSECONDS = (180 / Math.PI) * 3600;
 
 function convergenceUpperBoundArcseconds(observerToCoreDistanceMeters: number): number {
@@ -52,8 +52,8 @@ export interface EarthAxisEndpointPresentation {
   readonly pointKind: 'PROJECTIVE_DIRECTION_AT_INFINITY';
   readonly directionEnu: EnuUnitDirection;
   readonly directionApplication: ApplicationBasisDirection;
-  readonly renderPosition: PresentationPoint;
-  readonly renderDistanceFromCoreMeters: number;
+  readonly diagnosticFiniteProxyPosition: PresentationPoint;
+  readonly diagnosticProxyDistanceFromCoreMeters: number;
   readonly altitudeDeg: number;
   readonly azimuthDeg: number | null;
   readonly horizonRelation: 'above' | 'on' | 'below';
@@ -70,13 +70,16 @@ export interface EarthAxisPresentationModel {
   readonly precisionTier: 'TIER_1';
   readonly presentationKind: 'GEOCENTRIC_WORLD_SCALE_EARTH_CORE_AXIS';
   readonly poleTopology: 'ANTIPODAL_PROJECTIVE_DIRECTIONS_AT_INFINITY';
+  readonly renderStrategy: 'CAMERA_RELATIVE_CORE_AND_HOMOGENEOUS_PROJECTIVE_POLES';
+  readonly depthContract: 'LINEAR_XR_DEPTH_WITH_NON_WRITING_CELESTIAL_OVERLAY';
+  readonly gpuCoordinatePolicy: 'NO_RAW_LARGE_WORLD_VERTEX_COORDINATES';
   readonly observerSurfaceOrigin: PresentationPoint;
   readonly earthCore: PresentationPoint;
   readonly earthCoreVisible: boolean;
-  readonly earthCoreVisualRadiusMeters: number;
-  readonly poleMarkerVisualRadiusMeters: number;
-  readonly poleLabelWidthMeters: number;
-  readonly poleLabelHeightMeters: number;
+  readonly earthCoreMarkerDiameterPixels: number;
+  readonly poleMarkerDiameterPixels: number;
+  readonly poleLabelWidthPixels: number;
+  readonly poleLabelHeightPixels: number;
   readonly poleRenderConvergenceUpperBoundArcseconds: number;
   readonly observerToCoreDistanceMeters: number;
   readonly observerToAxisDistanceMeters: number;
@@ -144,12 +147,12 @@ function endpoint(
     pointKind: 'PROJECTIVE_DIRECTION_AT_INFINITY',
     directionEnu: source.direction,
     directionApplication,
-    renderPosition: addScaled(
+    diagnosticFiniteProxyPosition: addScaled(
       earthCore,
       directionApplication,
       CELESTIAL_POLE_RENDER_DISTANCE_FROM_CORE_METERS,
     ),
-    renderDistanceFromCoreMeters: CELESTIAL_POLE_RENDER_DISTANCE_FROM_CORE_METERS,
+    diagnosticProxyDistanceFromCoreMeters: CELESTIAL_POLE_RENDER_DISTANCE_FROM_CORE_METERS,
     altitudeDeg: source.altitudeDeg,
     azimuthDeg: source.azimuthDeg,
     horizonRelation: source.horizonRelation,
@@ -186,13 +189,16 @@ export function createEarthAxisPresentationModel(
     precisionTier: 'TIER_1',
     presentationKind: 'GEOCENTRIC_WORLD_SCALE_EARTH_CORE_AXIS',
     poleTopology: 'ANTIPODAL_PROJECTIVE_DIRECTIONS_AT_INFINITY',
+    renderStrategy: 'CAMERA_RELATIVE_CORE_AND_HOMOGENEOUS_PROJECTIVE_POLES',
+    depthContract: 'LINEAR_XR_DEPTH_WITH_NON_WRITING_CELESTIAL_OVERLAY',
+    gpuCoordinatePolicy: 'NO_RAW_LARGE_WORLD_VERTEX_COORDINATES',
     observerSurfaceOrigin,
     earthCore,
     earthCoreVisible: settings.showEarthCore,
-    earthCoreVisualRadiusMeters: EARTH_CORE_MARKER_VISUAL_RADIUS_METERS,
-    poleMarkerVisualRadiusMeters: CELESTIAL_POLE_MARKER_VISUAL_RADIUS_METERS,
-    poleLabelWidthMeters: CELESTIAL_POLE_LABEL_WIDTH_METERS,
-    poleLabelHeightMeters: CELESTIAL_POLE_LABEL_HEIGHT_METERS,
+    earthCoreMarkerDiameterPixels: EARTH_CORE_MARKER_DIAMETER_PIXELS,
+    poleMarkerDiameterPixels: CELESTIAL_POLE_MARKER_DIAMETER_PIXELS,
+    poleLabelWidthPixels: CELESTIAL_POLE_LABEL_WIDTH_PIXELS,
+    poleLabelHeightPixels: CELESTIAL_POLE_LABEL_HEIGHT_PIXELS,
     poleRenderConvergenceUpperBoundArcseconds: convergenceBound,
     observerToCoreDistanceMeters: placement.observerToCoreDistanceMeters,
     observerToAxisDistanceMeters: placement.observerToAxisDistanceMeters,
@@ -248,10 +254,16 @@ export function createEarthAxisStatusViewModel(
     detail: 'The modeled WGS84 Earth core is placed at world scale; one P03 axis passes through it to antipodal projective NCP/SCP directions. Geographic yaw is applied once by the calibrated parent.',
     limitations,
     diagnostics: Object.freeze([
+      `Scientific Earth core ENU east ${placement.earthCore.east.toFixed(3)} m north ${placement.earthCore.north.toFixed(3)} m up ${placement.earthCore.up.toFixed(3)} m`,
+      `Scientific P03 NCP ENU east ${placement.northDirection.east.toFixed(9)} north ${placement.northDirection.north.toFixed(9)} up ${placement.northDirection.up.toFixed(9)}`,
       `Earth core distance ${(placement.observerToCoreDistanceMeters / 1000).toFixed(2)} km`,
       `Observer distance from rotation axis ${(placement.observerToAxisDistanceMeters / 1000).toFixed(2)} km`,
       `Core elevation treatment ${placement.elevationTreatment}`,
-      `Finite render convergence bound ${convergenceBound.toFixed(3)} arcseconds`,
+      `Diagnostic 10^13 m finite-proxy convergence bound ${convergenceBound.toFixed(3)} arcseconds`,
+      'Render strategy CAMERA_RELATIVE_CORE_AND_HOMOGENEOUS_PROJECTIVE_POLES',
+      `Camera-relative core magnitude approximately ${(placement.observerToCoreDistanceMeters / 1000).toFixed(2)} km before small eye/head offsets`,
+      'Depth contract LINEAR_XR_DEPTH_WITH_NON_WRITING_CELESTIAL_OVERLAY',
+      'GPU pole policy unit projective directions; no finite celestial distance is uploaded',
       `NCP altitude ${snapshot.observerHorizontalEarthAxis.north.altitudeDeg.toFixed(2)} degrees`,
       `NCP azimuth ${formatAngle(snapshot.observerHorizontalEarthAxis.north.azimuthDeg)}`,
       `SCP altitude ${snapshot.observerHorizontalEarthAxis.south.altitudeDeg.toFixed(2)} degrees`,

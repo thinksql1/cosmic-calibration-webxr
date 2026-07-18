@@ -66,12 +66,19 @@ describe('geocentric Earth-axis presentation model', () => {
 
   it('places one world-scale line through the modeled core with projective antipodal poles', () => {
     const model = createEarthAxisPresentationModel(ready(42).snapshot);
-    const north = relativeToCore(model.north.renderPosition, model.earthCore);
-    const south = relativeToCore(model.south.renderPosition, model.earthCore);
+    const north = relativeToCore(model.north.diagnosticFiniteProxyPosition, model.earthCore);
+    const south = relativeToCore(model.south.diagnosticFiniteProxyPosition, model.earthCore);
     expect(model.presentationKind).toBe('GEOCENTRIC_WORLD_SCALE_EARTH_CORE_AXIS');
     expect(model.poleTopology).toBe('ANTIPODAL_PROJECTIVE_DIRECTIONS_AT_INFINITY');
     expect(model.north.pointKind).toBe('PROJECTIVE_DIRECTION_AT_INFINITY');
     expect(model.south.pointKind).toBe('PROJECTIVE_DIRECTION_AT_INFINITY');
+    expect(model.renderStrategy).toBe(
+      'CAMERA_RELATIVE_CORE_AND_HOMOGENEOUS_PROJECTIVE_POLES',
+    );
+    expect(model.depthContract).toBe(
+      'LINEAR_XR_DEPTH_WITH_NON_WRITING_CELESTIAL_OVERLAY',
+    );
+    expect(model.gpuCoordinatePolicy).toBe('NO_RAW_LARGE_WORLD_VERTEX_COORDINATES');
     expect(model.earthCore).not.toEqual(model.observerSurfaceOrigin);
     expect(south.x).toBeCloseTo(-north.x, 1);
     expect(south.y).toBeCloseTo(-north.y, 1);
@@ -96,7 +103,9 @@ describe('geocentric Earth-axis presentation model', () => {
     expect(full.south.segmentVisible).toBe(true);
     expect(emphasized.south.segmentVisible).toBe(true);
     expect(emphasized.south.segmentOpacity).toBeLessThan(emphasized.north.segmentOpacity);
-    expect(emphasized.south.renderPosition).toEqual(full.south.renderPosition);
+    expect(emphasized.south.diagnosticFiniteProxyPosition).toEqual(
+      full.south.diagnosticFiniteProxyPosition,
+    );
     expect(emphasized.earthCore).toEqual(full.earthCore);
   });
 
@@ -151,8 +160,12 @@ describe('geocentric Earth-axis presentation model', () => {
     const future = createEarthAxisPresentationModel(ready(42, 1, '2050-01-01T00:00:00Z').snapshot);
     expect(future.snapshotIdentity.cacheKey).not.toBe(present.snapshotIdentity.cacheKey);
     expect(future.earthCore).toEqual(present.earthCore);
-    expect(future.north.renderPosition).toEqual(present.north.renderPosition);
-    expect(future.south.renderPosition).toEqual(present.south.renderPosition);
+    expect(future.north.diagnosticFiniteProxyPosition).toEqual(
+      present.north.diagnosticFiniteProxyPosition,
+    );
+    expect(future.south.diagnosticFiniteProxyPosition).toEqual(
+      present.south.diagnosticFiniteProxyPosition,
+    );
   });
 
   it('rejects unsupported display modes without exposing a scale control', () => {
@@ -174,7 +187,9 @@ describe('Earth-axis status view model', () => {
     expect(view.limitations).toContain('not Polaris');
     expect(view.diagnostics).toEqual(expect.arrayContaining([
       expect.stringContaining('Earth core distance'),
-      expect.stringContaining('Finite render convergence bound'),
+      expect.stringContaining('finite-proxy convergence bound'),
+      expect.stringContaining('Render strategy'),
+      expect.stringContaining('Depth contract'),
       expect.stringContaining('Accepted calibration'),
     ]));
   });

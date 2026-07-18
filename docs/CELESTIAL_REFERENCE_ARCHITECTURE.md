@@ -356,8 +356,10 @@ The physical Earth axis passes through the geocenter, not through the user. DEC-
 the earlier local directional proxy: validated observer state now places the modeled WGS84 Earth
 center in local ENU meters, and one P03 mean-axis line passes through that point. The observer
 stays at the modeled surface origin and is generally off-axis. NCP/SCP are projective points at
-infinity; finite WebGL points are disclosed asymptotic render proxies on the exact centerline,
-not invented astronomical distances. Marker and label dimensions may change appearance only.
+infinity. Finite `10^13 m` points are disclosed CPU-side convergence diagnostics on the exact
+centerline, not WebGL positions or invented astronomical distances. The renderer uses per-eye
+camera-relative core coordinates and homogeneous pole directions under DEC-022. Marker and label
+dimensions may change appearance only.
 
 For the axis-only Tier 1 transform, the snapshot applies its GCRS-to-P03 mean-date matrix and
 requires the resulting north direction to be mean-date `+Z`. Earth rotation about that same axis

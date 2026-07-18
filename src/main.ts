@@ -23,8 +23,8 @@ import { SimulationClock } from './science/state/simulationClock';
 import {
   createEarthAxisPresentationModel,
   createEarthAxisStatusViewModel,
-  CELESTIAL_SCENE_FAR_METERS,
   DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
+  EARTH_AXIS_LINEAR_SCENE_FAR_METERS,
   type BelowHorizonDisplayMode,
   type EarthAxisDisplaySettings,
 } from './presentation/earthAxisPresentationModel';
@@ -110,14 +110,13 @@ const camera = new THREE.PerspectiveCamera(
   54,
   window.innerWidth / window.innerHeight,
   0.01,
-  CELESTIAL_SCENE_FAR_METERS,
+  EARTH_AXIS_LINEAR_SCENE_FAR_METERS,
 );
 camera.position.set(2.7, 2.1, 3.1);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true,
-  logarithmicDepthBuffer: true,
 });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -443,6 +442,10 @@ renderer.setAnimationLoop(() => {
   if (!renderer.xr.isPresenting) controls.update();
   renderer.render(scene, camera);
 });
+
+window.addEventListener('pagehide', () => {
+  celestialAxis.dispose();
+}, { once: true });
 
 async function initializeCapabilityState(): Promise<void> {
   renderState(checkingState);

@@ -16,9 +16,12 @@ normally into `master`, which passes 239 tests and the production build. GitHub 
 subpath assets, and browser diagnostics regressed cleanly. Milestone 2B passed its independent,
 automated, and desktop gates and is integrated normally into `master`. GitHub Pages workflow run
 #9 deployed commit `5b657e4`; hosted observer/time/axis controls, golden cases, reset, subpath
-assets, and console health pass for the previously published proxy. The local geocentric
-replacement is not integrated or deployed; its exact next task is independent validation and
-publication before a new physical Quest gate.
+assets, and console health pass for the previously published proxy. The first independent gate of
+the local geocentric replacement accepted its WGS84/P03 science but blocked raw large-coordinate
+GPU rendering, logarithmic XR depth, and missing disposal. Those renderer defects are remediated
+locally with per-eye camera-relative/homogeneous geometry, linear compositor-safe depth, and
+explicit resource ownership. The replacement is not integrated or deployed; its exact next task
+is an independent renderer re-gate and publication before a new physical Quest gate.
 
 - [Celestial reference architecture](docs/CELESTIAL_REFERENCE_ARCHITECTURE.md)
 - [Astronomy Engine evaluation](docs/ASTRONOMY_ENGINE_EVALUATION.md)
@@ -29,6 +32,8 @@ publication before a new physical Quest gate.
 - [Astronomy adapter contract](docs/ASTRONOMY_ADAPTER_CONTRACT.md)
 - [Mean pole model validation](docs/MEAN_POLE_MODEL_VALIDATION.md)
 - [Earth axis and celestial poles](docs/EARTH_AXIS_AND_CELESTIAL_POLES.md)
+- [Geocentric rendering precision](docs/GEOCENTRIC_RENDERING_PRECISION.md)
+- [WebXR depth contract](docs/WEBXR_DEPTH_CONTRACT.md)
 
 ## Current scope
 
@@ -42,7 +47,8 @@ The shared desktop/XR scene contains:
 - non-visual immutable observer/time contracts, tagged scientific frames and correction profiles,
   canonical ENU conversion, frozen provider provenance, and a bounded P03 mean-pole provider;
 - manual in-memory observer input, explicit UTC fixtures, a WGS84-modeled Earth-core point, and
-  one world-scale geocentric P03 mean-axis group with antipodal projective NCP/SCP directions.
+  one camera-relative/homogeneous geocentric P03 mean-axis group with antipodal projective NCP/SCP
+  directions and no raw large-world GPU positions.
 
 The room X and Z axes have no geographic meaning before calibration. Geographic geometry is hidden until a valid physical or simulated calibration is captured.
 
@@ -72,7 +78,7 @@ See [Architecture](docs/ARCHITECTURE.md) and [Calibration](docs/CALIBRATION.md) 
 
 ## Scientific foundation status
 
-Milestone 2A provides an explicit observer/UTC-clock/calibration/configuration snapshot pipeline with a validated P03 mean axis and equator basis. Its runtime boundary owns immutable instants/vectors, rejects malformed clocks before providers, and keys cache provenance explicitly. Independent acceptance, integration, publication, and hosted regression pass. The current local Milestone 2B replacement consumes that snapshot without direct provider calls, maps the mean axis into horizontal ENU, computes the modeled WGS84 Earth center relative to the surface observer, and maps both into the calibrated geographic parent once. NCP/SCP remain directions at infinity; finite render extent and marker size are disclosed presentation parameters, not astronomical distances. The manual observer/time controls remain in-memory diagnostics, not geolocation or a general time system. See [Scientific State Foundation](docs/SCIENTIFIC_STATE_FOUNDATION.md), [Scientific Snapshot Contract](docs/SCIENTIFIC_SNAPSHOT_CONTRACT.md), [Scientific Cache Policy](docs/SCIENTIFIC_CACHE_POLICY.md), and [Earth Axis and Celestial Poles](docs/EARTH_AXIS_AND_CELESTIAL_POLES.md).
+Milestone 2A provides an explicit observer/UTC-clock/calibration/configuration snapshot pipeline with a validated P03 mean axis and equator basis. Its runtime boundary owns immutable instants/vectors, rejects malformed clocks before providers, and keys cache provenance explicitly. Independent acceptance, integration, publication, and hosted regression pass. The current local Milestone 2B replacement consumes that snapshot without direct provider calls, maps the mean axis into horizontal ENU, computes the modeled WGS84 Earth center relative to the surface observer, and maps both into the calibrated geographic parent once. NCP/SCP remain directions at infinity; the `10^13 m` finite points are diagnostics only. The GPU consumes per-eye camera-relative core values and homogeneous unit directions under a linear non-writing depth contract. The manual observer/time controls remain in-memory diagnostics, not geolocation or a general time system. See [Scientific State Foundation](docs/SCIENTIFIC_STATE_FOUNDATION.md), [Scientific Snapshot Contract](docs/SCIENTIFIC_SNAPSHOT_CONTRACT.md), [Scientific Cache Policy](docs/SCIENTIFIC_CACHE_POLICY.md), [Earth Axis and Celestial Poles](docs/EARTH_AXIS_AND_CELESTIAL_POLES.md), [Geocentric Rendering Precision](docs/GEOCENTRIC_RENDERING_PRECISION.md), and [WebXR Depth Contract](docs/WEBXR_DEPTH_CONTRACT.md).
 
 ## Physical north-marker workflow
 

@@ -21,11 +21,20 @@ and undefined azimuth at zenith/nadir. A corrupted vector/matrix pair is rejecte
 
 The geocentric replacement adds independent WGS84 equatorial/polar-radius cases, local-ENU
 longitude invariance, surface-observer/core separation, observer-to-axis distance, owned frozen
-positions, a single core-centered line, exact projective antipodes, and a finite-render
+positions, a single core-centered line, exact projective antipodes, and a finite-proxy diagnostic
 convergence bound below `0.14 arcseconds`. Presentation tests verify ENU-to-application signs, a
 single geographic-parent yaw boundary, observer/time/accepted-calibration identity changes,
 below-horizon policies, optional labels/markers/core, one persistent scene group, and clearing
 stale geometry.
+
+The renderer-remediation tests additionally prove that no raw large-world position enters a GPU
+attribute or object translation; per-eye camera-relative core values stay below the declared
+seven-megameter component budget; homogeneous projective directions preserve antipodes,
+collinearity, head-rotation behavior, and stereo-eye separation; Float32 core error remains below
+one meter and direction quantization below `0.03 arcseconds` over the supported observer sweep;
+global logarithmic depth is absent; celestial materials neither test nor write depth; ordinary
+scene-material defaults remain unchanged; and clear/rebuild/dispose ownership is reusable and
+idempotent.
 
 Desktop development and production preview passed the equator, mid-northern, mid-southern, and
 high-northern cases; observer and explicit UTC controls; labels and below-horizon treatment;
@@ -33,7 +42,7 @@ recalibration/reset; orbit, zoom, and resize; relative production assets; and cl
 console checks. Physical Quest validation remains **NOT RUN** and visual inspection is supporting
 evidence rather than a substitute for the mathematical cases.
 
-The local replacement suite is 16 files / 276 tests. Independent review and physical Quest
+The hardened local replacement suite is 18 files / 291 tests. Independent renderer review and physical Quest
 validation remain NOT RUN.
 
 Reference authorities and their limitations are recorded in the [official astronomy source

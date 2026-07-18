@@ -8,13 +8,22 @@
   with a WGS84 geocentric world-scale model: the observer stays at the modeled surface origin, an
   actual modeled Earth-core point is placed in local ENU meters, and one P03 mean-axis centerline
   extends to exact antipodal projective NCP/SCP directions.
-- Added finite render proxies at a declared `10^13 m` extent on that exact line, with a
-  sub-`0.14 arcsecond` convergence bound and visual-only core/pole/label sizes. NCP/SCP remain
-  directions at infinity and are explicitly not Polaris.
-- Extended the meter-based scene depth range with logarithmic depth and added deterministic WGS84
-  core, observer-to-axis, centerline, antipode, convergence, immutability, and visibility tests.
-- Superseded DEC-020 with DEC-021. Independent review, integration, publication, and Quest testing
-  of the replacement remain NOT RUN; the hosted site still contains the earlier proxy.
+- Retained finite `10^13 m` proxies only as CPU-side convergence diagnostics with the accepted
+  sub-`0.14 arcsecond` bound. NCP/SCP remain directions at infinity and explicitly are not
+  Polaris; no raw large-world coordinate now reaches the GPU.
+- Recorded the first independent geocentric gate: WGS84/P03 science, convergence, calibration,
+  automation, development, and preview passed; raw large GPU coordinates, logarithmic XR depth,
+  missing disposal, and rendering-test gaps blocked integration and publication.
+- Hardened the local renderer with per-eye camera-relative Earth-core coordinates, homogeneous
+  projective pole directions, bounded coefficient/quad geometry, ordinary linear `0.01–100 m`
+  depth, and non-testing/non-writing celestial overlay materials.
+- Added explicit idempotent ownership/disposal for axis geometries, shader materials, label
+  textures, and render callbacks plus page-teardown cleanup and deterministic precision, stereo,
+  depth, resource-reuse, and disposal regressions. The hardened local suite passes 18 files / 291
+  tests while retaining the 270-test published baseline.
+- Added DEC-022 and the geocentric precision/WebXR depth contracts. Independent re-gate,
+  integration, publication, and Quest testing remain NOT RUN; the hosted site still contains the
+  earlier proxy.
 
 ### Added
 
