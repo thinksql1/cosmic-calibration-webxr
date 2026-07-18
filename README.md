@@ -21,8 +21,8 @@ the local geocentric replacement accepted its WGS84/P03 science but blocked raw 
 GPU rendering, logarithmic XR depth, and missing disposal. Those renderer defects are remediated
 locally with per-eye camera-relative/homogeneous geometry, linear compositor-safe depth, and
 explicit resource ownership. The independent renderer gate and normal local integration pass with
-291 tests. Publication is pending; physical Quest acceptance must remain NOT RUN until the hosted
-candidate is verified.
+291 tests. GitHub Actions run #11 and the hosted geocentric controls/readiness/reset/subpath-assets
+regression pass. Physical Quest acceptance remains NOT RUN.
 
 - [Celestial reference architecture](docs/CELESTIAL_REFERENCE_ARCHITECTURE.md)
 - [Astronomy Engine evaluation](docs/ASTRONOMY_ENGINE_EVALUATION.md)

@@ -28,6 +28,9 @@
   and precision bounds; feature and merged-master validation pass 291 tests, and normal merge
   `706baab` integrates the hardened renderer while retaining its feature branch. Publication and
   physical Quest acceptance remain NOT RUN.
+- Published `cdb5f4c` normally without force. GitHub Actions run #11 passed build/deploy and the
+  hosted geocentric title, Earth-core/axis controls, readiness, visibility, reset, subpath assets,
+  and console regression pass. Physical Quest acceptance remains NOT RUN.
 
 ### Added
 
