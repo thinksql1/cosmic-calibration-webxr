@@ -132,12 +132,15 @@ layers, temporal clocks, and time controls.
 
 ## Milestone 2B - mean Earth axis and celestial poles
 
-**Published result:** independent scientific/visual review, automated validation, desktop
-validation, Pages workflow, and hosted desktop verification PASS; physical Quest acceptance
-NOT RUN.
+**Current result:** the earlier observer-centered implementation was published, then superseded
+locally by the geocentric DEC-021 model. The geodetic/P03 contract passed independent review, but
+the first geocentric renderer gate rejected raw large GPU coordinates, logarithmic XR depth, and
+missing disposal. DEC-022 remediation is complete locally; independent renderer re-gate,
+integration, publication, and physical Quest acceptance are NOT RUN.
 
-**Objective:** render one coherent observer-centered P03 mean-axis-of-date system with exact
-antipodal north and south celestial poles.
+**Objective:** render one coherent world-scale P03 mean-axis-of-date system through the modeled
+WGS84 Earth core, with the observer retained at the surface and exact antipodal projective north
+and south celestial-pole directions.
 
 **Inputs**
 
@@ -147,13 +150,13 @@ antipodal north and south celestial poles.
 
 **Outputs**
 
-- One mean Earth-axis line with antipodal NCP/SCP endpoints.
+- One geocentric mean Earth-axis line through the modeled core with projective NCP/SCP directions.
 - Optional, clearly styled below-horizon continuation and pole labels.
 - Proven latitude/horizon relationship and model/provenance disclosure.
 - Bounded manual observer and frozen/current-time diagnostic controls backed by the Milestone 2A
   state stores; no automatic location or general time-animation system.
 
-**Dependencies:** 2A PASS; accepted presentation radius and below-horizon policy.
+**Dependencies:** 2A PASS; accepted DEC-021 world-scale/projective-pole and below-horizon policy.
 
 **Acceptance criteria**
 

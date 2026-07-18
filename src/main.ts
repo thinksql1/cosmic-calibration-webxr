@@ -24,6 +24,7 @@ import {
   createEarthAxisPresentationModel,
   createEarthAxisStatusViewModel,
   DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
+  EARTH_AXIS_LINEAR_SCENE_FAR_METERS,
   type BelowHorizonDisplayMode,
   type EarthAxisDisplaySettings,
 } from './presentation/earthAxisPresentationModel';
@@ -78,6 +79,7 @@ const timePresetButtons = [
 ];
 const useCurrentTimeButton = requireElement<HTMLButtonElement>('#use-current-time');
 const showAxisInput = requireElement<HTMLInputElement>('#show-celestial-axis');
+const showEarthCoreInput = requireElement<HTMLInputElement>('#show-earth-core');
 const showMarkersInput = requireElement<HTMLInputElement>('#show-pole-markers');
 const showLabelsInput = requireElement<HTMLInputElement>('#show-pole-labels');
 const showBelowHorizonInput = requireElement<HTMLInputElement>('#show-below-horizon');
@@ -108,7 +110,7 @@ const camera = new THREE.PerspectiveCamera(
   54,
   window.innerWidth / window.innerHeight,
   0.01,
-  100,
+  EARTH_AXIS_LINEAR_SCENE_FAR_METERS,
 );
 camera.position.set(2.7, 2.1, 3.1);
 
@@ -152,6 +154,7 @@ function currentAxisDisplaySettings(): EarthAxisDisplaySettings {
   return Object.freeze({
     ...DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
     showAxis: showAxisInput.checked,
+    showEarthCore: showEarthCoreInput.checked,
     showMarkers: showMarkersInput.checked,
     showLabels: showLabelsInput.checked,
     showBelowHorizonSegment: showBelowHorizonInput.checked,
@@ -420,6 +423,7 @@ useCurrentTimeButton.addEventListener('click', () => {
 
 [
   showAxisInput,
+  showEarthCoreInput,
   showMarkersInput,
   showLabelsInput,
   showBelowHorizonInput,
@@ -438,6 +442,10 @@ renderer.setAnimationLoop(() => {
   if (!renderer.xr.isPresenting) controls.update();
   renderer.render(scene, camera);
 });
+
+window.addEventListener('pagehide', () => {
+  celestialAxis.dispose();
+}, { once: true });
 
 async function initializeCapabilityState(): Promise<void> {
   renderState(checkingState);

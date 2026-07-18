@@ -1,159 +1,156 @@
-# Earth Axis and Celestial Poles
+# Earth Core, Rotational Axis, and Celestial Poles
 
 ## Status
 
-Milestone 2B passed independent scientific/visual review and was integrated normally into
-`master` at merge commit `09a6e67`. Automated, desktop development/production-preview, GitHub
-Pages run #9, and hosted desktop validation pass at published commit `5b657e4`. Physical Quest
-acceptance is NOT RUN.
+The geocentric scientific model and its hardened renderer are implemented locally on
+`feature/milestone-2b-geocentric-world-axis`. The original independent gate accepted the WGS84,
+P03, projective-pole, convergence, and calibration contracts but rejected raw `10^13 m` GPU
+coordinates, global logarithmic depth, and missing disposal. The local remediation replaces those
+rendering paths and adds deterministic precision/depth/lifecycle coverage. Independent re-gate,
+integration, publication, and physical Quest acceptance remain **NOT RUN**.
 
-This layer renders only one coherent IAU P03 precession-only mean Earth axis and its exact
-antipodal north and south celestial-pole endpoints. It is a Tier 1 structural display, not a true,
-instantaneous, observed, magnetic, or geographic pole.
+## Scientific model — unchanged
 
-## Scientific model
+The source remains the validated Tier 1 IAU P03 precession-only mean pole/equator of date. It
+excludes nutation, celestial-intermediate-pole corrections, polar motion, Chandler wobble, and
+observed pole offsets. NCP and SCP are celestial directions at infinity, not Polaris or literal
+finite-distance bodies.
 
-The source is the validated Milestone 2A scientific snapshot. The selected pole model is:
+The scientific snapshot owns:
 
-```text
-IAU P03 precession-only mean pole/equator of date
-source vector frame: GCRS
-mean-date transform: GCRS_TO_P03_MEAN_EQUATOR_OF_DATE
-validated domain: J2000.0 +/- one Julian century
-```
+1. the validated P03 mean-axis direction transformed into observer-horizontal ENU; and
+2. the WGS84 geocentric placement of the modeled Earth center relative to the observer's local
+   tangent origin.
 
-The model excludes nutation, celestial-intermediate-pole corrections, polar motion, Chandler
-wobble, and observed celestial-pole offsets. The visible layer never calls Astronomy Engine or
-the P03 provider and never reconstructs the bias-precession matrix.
+The observer remains at their modeled surface origin and is generally offset from the rotational
+axis. One line through the modeled core is parallel to the validated north direction; south is
+exact component negation. Geographic yaw remains outside science and is applied once by the
+existing geographic parent.
 
-## Axis-specific transform contract
-
-The scientific snapshot builder owns the axis transform:
-
-```text
-validated P03 north vector in GCRS
-  -> apply the snapshot's GCRS-to-P03-mean-date matrix
-  -> prove the result is the mean-date +Z axis within 1e-12
-  -> identify the same axis as Earth-fixed +Z
-  -> full WGS84 geodetic Earth-fixed-to-ENU rotation
-  -> observer-horizontal ENU north/south unit directions
-```
-
-For this axis only, Earth rotation is a rotation about the same `+Z` and therefore cannot change
-the axis. No sidereal angle is fabricated. Longitude cancels analytically in the complete
-Earth-fixed-to-ENU rotation. For geodetic latitude `phi`:
+## Geocentric placement
 
 ```text
-NCP ENU = (east 0, north cos(phi), up sin(phi))
-SCP ENU = -NCP ENU
+observer WGS84 geodetic state
+  -> observer Earth-fixed position
+  -> Earth-center displacement
+  -> local horizontal ENU meters
+  -> application basis: east -> +X, up -> +Y, north -> -Z
+  -> calibrated geographic parent applies yaw once
 ```
 
-This analytic relationship is a validation property, not a replacement for the P03 frame proof.
-Changing the selected UTC instant rebuilds scientific identity and provenance; it correctly does
-not invent local motion for the Earth-fixed mean axis. Future equator, stars, and body directions
-will require their own complete date/Earth-rotation transforms and must not reuse this
-axis-specific shortcut.
+The modeled core is not the floor origin, observer, Earth sphere, or an invented nearby point.
+For `WGS84_ELLIPSOID`, elevation is ellipsoid height. The current UI declares mean-sea-level
+elevation; Tier 1 temporarily uses that numeric value as an ellipsoid-height approximation and
+retains the existing datum warning.
 
-The presentation layer then performs only:
+## Scientific projective directions and diagnostic finite proxies
+
+The scientific NCP/SCP values are exact antipodal directions at infinity. The presentation model
+retains `10^13 m` finite points only to reproduce the accepted convergence diagnostic; they never
+cross the hardened GPU boundary. Across the supported observer latitude and elevation domain,
+the accepted upper bound remains below `0.14 arcseconds`.
+
+The renderer uses no physical “distance to a celestial pole.” Marker diameter and label size are
+screen-space presentation values.
+
+## Hardened renderer
+
+The render strategy identifier is:
 
 ```text
-ENU east  -> Three.js +X
-ENU up    -> Three.js +Y
-ENU north -> Three.js -Z
-unit direction -> symbolic display radius
-child of the calibrated geographic parent
+CAMERA_RELATIVE_CORE_AND_HOMOGENEOUS_PROJECTIVE_POLES
 ```
 
-The geographic parent applies the accepted Milestone 1 yaw exactly once. The axis data contains
-no pre-applied room yaw, and the XR camera, renderer, `local-floor`, controllers, and room
-diagnostics remain unrotated.
+For each camera supplied by Three.js — including each XR eye — JavaScript:
 
-## Readiness
+1. applies the calibrated parent's world rotation once;
+2. subtracts that eye camera's world position from the scientific Earth core in double precision;
+3. rotates the relative core into that eye's view frame;
+4. rotates the unit pole direction into the same view frame; and
+5. uploads only the camera-relative core and unit directions.
 
-No axis is presented as scientifically valid until the snapshot has:
+Line geometry contains only homogeneous interpolation coefficients `0` and `1`. The vertex shader
+projects the core with homogeneous `w = 1` and pole directions with `w = 0`. Marker and label
+quads similarly project either the finite camera-relative core or the projective direction. All
+object translations remain zero. No `10^13 m` vertex, object position, or model-view translation
+exists.
 
-- a validated manual WGS84 observer;
-- an explicit valid UTC simulation instant;
-- a current accepted geographic calibration;
-- the supported Tier 1 configuration and provider registry;
-- a date inside the P03 validation domain; and
-- passing pole, frame, unit-length, and antipodal invariants.
+The two line segments use the same per-eye core and exact antipodal directions, so their
+projective image is one continuous mathematical line. The display is world-anchored because the
+calibrated world matrix and active eye matrix are recomputed at draw time; it is not based on the
+headset-forward vector and is not screen-locked.
 
-A missing or invalid input produces concise guidance and clears the celestial group without
-removing Milestone 0/1 geometry. There is no default latitude, guessed pole, automatic location,
-or persisted room calibration.
+## Earth-core presentation
 
-## Observer and time controls
+The core remains a finite WGS84 point roughly one Earth radius from the observer. Its actual
+camera-relative vector determines screen direction and per-eye behavior. A restrained fixed-pixel
+marker makes the direction inspectable; it is an appearance proxy and does not replace or move the
+scientific point. The marker is depth-disabled because no room floor or passthrough depth surface
+is a scientifically valid Earth occluder.
 
-The bounded diagnostic UI accepts manual geodetic latitude, east-positive longitude, and
-elevation in meters above mean sea level. Values remain in memory and pass through the validated
-observer state. Generic equator, mid-northern, mid-southern, and high-northern presets are
-validation cases, not detected locations.
+## WebXR depth contract
 
-The selected UTC is owned by the central simulation clock. Fixed J2000, present-era, and bounded
-future fixtures are available. **Use current time** is an explicit application action that passes
-one system-supplied instant to the clock; scientific consumers never read ambient time. This is
-not a general time-control or animation system.
+The depth contract identifier is:
 
-## Presentation model
+```text
+LINEAR_XR_DEPTH_WITH_NON_WRITING_CELESTIAL_OVERLAY
+```
 
-The physical Earth axis is geocentric. The rendered line is an observer-centered directional
-proxy parallel to that scientific orientation. It passes through the calibrated local origin for
-embodied comprehension and does not claim that Earth's center is at the user.
+The shared camera is restored to the ordinary `0.01–100 m` range and the renderer does not enable
+logarithmic depth. Existing room/geographic materials retain normal linear depth behavior. Every
+celestial axis/core/pole/label material explicitly sets `depthTest = false` and
+`depthWrite = false`; its shader places visible fragments near the far clip boundary without
+modifying the compositor-visible depth attachment. The XR compositor therefore never receives
+logarithmic values disguised as linear near/far depth.
 
-- Symbolic radius: `1.8 m` in each pole direction.
-- One persistent group owns both touching axis halves, one observer-origin proxy, and both pole
-  markers.
-- North and south positions are exact component negations.
-- NCP and SCP use restrained amber/cyan differentiation and optional billboard labels.
-- No star, planet, halo, blinking, arrow, particle, or reticle semantics are used.
+This is one normal render pass with a non-writing celestial overlay, not a second XR layer. The
+tradeoff is explicit: celestial aids appear through virtual room references and passthrough because
+the application has no authoritative environmental or Earth-surface occlusion mesh.
 
-### Below-horizon convention
+## Ownership and lifecycle
 
-Both endpoints remain part of one scientific axis.
+`createEarthAxisGroup()` owns its line/quad geometries, shader materials, and two label textures.
 
-- **Full axis:** both halves remain visible with restrained equal emphasis.
-- **Above-horizon emphasis:** the below-horizon half, marker, and label are subdued while the
-  endpoint remains present.
-- The user may hide the below-horizon line segment explicitly; the underlying pole data and
-  marker remain available.
+- `update()` reuses the existing objects and resources.
+- visibility changes allocate nothing.
+- `clear()` removes scientific readiness while keeping reusable GPU resources.
+- `dispose()` removes the group, releases every unique owned geometry/material/texture exactly
+  once, clears render callbacks, rejects later updates, and is idempotent.
+- page teardown calls `dispose()`; XR exit/re-entry reuses the same handle and does not duplicate
+  resources.
 
-The room floor is not an opaque Earth surface and is not used for scientific occlusion. The
-initial horizon is the airless WGS84 geodetic geometric horizon, not terrain, horizon dip,
-atmospheric refraction, or the observed room boundary.
+The handle owns no controller/session listeners and does not dispose shared scene resources.
 
-## Controls and diagnostics
+## Diagnostics
 
-Independent controls are limited to axis, markers, labels, below-horizon segment, and
-below-horizon treatment. Compact diagnostics disclose pole altitude/azimuth, selected UTC,
-observer latitude, accepted calibration identity, and provider version. The Tier 1/model limits
-remain visible and diagnostics are collapsible.
+The restrained diagnostics distinguish scientific values from rendering policy:
 
-Every new interactive element participates in the existing DOM-overlay `beforexrselect` guard.
-When DOM overlay is unavailable, observer/time settings should be selected before AR entry;
-controller-only physical-north calibration remains the required XR path.
+- scientific Earth-core ENU meters;
+- normalized P03 NCP ENU direction;
+- modeled core and observer-to-axis distances;
+- diagnostic finite-proxy convergence bound;
+- camera-relative/homogeneous strategy;
+- approximate camera-relative core magnitude;
+- linear/non-writing depth contract;
+- calibration revision and P03 provider version.
 
-## Validation evidence
+Per-eye transient values remain available on the scene group's diagnostic `userData` for defect
+triage but are not continuously copied into the normal UI.
 
-Automated cases cover:
+## Validation and remaining risk
 
-- equator, positive/negative mid-latitude, and positive/negative high-latitude relationships;
-- exact NCP/SCP antipodes, unit length, north/south azimuth, and zenith/nadir undefined azimuth;
-- longitude cancellation for the Earth-fixed axis;
-- P03 matrix/vector coherence and explicit frame tags;
-- ENU-to-application signs and absence of presentation yaw;
-- observer, time, and same-yaw accepted-calibration identity updates;
-- full/subdued below-horizon modes and independent visibility;
-- one persistent scene group with no accumulated objects; and
-- clearing stale geometry on scientific reset/not-ready state.
+Deterministic coverage includes supported latitude/elevation sweeps, per-eye offsets, head
+translation and rotation, exact antipodes, one calibrated yaw, bounded float attributes,
+camera-relative float32 error, homogeneous shader/source boundaries, material depth behavior,
+resource reuse, clear/rebuild, and idempotent disposal.
 
-Desktop development and production preview verify the equator, northern, southern, and
-high-northern visual cases; observer/time and visibility controls; calibration/recalibration/reset;
-OrbitControls; zoom; resize; relative assets; and clean application console output.
+Desktop development and production preview can validate shader compilation, controls, orbit,
+readiness/reset, and console health. They cannot establish Quest Browser stereo comfort,
+passthrough contrast, compositor behavior, or physical world locking. Those remain pending an
+independent renderer re-gate, publication, and later physical Quest acceptance.
 
 ## Exclusions
 
-Milestone 2B does not implement a celestial equator, precession trajectory, nutation display,
-polar motion, Chandler wobble, ecliptic, Sun, Moon, planets, stars, temporal markers, animated
-time, geolocation, map search, persistence, Earth center/sphere, relational circuits, media,
-audio, AI enhancement, or contemplative sequencing.
+This remediation adds no celestial equator, precession trajectory, nutation display, polar
+motion, Chandler wobble, ecliptic, Sun, Moon, planets, stars, temporal markers, geolocation, Earth
+sphere, relational circuits, media, audio, AI enhancement, or contemplative sequencing.
