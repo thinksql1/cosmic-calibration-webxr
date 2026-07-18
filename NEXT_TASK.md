@@ -4,50 +4,61 @@ This file contains exactly one bounded next task.
 
 ## Task
 
-**Title:** Independently validate and publish the hardened geocentric axis renderer
+**Title:** Run the physical Quest acceptance test for the hardened geocentric Earth-core axis
 
 ## Recommended execution
 
 - **Codex model:** GPT-5.6 Sol
 - **Reasoning effort:** Max
-- **Branch under review:** `feature/milestone-2b-geocentric-world-axis`
-- **Why:** the re-gate must independently check homogeneous projective mathematics, per-eye
-  camera-relative precision, WebXR compositor-depth safety, lifecycle ownership, and publication
-  without relying on the remediation builder's tests alone.
+- **Branch:** `master`
+- **Why:** the remaining gate requires disciplined reconciliation of physical stereo, world
+  locking, calibration, depth/clipping, lifecycle, and comfort evidence without converting
+  automated or desktop results into a physical claim.
 
-## Objective
+## Entry condition
 
-Independently reproduce the prior failed GPU/depth/disposal probes and verify the unchanged
-WGS84/P03 scientific contract. If and only if every material gate passes, merge normally into
-`master`, revalidate, push without force under existing authorization, verify GitHub Actions and
-Pages, and prepare the physical Quest acceptance procedure.
+Do not begin until the normal `master` push, GitHub Actions workflow, Pages deployment, and hosted
+desktop regression all pass for the hardened renderer. Confirm the hosted UI exposes observer,
+UTC, Earth-core, axis, pole-marker, label, and below-horizon controls and no longer contains the
+old observer-centered proxy.
 
-## Required gate
+## Procedure
 
-1. Confirm raw `10^13 m` positions never enter GPU attributes, object transforms, matrices, or
-   shaders; diagnostic finite points must remain CPU-only.
-2. Reproduce the per-eye camera-relative transform for head translation, rotation, representative
-   stereo offsets, calibrated yaw, supported observer latitude/elevation, and float32 budgets.
-3. Verify homogeneous `w = 1` core and `w = 0` antipodal pole directions form one continuous
-   projective line through the scientific Earth core without screen locking or mono-eye reuse.
-4. Confirm the shared renderer uses ordinary linear `0.01–100 m` depth, celestial materials never
-   test/write depth, and no compositor-incompatible logarithmic depth path remains.
-5. Verify clear/rebuild, repeated visibility/recalibration, session exit/re-entry, page teardown,
-   and idempotent disposal release only owned resources without duplication.
-6. Run clean install, type-check, full tests, production build, diff/dependency checks, development,
-   and production-preview regression. No dependency or workflow change is allowed.
-7. Keep physical Quest stereo comfort, passthrough visibility, world locking, and compositor
-   behavior **NOT RUN** until a passing integration/publication gate creates the hosted candidate.
+1. Record the hosted commit and Pages URL, then enter immersive AR on Quest 3 with a safe standing
+   boundary and verified floor.
+2. Enter the intended Michigan observer values and fixed UTC fixture; do not use invented or
+   automatically detected coordinates.
+3. Perform a fresh controller-only true-north calibration and confirm scientific readiness.
+4. Verify one coherent centerline relates NCP direction, the modeled Earth core below the
+   observer, and antipodal SCP direction; the observer must remain visibly offset from the
+   rotational axis rather than placed on it.
+5. Check NCP toward the appropriate northern celestial direction and SCP antipodally below the
+   opposite horizon. Treat the core/poles as scientific point/direction centers, not literal
+   marker sizes or Polaris.
+6. Check stereo unity, small translational parallax, world locking during slow head rotation,
+   crouch/stand behavior, and absence of eye-dependent kinks, sliding, duplication, or head lock.
+7. Inspect line/marker/label visibility, bright and dark passthrough readability, below-horizon
+   treatment, clipping, flicker, depth-order artifacts, and comfort.
+8. Toggle visibility without moving the scientific line. Reset, repeat same-yaw and changed-yaw
+   recalibration, exit/re-enter AR, reload once, and confirm clean readiness/resource lifecycle.
+9. Record every item as `PASS`, `FAIL`, `UNCERTAIN`, `NOT RUN`, or `NOT APPLICABLE`; do not infer
+   angular accuracy or compositor behavior beyond direct observation.
+
+## Required outcome
+
+Until the user performs and reports the headset procedure, the physical gate remains:
+
+`BLOCKED — PHYSICAL QUEST TEST NOT YET PERFORMED`
 
 ## Explicit exclusions
 
 Do not implement the celestial equator, precession trajectories, Sun, Moon, planets, ecliptic,
-temporal clocks, geolocation, Earth sphere, media, relational circuits, game systems, AI
-enhancement, audio, or contemplative sequencing.
+temporal clocks, geolocation, media, relational circuits, game systems, AI enhancement, audio, or
+contemplative sequencing.
 
 ## Stop conditions
 
-Stop without merge, push, or deployment if raw large coordinates remain, the per-eye projective
-transform is ambiguous, depth can be misinterpreted by the XR compositor, disposal is incomplete,
-tests are misleading, dependencies/workflows change, or physical Quest evidence is required to
-decide the code gate.
+Stop and preserve evidence if the hosted commit is stale, workflow/Pages regression fails, stereo
+does not fuse, the line bends or follows the head, calibration appears doubled, the Earth core is
+replaced by a nearby proxy, depth/clipping is unusable, lifecycle duplicates resources, or comfort
+requires changing the scientific contract.

@@ -24,6 +24,10 @@
 - Added DEC-022 and the geocentric precision/WebXR depth contracts. Independent re-gate,
   integration, publication, and Quest testing remain NOT RUN; the hosted site still contains the
   earlier proxy.
+- Independently reproduced projective/stereo cache behavior, single-yaw calibration, lifecycle,
+  and precision bounds; feature and merged-master validation pass 291 tests, and normal merge
+  `706baab` integrates the hardened renderer while retaining its feature branch. Publication and
+  physical Quest acceptance remain NOT RUN.
 
 ### Added
 

@@ -4,31 +4,19 @@
 
 **Updated by:** Codex / project control
 
-**Current phase:** Milestone 2B geocentric renderer remediation complete locally; independent re-gate pending
+**Current phase:** Hardened Milestone 2B geocentric renderer integrated; publication pending
 
-**Overall status:** **Milestone 1 COMPLETE; Milestone 2A PASS, integrated, and published; the published Milestone 2B proxy is superseded locally by an unintegrated geocentric replacement.** Automated,
-desktop, hosted, and reported physical Quest 3 Milestone 1 acceptance validation pass. The
-non-visual Milestone 2A0 adapter/P03 contracts and final Milestone 2A scientific foundation passed
-their independent gate, were merged normally into `master`, and were pushed without force. GitHub
-Pages workflow run #7 passed with 239 tests and deployed the unchanged visible Milestone 1
-application; hosted simulation/reset, subpath assets, and console health passed. The first visible
-celestial layer is one coherent P03 mean-axis directional proxy with exact antipodal NCP/SCP
-endpoints. Independent scientific/visual review passed and merge commit `09a6e67` integrated the
-retained feature branch normally into `master`. Commit `5b657e4` was pushed normally and GitHub
-Pages workflow run #9 deployed it successfully. Physical Quest acceptance is NOT RUN. On
-2026-07-18 the product requirement replaced the observer-centered `1.8 m` proxy with a WGS84
-geocentric world-scale Earth-core model. The local feature branch keeps the observer at the
-modeled surface origin, places the modeled core in ENU meters, and retains one P03 centerline
-toward antipodal projective NCP/SCP directions. Its first independent gate accepted the
-scientific/geodetic, convergence, calibration, automated, development, and preview evidence but
-rejected raw `10^13 m` GPU coordinates, logarithmic XR depth, missing resource disposal, and the
-associated test gaps. The bounded local remediation now uses per-eye camera-relative core values,
-homogeneous pole directions, ordinary linear XR depth, non-writing celestial overlays, and
-idempotent owned-resource disposal. The expanded local test suite and final development/preview
-closeout pass with 18 files / 291 tests, type-check, production build, deterministic precision,
-stereo, depth, and lifecycle regressions, and clean development/preview browser consoles.
-Independent re-gate, merge, push, deployment, and physical Quest evidence are NOT RUN. The hosted
-site still contains the earlier proxy.
+**Overall status:** **Milestone 1 COMPLETE; Milestone 2A PASS and published; hardened geocentric Milestone 2B integrated locally and awaiting publication.** The independent renderer gate found no
+blocking or material defect. It reproduced per-eye cache invalidation and eye-order behavior,
+single-yaw calibration at `+/-90` and `180` degrees, projective antipodes, linear non-writing XR
+depth, owned-resource disposal, and independent precision maxima. Feature and merged `master`
+both pass clean install, type-check, 18 files / 291 tests, production build, diff/dependency
+checks, development/preview readiness, controls, reset, relative assets, teardown, and clean
+browser consoles. Normal merge commit `706baab` retains the feature branch and integrates the
+WGS84 Earth core, homogeneous NCP/SCP directions, per-eye camera-relative core, linear XR depth,
+and idempotent disposal without changing dependencies or workflows. Push, GitHub Actions, Pages
+verification, and physical Quest acceptance are still NOT RUN. The currently hosted site remains
+the earlier observer-centered proxy until publication succeeds.
 
 ## One-paragraph state summary
 
@@ -80,8 +68,8 @@ geolocation or persistence. Its independent gate, 270-test suite, merged-master 
 development/production-preview desktop checks pass. GitHub Pages run #9 passed on `5b657e4`;
 hosted observer/time/axis controls, NCP/SCP rendering, equator/northern/southern cases,
 visibility controls, reset, repository-subpath assets, and console health pass. Physical Quest
-acceptance of the replacement is NOT RUN. The exact next task is independent validation and,
-only after a pass, normal integration/publication of the geocentric replacement.
+acceptance of the hardened geocentric replacement is NOT RUN. Its independent renderer gate and
+normal local integration now pass; publication must succeed before the physical Quest procedure.
 
 ## Working and verified
 
@@ -360,10 +348,10 @@ only after a pass, normal integration/publication of the geocentric replacement.
 | 2026-07-16 | Milestone 2B publication and hosted desktop verification | PASS; normal push of `5b657e4`, workflow run #9 install/type-check/270-test/build/upload/deploy success, hosted observer/time/axis controls, NCP/SCP rendering, equator/mid-north/mid-south diagnostics, display controls, reset, repository-subpath assets, and clean console verified. Physical Quest acceptance NOT RUN | `https://github.com/thinksql1/cosmic-calibration-webxr/actions/runs/29540115500`; `https://thinksql1.github.io/cosmic-calibration-webxr/` |
 | 2026-07-18 | Local geocentric Earth-core/axis replacement | PASS locally for clean install, type-check, 16 files / 276 tests, build, diff/dependency checks, development and production-preview readiness/status/reset/relative-assets/console checks. WGS84 core placement, projective antipodes, one centerline, and sub-0.14 arcsecond render convergence are tested. Independent gate, merge, push, deployment, and Quest validation NOT RUN | `feature/milestone-2b-geocentric-world-axis`; `docs/EARTH_AXIS_AND_CELESTIAL_POLES.md` |
 | 2026-07-18 | Geocentric renderer hardening | PASS locally for type-check and 18 files / 291 tests. Raw large GPU positions and global logarithmic depth are removed; per-eye camera-relative core values, homogeneous pole directions, linear non-writing celestial depth, deterministic Float32/stereo/extreme-rotation budgets, runtime input rejection, reusable resources, and idempotent disposal are verified. Development and production-preview smoke checks pass with clean consoles. Independent re-gate, integration, publication, and physical Quest validation remain NOT RUN | `feature/milestone-2b-geocentric-world-axis`; `docs/GEOCENTRIC_RENDERING_PRECISION.md`; `docs/WEBXR_DEPTH_CONTRACT.md` |
+| 2026-07-18 | Hardened geocentric renderer independent gate and integration | PASS; temporary independent probes verified eye-order/cache identity, changed-view invalidation, `+/-90` and `180` degree yaw, exact antipodes, and independently reproduced maxima of `6,478,139 m`, `0.249655 m`, `0.007780 arcseconds`, and `0.133622 arcseconds` for component magnitude, core Float32 error, pole Float32 error, and finite-proxy convergence. Feature and merged `master` pass clean install, type-check, 291 tests, build, dependency/diff, development/preview, teardown, and clean-console checks. Normal merge commit `706baab` retained the feature branch. Publication and physical Quest validation remain NOT RUN | `master`; `docs/GEOCENTRIC_RENDERING_PRECISION.md`; `docs/WEBXR_DEPTH_CONTRACT.md` |
 
 ## Current decision horizon
 
-Independently validate the hardened geocentric Earth-core/axis renderer and publish it only after a
-passing gate and separately authorized normal integration/push. Do not begin physical acceptance
-against the stale hosted proxy or start celestial-equator, precession, body, temporal, media,
-relational, or contemplative layers.
+Publish the independently validated, normally integrated hardened geocentric renderer, verify the
+hosted candidate, and only then run the bounded physical Quest acceptance procedure. Do not start
+celestial-equator, precession, body, temporal, media, relational, or contemplative layers.

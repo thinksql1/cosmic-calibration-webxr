@@ -238,7 +238,7 @@
 
 ### DEC-022: Render the geocentric axis with camera-relative homogeneous geometry and linear XR depth
 - **Date:** 2026-07-18
-- **Status:** Accepted locally; independent integration gate pending
+- **Status:** Accepted and integrated; publication and physical Quest acceptance pending
 - **Owner:** Darrell Wright / project control
 - **Decision:** Preserve the DEC-021 WGS84 core, P03 axis, and projective pole science in immutable
   CPU values, but never upload its `10^13 m` diagnostic finite proxies as GPU positions. For each

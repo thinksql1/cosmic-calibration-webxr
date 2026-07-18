@@ -1,6 +1,6 @@
 # Cosmic Calibration WebXR
 
-Cosmic Calibration is a mixed-reality cosmic-navigation project. Milestone 0 established a physically validated Quest 3 passthrough and floor-relative reference frame. Milestone 1 adds an explicit, user-driven calibration from the room-relative frame to a pre-marked true-north direction. Milestone 2A provides the validated non-visual astronomy foundation. A local Milestone 2B replacement now models the WGS84 Earth core at world scale and one coherent P03 mean axis with antipodal projective NCP/SCP directions.
+Cosmic Calibration is a mixed-reality cosmic-navigation project. Milestone 0 established a physically validated Quest 3 passthrough and floor-relative reference frame. Milestone 1 adds an explicit, user-driven calibration from the room-relative frame to a pre-marked true-north direction. Milestone 2A provides the validated non-visual astronomy foundation. The integrated Milestone 2B replacement models the WGS84 Earth core at world scale and one coherent P03 mean axis with antipodal projective NCP/SCP directions.
 
 Scientific geometry and contemplative interpretation remain separate layers. Milestone 2B adds no automatic heading, compass, geolocation, magnetic-declination behavior, celestial equator, precession trajectory, celestial body, or contemplative sequence.
 
@@ -20,8 +20,9 @@ assets, and console health pass for the previously published proxy. The first in
 the local geocentric replacement accepted its WGS84/P03 science but blocked raw large-coordinate
 GPU rendering, logarithmic XR depth, and missing disposal. Those renderer defects are remediated
 locally with per-eye camera-relative/homogeneous geometry, linear compositor-safe depth, and
-explicit resource ownership. The replacement is not integrated or deployed; its exact next task
-is an independent renderer re-gate and publication before a new physical Quest gate.
+explicit resource ownership. The independent renderer gate and normal local integration pass with
+291 tests. Publication is pending; physical Quest acceptance must remain NOT RUN until the hosted
+candidate is verified.
 
 - [Celestial reference architecture](docs/CELESTIAL_REFERENCE_ARCHITECTURE.md)
 - [Astronomy Engine evaluation](docs/ASTRONOMY_ENGINE_EVALUATION.md)
