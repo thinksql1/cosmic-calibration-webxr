@@ -7,6 +7,11 @@ import {
   Observer,
   SetDeltaTFunction,
 } from 'astronomy-engine';
+import {
+  APPARENT_TOPOCENTRIC_ADAPTER_VERSION,
+  ASTRONOMY_ENGINE_PROVIDER,
+  ASTRONOMY_ENGINE_VERSION,
+} from '../providers/astronomyProviderIdentity';
 import { AstronomyContractError } from './errors';
 import {
   horizontalAnglesToEnu,
@@ -15,6 +20,7 @@ import {
 import {
   CORRECTION_PROFILES,
   type CorrectionProfileId,
+  type ApparentTopocentricBodyResult,
   type EquatorialPositionResult,
   type ObserverRelativeBody,
   type ObserverRelativePositionResult,
@@ -24,8 +30,10 @@ import {
   type ValidatedObserver,
 } from './types';
 
-export const ASTRONOMY_ENGINE_PROVIDER = 'Astronomy Engine';
-export const ASTRONOMY_ENGINE_VERSION = '2.1.19';
+export {
+  ASTRONOMY_ENGINE_PROVIDER,
+  ASTRONOMY_ENGINE_VERSION,
+};
 const JULIAN_DATE_J2000 = 2_451_545;
 const DAYS_PER_JULIAN_CENTURY = 36_525;
 
@@ -59,7 +67,15 @@ function providerObserver(observer: ValidatedObserver): Observer {
 }
 
 function providerBody(body: ObserverRelativeBody): Body {
-  return body === 'Sun' ? Body.Sun : Body.Moon;
+  switch (body) {
+    case 'Sun': return Body.Sun;
+    case 'Moon': return Body.Moon;
+    case 'Mercury': return Body.Mercury;
+    case 'Venus': return Body.Venus;
+    case 'Mars': return Body.Mars;
+    case 'Jupiter': return Body.Jupiter;
+    case 'Saturn': return Body.Saturn;
+  }
 }
 
 function provenance(
@@ -71,6 +87,7 @@ function provenance(
   return Object.freeze({
     provider: ASTRONOMY_ENGINE_PROVIDER,
     providerVersion: ASTRONOMY_ENGINE_VERSION,
+    adapterVersion: APPARENT_TOPOCENTRIC_ADAPTER_VERSION,
     simulationInstant: instant,
     observer,
     sourceFrame: 'EQD_TRUE',
@@ -103,7 +120,17 @@ export function getApparentTopocentricEquatorial(
   body: ObserverRelativeBody,
   instant: SimulationInstant,
   observer: ValidatedObserver,
+  correctionProfile: HorizontalCorrectionProfile = 'AE_APPARENT_TOPOCENTRIC_AIRLESS',
 ): EquatorialPositionResult {
+  if (
+    correctionProfile !== 'AE_APPARENT_TOPOCENTRIC_AIRLESS' &&
+    correctionProfile !== 'AE_APPARENT_TOPOCENTRIC_NORMAL_REFRACTION'
+  ) {
+    throw new AstronomyContractError(
+      'UNSUPPORTED_CORRECTION_PROFILE',
+      `Unsupported equatorial correction profile: ${String(correctionProfile)}`,
+    );
+  }
   const time = providerTime(instant);
   const equatorial = Equator(
     providerBody(body),
@@ -138,7 +165,7 @@ export function getApparentTopocentricEquatorial(
       instant,
       observer,
       'EQD_TRUE',
-      'AE_APPARENT_TOPOCENTRIC_AIRLESS',
+      correctionProfile,
     ),
   });
 }
@@ -201,5 +228,47 @@ export function getObserverRelativePosition(
       'HORIZONTAL_ENU',
       correctionProfile,
     ),
+  });
+}
+
+/**
+ * Returns one typed actual-position result for the body layer. This is the
+ * only public route that combines equatorial and horizontal provider values;
+ * scene and presentation code receive no Astronomy Engine values or objects.
+ */
+export function getApparentTopocentricBody(
+  body: ObserverRelativeBody,
+  instant: SimulationInstant,
+  observer: ValidatedObserver,
+  correctionProfile: HorizontalCorrectionProfile,
+): ApparentTopocentricBodyResult {
+  const equatorial = getApparentTopocentricEquatorial(
+    body,
+    instant,
+    observer,
+    correctionProfile,
+  );
+  const horizontal = getObserverRelativePosition(
+    body,
+    instant,
+    observer,
+    correctionProfile,
+  );
+  const celestialEquatorRelation =
+    equatorial.declinationDeg > 0
+      ? 'NORTH'
+      : equatorial.declinationDeg < 0
+        ? 'SOUTH'
+        : 'ON';
+  return Object.freeze({
+    kind: 'VALID_APPARENT_TOPOCENTRIC_BODY',
+    body,
+    equatorial,
+    horizontal,
+    aboveHorizon: horizontal.altitudeDeg >= 0,
+    celestialEquatorRelation,
+    correctionProfile: CORRECTION_PROFILES[correctionProfile],
+    warnings: Object.freeze([]) as readonly [],
+    validity: 'VALID',
   });
 }

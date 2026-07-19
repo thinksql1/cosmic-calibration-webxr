@@ -302,6 +302,27 @@
   horizon. A gravity-defined astronomical vertical may differ through unmodeled deflection of the
   vertical, so diagnostics disclose the WGS84 geodetic-up Tier 1 approximation.
 
+### DEC-026: Present the first body layer as actual apparent topocentric directions
+- **Date:** 2026-07-19
+- **Status:** Accepted; local implementation pending independent integration and physical review
+- **Owner:** Darrell Wright / project control
+- **Decision:** The first visible body layer consists only of Sun, Moon, Mercury, Venus, Mars,
+  Jupiter, and Saturn. Each consumes the immutable observer/time/configuration state through the
+  validated Astronomy Engine adapter under one explicit Tier 1 correction profile, retains
+  EQD_TRUE/HORIZONTAL_ENU provenance and below-horizon truth, and maps to the calibrated scene
+  only as a homogeneous projective apparent direction. The active registry and immutable snapshot
+  must agree on one frozen provider name/version/adapter/body-set/frame descriptor before a body
+  call or cache lookup; both result forms must validate that descriptor and their shared
+  observer/instant/profile provenance. A provider-identity rejection preserves immutable complete
+  expected/actual descriptor diagnostics with deterministic differing fields. Marker color/size
+  improve visibility but
+  do not claim literal body size or distance. Geographic yaw stays parent-only.
+- **Rationale:** Actual direction is the authoritative basis for later teaching projections. A
+  bounded projective marker layer can be validated against the established horizon/equator/axis
+  references without fabricating a nearby solar system or expanding into phases, labels, paths,
+  ecliptic, astrology, or a second temporal system. The user explicitly promoted this layer ahead
+  of, but did not cancel, the planned long-term precession prerequisite review.
+
 ## Proposed decisions awaiting review
 
 None yet.

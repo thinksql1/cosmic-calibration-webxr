@@ -4,6 +4,23 @@
 
 ### Added
 
+- Hardened the local actual-body scientific boundary with one immutable Astronomy Engine
+  apparent-topocentric provider descriptor. The derived body service now validates active
+  registry/snapshot agreement, derives its cache key from that active descriptor, verifies both
+  EQD_TRUE and HORIZONTAL_ENU provenance, and rejects malformed results with structured errors.
+  Adversarial local tests cover name/version/adapter mismatches, cache isolation, cross-result
+  disagreement, and nested immutability. A follow-up diagnostic remediation now preserves full
+  immutable expected/actual provider capability snapshots and deterministic mismatch fields for
+  frame/profile/body/capability-only rejections. Independent revalidation remains pending.
+
+- Added a local bounded actual solar-system body layer for Sun, Moon, Mercury, Venus, Mars,
+  Jupiter, and Saturn. It consumes the existing explicit observer/clock configuration through the
+  Astronomy Engine adapter, preserves actual apparent topocentric altitude/azimuth and
+  below-horizon truth, and renders only projective marker directions with a global visibility
+  toggle. No phase, labels, pointing, paths, ecliptic, projection, or new clock was added.
+- Recorded the user's intentional promotion of actual body placement ahead of the still-planned
+  long-term precession prerequisite review. Independent integration/publication and Quest body
+  acceptance remain pending.
 - Reconciled the successful Milestone 2D Meta Quest physical report as a bounded usability PASS:
   the user described the deployed spatial-reference experience as incredible and really coming
   together nicely. No detailed eye-mode, angular, drift, lifecycle, performance, or comfort

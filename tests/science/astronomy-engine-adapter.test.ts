@@ -3,9 +3,11 @@ import packageManifest from '../../package.json';
 import {
   ASTRONOMY_ENGINE_PROVIDER,
   ASTRONOMY_ENGINE_VERSION,
+  getApparentTopocentricBody,
   getApparentTopocentricEquatorial,
   getObserverRelativePosition,
 } from '../../src/science/astronomy/astronomyEngineAdapter';
+import { APPARENT_TOPOCENTRIC_ADAPTER_VERSION } from '../../src/science/providers/astronomyProviderIdentity';
 import { angularSeparationDeg } from '../../src/science/astronomy/frameTransforms';
 import { createObserver } from '../../src/science/astronomy/observer';
 import { createSimulationInstant } from '../../src/science/astronomy/time';
@@ -156,6 +158,23 @@ describe('Astronomy Engine adapter against JPL Horizons', () => {
     expect(result.direction.up).toBeLessThan(0);
   });
 
+  it('returns one typed actual-position result for every bounded body without exposing provider objects', () => {
+    const instant = createSimulationInstant('2025-06-21T16:00:00.000Z', 'frozen-test');
+    const observer = createObserver({ latitudeDeg: 42, longitudeDegEast: -83, elevationMeters: 250 });
+    for (const body of ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'] as const) {
+      const result = getApparentTopocentricBody(body, instant, observer, 'AE_APPARENT_TOPOCENTRIC_AIRLESS');
+      expect(result).toMatchObject({
+        kind: 'VALID_APPARENT_TOPOCENTRIC_BODY',
+        body,
+        validity: 'VALID',
+        correctionProfile: { id: 'AE_APPARENT_TOPOCENTRIC_AIRLESS' },
+        equatorial: { frame: 'EQD_TRUE', center: 'TOPOCENTRIC' },
+        horizontal: { frame: 'HORIZONTAL_ENU', center: 'TOPOCENTRIC' },
+      });
+      expect(Object.isFrozen(result)).toBe(true);
+    }
+  });
+
   it('tags provider, version, units, correction profile, observer, and instant', () => {
     const fixture = HORIZONS_FIXTURES[0]!;
     const instant = createSimulationInstant(
@@ -173,6 +192,7 @@ describe('Astronomy Engine adapter against JPL Horizons', () => {
     expect(result.provenance).toMatchObject({
       provider: ASTRONOMY_ENGINE_PROVIDER,
       providerVersion: ASTRONOMY_ENGINE_VERSION,
+      adapterVersion: APPARENT_TOPOCENTRIC_ADAPTER_VERSION,
       simulationInstant: instant,
       observer,
       sourceFrame: 'EQD_TRUE',

@@ -4,8 +4,10 @@
 
 **Runtime provider:** `astronomy-engine@2.1.19`
 
-This document records the implemented non-visual boundary. It does not authorize or claim a
-visible Sun, Moon, planet, pole, equator, or precession layer.
+This document records the application-owned astronomy boundary. The bounded Milestone 2E body
+layer consumes its typed actual apparent results through a separate service; presentation never
+imports the provider. It does not authorize ecliptic, projection, paths, phase, labels, stars, or
+precession rendering.
 
 ## Package and containment
 
@@ -126,8 +128,8 @@ not applicable. See [Mean Pole Model Validation](MEAN_POLE_MODEL_VALIDATION.md).
 
 ### Apparent topocentric equatorial
 
-The adapter calls Astronomy Engine `Equator(body, time, observer, true, true)` for the Sun or
-Moon. The provider documentation defines this as topocentric, light-time corrected, parallax
+The adapter calls Astronomy Engine `Equator(body, time, observer, true, true)` for the bounded
+Sun, Moon, Mercury, Venus, Mars, Jupiter, and Saturn list. The provider documentation defines this as topocentric, light-time corrected, parallax
 corrected, aberration enabled, and true-equator-of-date. The application result records:
 
 - `EQD_TRUE` rather than a generic equatorial tag;
@@ -209,6 +211,29 @@ unsupported vertical datum, invalid angle, unsupported frame contract, unsupport
 profile, and mean-pole domain failure. Raw provider objects and stack traces do not cross the
 public data boundary.
 
+### Actual-body provider identity and validation
+
+The body layer uses one frozen application-owned descriptor:
+`ASTRONOMY_ENGINE_APPARENT_TOPOCENTRIC_V1`. It binds the Astronomy Engine name/version, body-adapter
+version, supported Sun/Moon/Mercury/Venus/Mars/Jupiter/Saturn set, supported airless/normal
+correction profiles, and the `EQD_TRUE -> HORIZONTAL_ENU` frame contract. The structural snapshot
+retains a recursively frozen copy; `SolarSystemBodyStateService` verifies the active registry
+descriptor against it before invoking the adapter or consulting its cache.
+
+Each returned equatorial and horizontal result is then checked independently for body, observer,
+instant, provider/version/adapter-version, correction profile, source/output frame, units, finite coordinates, and
+unit direction. The pair must agree on every shared provenance field while retaining their named
+output-frame distinction. `PROVIDER_IDENTITY_MISMATCH`, `UNSUPPORTED_PROVIDER_CAPABILITY`, and
+`MALFORMED_PROVIDER_RESULT` are fatal structured errors. They cannot produce a ready body state or
+reuse a cached body result.
+
+For `PROVIDER_IDENTITY_MISMATCH`, the structured context contains detached, recursively immutable
+expected and actual descriptor snapshots plus a deterministic `mismatchedFields` list. The
+snapshots retain the provider ID/name/version, adapter version, body-set ID, supported body list,
+supported correction-profile list, all declared source/output frames, and descriptor/collection
+freeze status. A frame-, profile-, body-, or capability-only difference is therefore visible in
+diagnostics without exposing a registry function or raw provider implementation.
+
 ## Numerical validation
 
 The tolerance was declared as `0.02 degrees` before provider results were compared. It is slightly
@@ -248,14 +273,22 @@ Tier 2 same-profile/same-observer frame comparison remains deferred.
 
 ## Implemented Milestone 2A orchestration
 
-`ScientificSnapshotService` now supplies the non-visual orchestration boundary. It accepts an explicit immutable observer/clock/calibration/configuration state set and a typed registry; only this module composes provider results into a P03 axis snapshot. It does not expand the adapter's supported body operation set or make provider calls from presentation. See [Scientific Snapshot Contract](SCIENTIFIC_SNAPSHOT_CONTRACT.md) and [Scientific Cache Policy](SCIENTIFIC_CACHE_POLICY.md).
+`ScientificSnapshotService` supplies the structural P03 orchestration boundary. It accepts an
+explicit immutable observer/clock/calibration/configuration state set and a typed registry. The
+separate `SolarSystemBodyStateService` uses the same validated snapshot inputs and registry for the
+bounded seven-body actual-direction state; it has its own exact frozen-time cache identity so body
+cadence does not bloat the structural P03 snapshot. Neither service permits provider calls from
+presentation. See [Scientific Snapshot Contract](SCIENTIFIC_SNAPSHOT_CONTRACT.md),
+[Scientific Cache Policy](SCIENTIFIC_CACHE_POLICY.md), and
+[Actual Solar-System Body Layer](SOLAR_SYSTEM_BODY_LAYER.md).
 
 ## Decision and remaining limits
 
 Astronomy Engine `2.1.19` is **validated for the bounded Tier 1 adapter operations in this
 contract**. It is not validated as a generic astronomy authority, as a P03 mean-pole provider, or
-for Tier 2/Tier 3 claims. Planet operations, event searches, ecliptic frames, refraction near the
-horizon, and every later visible layer require their own profiles and fixtures.
+for Tier 2/Tier 3 claims. The seven actual-body calls use the explicit current profile and require
+their own bounded fixtures/physical review; event searches, ecliptic frames, refraction near the
+horizon, and every later visible layer remain separate work.
 
 Milestone 2B now reaches the adapter only through the validated scientific snapshot; presentation
 does not import Astronomy Engine or the P03 provider directly. The integrated production build

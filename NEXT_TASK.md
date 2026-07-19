@@ -4,34 +4,29 @@ This file contains exactly one bounded next task.
 
 ## Task
 
-**Title:** Independently validate the long-term precession model and trajectory prerequisites
+**Title:** Independently revalidate and integrate the actual solar-system body layer
 
-Begin with a bounded scientific/model review only. Do not implement a trajectory or any new
-visible celestial geometry until the adopted long-term precession model, date domain, epoch,
-direction, sampling/error policy, source provenance, and independent reference fixtures are
-accepted.
+Review the provider-identity descriptor, registry/snapshot agreement, active-provider cache key,
+equatorial and horizontal provenance validation, cross-result agreement, deep immutability, and
+the retained actual-direction presentation/lifecycle boundaries before any merge or publication.
+Confirm adversarial provider-name/version/adapter mismatches and malformed provenance fail safely.
 
 ## Required review checks
 
-- Select and document one precession-only long-term model; do not extrapolate the bounded P03
-  normal-date provider to a full cycle without evidence.
-- Establish explicit frame, epoch, time-scale, date-domain, north/south antipode, and current-axis
-  contact contracts.
-- Collect independent authoritative fixtures and predeclare sampling/error tolerances before any
-  presentation work.
-- Decide whether the model can support a later projective trajectory without changing the accepted
-  Earth-core, axis, equator, depth, calibration, eye-presentation, or local-horizon contracts.
+- Verify no cache entry can cross provider identity, correction-profile, observer, or explicit-time
+  boundaries, and presentation still maps only validated ENU directions under one calibration yaw.
+- Run the full automated/build regression gate before normal integration; physical Quest evidence
+  remains unavailable until independent review, integration, and publication pass.
 
 ## Exclusions
 
-Do not implement a precession trajectory, ecliptic, Sun, Moon, planets, temporal clocks, broad
-layer management, media, game integration, AI enhancement, relational circuits, or contemplative
-sequencing. This task is validation/research only; a later feature task requires a separate
-authorization.
+Do not implement celestial-equator projection, combined display, declination connectors, Moon
+phase, labels, pointing, stars, precession, ecliptic, temporal clocks, broad layer management,
+media, game integration, AI enhancement, relational circuits, or contemplative sequencing.
 
 ## Recommended execution
 
-- **Model:** GPT-5.6
+- **Model:** GPT-5.6 Sol
 - **Reasoning effort:** High
-- **Why:** long-date precession model selection requires careful frame/time-scale/date-domain
-  reasoning, independent fixtures, and strict separation from the accepted bounded P03 provider.
+- **Why:** adversarial revalidation must independently reason about provider identity, provenance,
+  cache isolation, and the boundary between immutable science and presentation.
