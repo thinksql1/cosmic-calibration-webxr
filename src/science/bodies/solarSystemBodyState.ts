@@ -12,6 +12,8 @@ import {
   type ValidatedObserver,
 } from '../astronomy/types';
 import {
+  createAstronomyProviderIdentityDiagnostic,
+  findAstronomyProviderIdentityMismatches,
   isValidatedAstronomyProviderIdentity,
   sameAstronomyProviderIdentity,
   supportsBodyCorrectionProfile,
@@ -58,19 +60,6 @@ function immutableClone<T>(value: T): T {
   return value;
 }
 
-function identitySummary(identity: unknown): Readonly<Record<string, unknown>> {
-  const value = typeof identity === 'object' && identity !== null
-    ? identity as Record<string, unknown>
-    : undefined;
-  return Object.freeze({
-    id: value?.id,
-    provider: value?.provider,
-    providerVersion: value?.providerVersion,
-    adapterVersion: value?.adapterVersion,
-    bodySetId: value?.bodySetId,
-  });
-}
-
 function providerMismatch(
   message: string,
   expected: AstronomyProviderIdentity,
@@ -81,8 +70,9 @@ function providerMismatch(
     message,
     Object.freeze({
       operation: 'SolarSystemBodyStateService.capture',
-      expected: identitySummary(expected),
-      actual: identitySummary(actual),
+      expected: createAstronomyProviderIdentityDiagnostic(expected),
+      actual: createAstronomyProviderIdentityDiagnostic(actual),
+      mismatchedFields: findAstronomyProviderIdentityMismatches(expected, actual),
     }),
   );
 }

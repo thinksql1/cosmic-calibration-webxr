@@ -63,7 +63,10 @@ homogeneous projective marker directions below the calibrated geographic parent.
 labels, pointing, projection, ecliptic, paths, stars, or new temporal controls. Precession review
 remains planned. A local remediation now binds the active body registry and immutable snapshot to
 one frozen provider descriptor, derives cache identity from that active descriptor, and rejects
-malformed equatorial/horizontal provenance before a ready body state can exist. Independent
+malformed equatorial/horizontal provenance before a ready body state can exist. The follow-up
+diagnostic remediation preserves complete immutable expected/actual provider capability snapshots
+and deterministic mismatch fields, so frame/profile/body/capability-only failures remain visible.
+Independent
 revalidation, integration/publication, and Quest body acceptance remain pending.
 
 ## One-paragraph state summary

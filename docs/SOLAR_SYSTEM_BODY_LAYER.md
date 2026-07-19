@@ -54,7 +54,9 @@ provider call or cache lookup, it requires the active registry's immutable
 snapshot and enabled Tier 1 configuration. The descriptor contains provider name/version, adapter
 version, supported body-set identifier, supported correction profiles, and the EQD_TRUE to
 HORIZONTAL_ENU frame contract. A mismatch is a fatal structured scientific error, never a warning
-or a cache hit.
+or a cache hit. Its immutable expected/actual diagnostic snapshots preserve every descriptor
+dimension and a deterministic `mismatchedFields` list, so a frame-, profile-, body-, or
+capability-only difference cannot appear identical in error context.
 
 Its bounded frozen/paused cache key includes that active descriptor, the validated observer and
 observer revision, complete explicit simulation clock/instant/source/revision state, configuration

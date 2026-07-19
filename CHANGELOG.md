@@ -9,7 +9,9 @@
   registry/snapshot agreement, derives its cache key from that active descriptor, verifies both
   EQD_TRUE and HORIZONTAL_ENU provenance, and rejects malformed results with structured errors.
   Adversarial local tests cover name/version/adapter mismatches, cache isolation, cross-result
-  disagreement, and nested immutability. Independent revalidation remains pending.
+  disagreement, and nested immutability. A follow-up diagnostic remediation now preserves full
+  immutable expected/actual provider capability snapshots and deterministic mismatch fields for
+  frame/profile/body/capability-only rejections. Independent revalidation remains pending.
 
 - Added a local bounded actual solar-system body layer for Sun, Moon, Mercury, Venus, Mars,
   Jupiter, and Saturn. It consumes the existing explicit observer/clock configuration through the

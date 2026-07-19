@@ -37,6 +37,43 @@ export interface AstronomyProviderIdentity {
   readonly horizontalOutputFrame: 'HORIZONTAL_ENU';
 }
 
+/**
+ * Serializable, recursively immutable diagnostic copy. This deliberately
+ * contains no registry function or provider implementation reference.
+ */
+export interface AstronomyProviderIdentityDiagnostic extends Readonly<Record<string, unknown>> {
+  readonly id: string | undefined;
+  readonly provider: string | undefined;
+  readonly providerVersion: string | undefined;
+  readonly adapterVersion: string | undefined;
+  readonly bodySetId: string | undefined;
+  readonly supportedBodies: readonly string[];
+  readonly supportedCorrectionProfiles: readonly string[];
+  readonly equatorialSourceFrame: string | undefined;
+  readonly equatorialOutputFrame: string | undefined;
+  readonly horizontalSourceFrame: string | undefined;
+  readonly horizontalOutputFrame: string | undefined;
+  readonly identityFrozen: boolean;
+  readonly supportedBodiesFrozen: boolean;
+  readonly supportedCorrectionProfilesFrozen: boolean;
+}
+
+export type AstronomyProviderIdentityMismatchField =
+  | 'id'
+  | 'provider'
+  | 'providerVersion'
+  | 'adapterVersion'
+  | 'bodySetId'
+  | 'supportedBodies'
+  | 'supportedCorrectionProfiles'
+  | 'equatorialSourceFrame'
+  | 'equatorialOutputFrame'
+  | 'horizontalSourceFrame'
+  | 'horizontalOutputFrame'
+  | 'identityFrozen'
+  | 'supportedBodiesFrozen'
+  | 'supportedCorrectionProfilesFrozen';
+
 const SUPPORTED_PROFILES = Object.freeze([
   'AE_APPARENT_TOPOCENTRIC_AIRLESS',
   'AE_APPARENT_TOPOCENTRIC_NORMAL_REFRACTION',
@@ -59,6 +96,78 @@ export const ASTRONOMY_ENGINE_APPARENT_TOPOCENTRIC_IDENTITY: AstronomyProviderId
 
 function sameOrderedValues<T>(left: readonly T[], right: readonly T[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function diagnosticString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function diagnosticStringArray(value: unknown): readonly string[] {
+  if (!Array.isArray(value)) return Object.freeze([]);
+  return Object.freeze(value.map((entry) =>
+    typeof entry === 'string' ? entry : `[non-string:${typeof entry}]`));
+}
+
+/** Creates a detached immutable diagnostic copy from a provider descriptor. */
+export function createAstronomyProviderIdentityDiagnostic(
+  identity: unknown,
+): AstronomyProviderIdentityDiagnostic {
+  const candidate = typeof identity === 'object' && identity !== null
+    ? identity as Record<string, unknown>
+    : undefined;
+  const supportedBodies = candidate?.supportedBodies;
+  const supportedCorrectionProfiles = candidate?.supportedCorrectionProfiles;
+  return Object.freeze({
+    id: diagnosticString(candidate?.id),
+    provider: diagnosticString(candidate?.provider),
+    providerVersion: diagnosticString(candidate?.providerVersion),
+    adapterVersion: diagnosticString(candidate?.adapterVersion),
+    bodySetId: diagnosticString(candidate?.bodySetId),
+    supportedBodies: diagnosticStringArray(supportedBodies),
+    supportedCorrectionProfiles: diagnosticStringArray(supportedCorrectionProfiles),
+    equatorialSourceFrame: diagnosticString(candidate?.equatorialSourceFrame),
+    equatorialOutputFrame: diagnosticString(candidate?.equatorialOutputFrame),
+    horizontalSourceFrame: diagnosticString(candidate?.horizontalSourceFrame),
+    horizontalOutputFrame: diagnosticString(candidate?.horizontalOutputFrame),
+    identityFrozen: Boolean(candidate && Object.isFrozen(identity)),
+    supportedBodiesFrozen: Array.isArray(supportedBodies) && Object.isFrozen(supportedBodies),
+    supportedCorrectionProfilesFrozen: Array.isArray(supportedCorrectionProfiles) &&
+      Object.isFrozen(supportedCorrectionProfiles),
+  });
+}
+
+/** Lists every semantic descriptor difference in a stable, duplicate-free order. */
+export function findAstronomyProviderIdentityMismatches(
+  expectedIdentity: unknown,
+  actualIdentity: unknown,
+): readonly AstronomyProviderIdentityMismatchField[] {
+  const expected = createAstronomyProviderIdentityDiagnostic(expectedIdentity);
+  const actual = createAstronomyProviderIdentityDiagnostic(actualIdentity);
+  const fields: AstronomyProviderIdentityMismatchField[] = [];
+  const scalarFields: readonly AstronomyProviderIdentityMismatchField[] = Object.freeze([
+    'id',
+    'provider',
+    'providerVersion',
+    'adapterVersion',
+    'bodySetId',
+    'equatorialSourceFrame',
+    'equatorialOutputFrame',
+    'horizontalSourceFrame',
+    'horizontalOutputFrame',
+    'identityFrozen',
+    'supportedBodiesFrozen',
+    'supportedCorrectionProfilesFrozen',
+  ]);
+  for (const field of scalarFields) {
+    if (expected[field] !== actual[field]) fields.push(field);
+  }
+  if (!sameOrderedValues(expected.supportedBodies, actual.supportedBodies)) {
+    fields.push('supportedBodies');
+  }
+  if (!sameOrderedValues(expected.supportedCorrectionProfiles, actual.supportedCorrectionProfiles)) {
+    fields.push('supportedCorrectionProfiles');
+  }
+  return Object.freeze(fields);
 }
 
 function hasIdentityShape(value: unknown): value is AstronomyProviderIdentity {

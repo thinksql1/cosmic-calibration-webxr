@@ -15,6 +15,7 @@ export interface AstronomyContractErrorContext {
   readonly operation?: string;
   readonly expected?: Readonly<Record<string, unknown>>;
   readonly actual?: Readonly<Record<string, unknown>>;
+  readonly mismatchedFields?: readonly string[];
 }
 
 export class AstronomyContractError extends Error {

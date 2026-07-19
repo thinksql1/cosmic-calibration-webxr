@@ -227,6 +227,13 @@ output-frame distinction. `PROVIDER_IDENTITY_MISMATCH`, `UNSUPPORTED_PROVIDER_CA
 `MALFORMED_PROVIDER_RESULT` are fatal structured errors. They cannot produce a ready body state or
 reuse a cached body result.
 
+For `PROVIDER_IDENTITY_MISMATCH`, the structured context contains detached, recursively immutable
+expected and actual descriptor snapshots plus a deterministic `mismatchedFields` list. The
+snapshots retain the provider ID/name/version, adapter version, body-set ID, supported body list,
+supported correction-profile list, all declared source/output frames, and descriptor/collection
+freeze status. A frame-, profile-, body-, or capability-only difference is therefore visible in
+diagnostics without exposing a registry function or raw provider implementation.
+
 ## Numerical validation
 
 The tolerance was declared as `0.02 degrees` before provider results were compared. It is slightly

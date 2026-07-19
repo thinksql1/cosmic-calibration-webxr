@@ -193,8 +193,11 @@ describe('actual solar-system body state', () => {
     const snapshot = readySnapshot();
     const service = new SolarSystemBodyStateService(createScientificProviderRegistry());
     service.capture(snapshot);
+    const mismatchedService = new SolarSystemBodyStateService(
+      registryWith(changedIdentity({ provider: 'Unexpected provider' as never })),
+    );
     const nameMismatch = expectContractError(
-      () => new SolarSystemBodyStateService(registryWith(changedIdentity({ provider: 'Unexpected provider' as never }))).capture(snapshot),
+      () => mismatchedService.capture(snapshot),
       'PROVIDER_IDENTITY_MISMATCH',
     );
     expect(nameMismatch.context).toMatchObject({
@@ -202,14 +205,18 @@ describe('actual solar-system body state', () => {
       expected: { provider: 'Astronomy Engine', providerVersion: '2.1.19' },
       actual: { provider: 'Unexpected provider', providerVersion: '2.1.19' },
     });
-    expectContractError(
+    expect(nameMismatch.context?.mismatchedFields).toEqual(['provider']);
+    expect(mismatchedService.cacheSize).toBe(0);
+    const versionMismatch = expectContractError(
       () => new SolarSystemBodyStateService(registryWith(changedIdentity({ providerVersion: '9.9.9' as never }))).capture(snapshot),
       'PROVIDER_IDENTITY_MISMATCH',
     );
-    expectContractError(
+    expect(versionMismatch.context?.mismatchedFields).toEqual(['providerVersion']);
+    const adapterMismatch = expectContractError(
       () => new SolarSystemBodyStateService(registryWith(changedIdentity({ adapterVersion: '9.9.9' as never }))).capture(snapshot),
       'PROVIDER_IDENTITY_MISMATCH',
     );
+    expect(adapterMismatch.context?.mismatchedFields).toEqual(['adapterVersion']);
     const registryWithoutIdentity = createScientificProviderRegistry();
     const missingIdentity = Object.freeze({
       ...registryWithoutIdentity,
@@ -230,6 +237,108 @@ describe('actual solar-system body state', () => {
       'PROVIDER_IDENTITY_MISMATCH',
     );
     expect(service.cacheSize).toBe(1);
+  });
+
+  it.each([
+    ['source frame', { equatorialSourceFrame: 'GCRS' as never }, 'equatorialSourceFrame'],
+    ['equatorial output frame', { equatorialOutputFrame: 'GCRS' as never }, 'equatorialOutputFrame'],
+    ['horizontal source frame', { horizontalSourceFrame: 'GCRS' as never }, 'horizontalSourceFrame'],
+    ['output frame', { horizontalOutputFrame: 'EQD_TRUE' as never }, 'horizontalOutputFrame'],
+    [
+      'correction-profile capability',
+      { supportedCorrectionProfiles: Object.freeze(['AE_APPARENT_TOPOCENTRIC_NORMAL_REFRACTION']) as never },
+      'supportedCorrectionProfiles',
+    ],
+    ['body-set identity', { bodySetId: 'DIFFERENT_BODY_SET' as never }, 'bodySetId'],
+    [
+      'supported-body capability',
+      { supportedBodies: Object.freeze(['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter']) as never },
+      'supportedBodies',
+    ],
+  ] as const)('preserves full immutable context for a %s-only provider mismatch', (_name, change, field) => {
+    const error = expectContractError(
+      () => new SolarSystemBodyStateService(registryWith(changedIdentity(change))).capture(readySnapshot()),
+      'PROVIDER_IDENTITY_MISMATCH',
+    );
+    const context = error.context!;
+    const expected = context.expected as Readonly<Record<string, unknown>>;
+    const actual = context.actual as Readonly<Record<string, unknown>>;
+    expect(context.mismatchedFields).toEqual([field]);
+    expect(expected[field]).not.toEqual(actual[field]);
+    expect(expected).toMatchObject({
+      provider: 'Astronomy Engine',
+      providerVersion: '2.1.19',
+      adapterVersion: '1.0.0',
+      bodySetId: 'SUN_MOON_MERCURY_VENUS_MARS_JUPITER_SATURN_V1',
+      supportedBodies: ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'],
+      supportedCorrectionProfiles: [
+        'AE_APPARENT_TOPOCENTRIC_AIRLESS',
+        'AE_APPARENT_TOPOCENTRIC_NORMAL_REFRACTION',
+      ],
+      equatorialSourceFrame: 'EQD_TRUE',
+      equatorialOutputFrame: 'EQD_TRUE',
+      horizontalSourceFrame: 'EQD_TRUE',
+      horizontalOutputFrame: 'HORIZONTAL_ENU',
+    });
+    expect(Object.isFrozen(expected)).toBe(true);
+    expect(Object.isFrozen(actual)).toBe(true);
+    expect(Object.isFrozen(context.mismatchedFields)).toBe(true);
+  });
+
+  it('makes mismatch diagnostics deterministic, serializable, and deeply immutable', () => {
+    const mismatch = changedIdentity({
+      horizontalSourceFrame: 'GCRS' as never,
+      supportedBodies: Object.freeze(['Sun', 'Moon']) as never,
+      supportedCorrectionProfiles: Object.freeze(['AE_APPARENT_TOPOCENTRIC_NORMAL_REFRACTION']) as never,
+    });
+    const first = expectContractError(
+      () => new SolarSystemBodyStateService(registryWith(mismatch)).capture(readySnapshot()),
+      'PROVIDER_IDENTITY_MISMATCH',
+    );
+    const second = expectContractError(
+      () => new SolarSystemBodyStateService(registryWith(mismatch)).capture(readySnapshot()),
+      'PROVIDER_IDENTITY_MISMATCH',
+    );
+    expect(first.context).toEqual(second.context);
+    expect(first.context?.mismatchedFields).toEqual([
+      'horizontalSourceFrame',
+      'supportedBodies',
+      'supportedCorrectionProfiles',
+    ]);
+    expect(JSON.parse(JSON.stringify(first.context))).toMatchObject({
+      mismatchedFields: ['horizontalSourceFrame', 'supportedBodies', 'supportedCorrectionProfiles'],
+      expected: { horizontalSourceFrame: 'EQD_TRUE' },
+      actual: { horizontalSourceFrame: 'GCRS' },
+    });
+    expect(Object.isFrozen(first.context)).toBe(true);
+    const expected = first.context!.expected as { supportedBodies: string[] };
+    const actual = first.context!.actual as { supportedCorrectionProfiles: string[] };
+    expect(Object.isFrozen(expected.supportedBodies)).toBe(true);
+    expect(Object.isFrozen(actual.supportedCorrectionProfiles)).toBe(true);
+    expect(() => expected.supportedBodies.push('Neptune')).toThrow();
+    expect(() => actual.supportedCorrectionProfiles.push('mutated')).toThrow();
+    expect(() => (first.context!.mismatchedFields as string[]).push('mutated')).toThrow();
+    expect(() => {
+      (first.context as { operation: string }).operation = 'mutated';
+    }).toThrow();
+  });
+
+  it('retains unsupported-provider capability rejection before cache lookup', () => {
+    const base = createScientificProviderRegistry();
+    const withoutBodyCapability = Object.freeze({
+      ...base,
+      astronomy: Object.freeze({ ...base.astronomy, getApparentTopocentricBody: undefined }),
+    }) as unknown as ScientificProviderRegistry;
+    const service = new SolarSystemBodyStateService(withoutBodyCapability);
+    const error = expectContractError(
+      () => service.capture(readySnapshot()),
+      'UNSUPPORTED_PROVIDER_CAPABILITY',
+    );
+    expect(error.context).toMatchObject({
+      operation: 'SolarSystemBodyStateService.capture',
+      actual: { hasBodyOperation: false },
+    });
+    expect(service.cacheSize).toBe(0);
   });
 
   it('builds cache identity from the active provider descriptor and isolates provider changes', () => {
