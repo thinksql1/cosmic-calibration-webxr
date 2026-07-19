@@ -211,6 +211,14 @@ unsupported vertical datum, invalid angle, unsupported frame contract, unsupport
 profile, and mean-pole domain failure. Raw provider objects and stack traces do not cross the
 public data boundary.
 
+The temporal Sun-path service follows the same boundary: all public failures are structured
+`AstronomyContractError` values. Specific provider, provenance, civil-time, and configuration
+codes are retained while gaining detached operation context. Unexpected path aggregation,
+sample/notch, and provider exceptions use `TEMPORAL_PATH_FAILURE`. Its recursively immutable
+diagnostic context records only safe observer/date/time-zone/provider/frame/correction/sampling
+data and a causal code or message; it never exposes a provider implementation, browser/XR object,
+cache instance, mutable exception, or stack trace.
+
 ### Actual-body provider identity and validation
 
 The body layer uses one frozen application-owned descriptor:

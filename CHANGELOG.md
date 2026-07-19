@@ -4,6 +4,13 @@
 
 ### Added
 
+- Hardened the local Milestone 2F daily Sun-path science boundary with immutable full observer
+  provenance on paths/samples/notches, deterministic structured warning disclosure, and
+  context-rich `TEMPORAL_PATH_FAILURE` handling for otherwise generic path-construction failures.
+  Failed daily paths do not enter the cache; an adversarial policy-version test proves cache
+  isolation. This is local remediation only: independent review, integration, deployment, and
+  Quest acceptance remain pending.
+
 - Added a bounded local 24-hour apparent Sun path with exact valid civil-hour notches, an explicit
   IANA `Intl` time-zone contract, daylight-saving 23/25-hour handling, below-horizon continuity,
   projective linear-depth rendering, and a live-Sun emphasis. The existing central simulation

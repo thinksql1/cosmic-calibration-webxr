@@ -45,6 +45,21 @@ and sampling-policy version. A path is stable within its civil day and is not re
 minute. It rebuilds for observer, date/local-midnight, time-zone, provider, configuration, or
 policy changes. The current live body state has its own active-time behavior.
 
+Every ready path carries a detached, recursively immutable observer provenance record: WGS84
+geodetic latitude, east-positive longitude, elevation and datum, optional source/uncertainty,
+and observer revision. The same validated observer is retained on every path sample and civil
+notch. The result also carries a deterministic, immutable warning list: Tier-1 UTC≈UT1, the
+airless/no-refraction policy when active, browser-`Intl` resolver provenance, selected time-zone
+source, lack of persisted time-zone state, and the bounded precision claim. Warnings are
+scientific disclosure only; they never convert a failed path into a ready result.
+
+The public daily-path boundary never exposes a generic exception. Existing specific scientific
+errors retain their code and gain detached temporal operation context; unexpected provider,
+aggregation, sample, notch, and bounded-cache failures use `TEMPORAL_PATH_FAILURE`. Failure
+context includes observer, date, zone/source/revision, provider, correction/frame and sampling
+policy, plus sample or civil-boundary detail where applicable. Failed paths are never cached and
+a failed rollover cannot return a prior-day path.
+
 ## Rendering and depth
 
 ENU directions map once to the application basis and pass through the existing calibrated
@@ -82,6 +97,9 @@ idempotent `dispose`, and creates neither geometry nor materials during cadence 
 - Visible hour labels, sunrise/sunset events, annual Sun paths, seasonal comparison, ecliptic,
   planet paths, Moon phase, and a general temporal-control system are deferred.
 - Browser IANA time-zone data is used without a claimed database release version.
+- The current browser-`Intl` resolver is tested for ordinary and common DST days. Historical zones
+  whose first valid local date instant is not `00:00` remain an explicit future compatibility
+  study rather than a claimed universal historical-zone guarantee.
 - Desktop and automated checks do not establish Quest readability, physical comfort, or perceptual
   motion quality.
 

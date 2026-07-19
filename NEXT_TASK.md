@@ -4,25 +4,23 @@ This file contains exactly one bounded next task.
 
 ## Task
 
-**Title:** Run the physical Quest acceptance test for the 24-hour Sun path and real-time celestial updates
+**Title:** Independently revalidate and integrate the 24-hour Sun path and real-time celestial updates
 
-Test the deployed observer-relative apparent Sun path, its civil-hour notches, and the bounded
-real-time body refresh after true-north calibration. Record only observations. Do not infer
-angular accuracy, full daylight-saving behavior, long-duration stability, or comfort from desktop
-or automated checks.
+Independently review the local observer-relative apparent Sun path, its civil-hour notches, and
+the bounded real-time body refresh before any integration or publication. Verify complete
+immutable observer provenance, deterministic scientific warnings, structured temporal failures,
+cache rejection/isolation, civil-time and DST correctness, live cadence, lifecycle, regression,
+and desktop behavior. Merge and publish only if every blocking scientific and rendering gate
+passes.
 
 ## Required review checks
 
-- Enable the body layer, Sun path, and civil-hour notches. Confirm the live Sun remains on or
-  closely follows the warm daily path; confirm the path differs from the celestial equator and
-  continues below the horizon.
-- Confirm the notches lie on the Sun path, remain readable without looking like nearby objects,
-  and preserve a coherent world lock while moving carefully.
-- Leave the application open through at least one minute boundary in real-time mode; confirm the
-  Sun and existing body markers refresh, without duplicate geometry or a one-hour freeze.
-- Check show/hide, below-horizon policy, recalibration, reset, exit/re-entry, reload, readability,
-  Sun brightness, and comfort. DST behavior is a deterministic software contract; physical
-  testing need not wait for a transition day.
+- Reproduce generic-provider, malformed-provider, observer-mismatch, civil-resolver, aggregation,
+  rollover, and sampling-policy cache probes. Confirm no generic error reaches the public path
+  boundary and no failed path is cached.
+- Verify the observer and warning contracts are complete, deeply immutable, and serializable;
+  retain existing ordinary/DST scheduling, exact notch, live-cadence, and lifecycle evidence.
+- Run full automated validation and desktop/preview regression before considering a normal merge.
 
 ## Exclusions
 
@@ -34,5 +32,6 @@ AI enhancement, or contemplative sequencing.
 
 - **Model:** GPT-5.6 Sol
 - **Reasoning effort:** High
-- **Why:** physical reconciliation must distinguish observed path/readability/cadence evidence from
-  the deterministic civil-time, provider, and cache contracts already covered by automated tests.
+- **Why:** independent review must adversarially verify structured temporal failures, observer
+  provenance, warning disclosure, cache safety, civil-time correctness, live updates, and release
+  readiness before physical evidence can be collected.

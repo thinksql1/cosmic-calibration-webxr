@@ -256,12 +256,13 @@ be joined or styled in a way that implies a circular lunar orbit around the obse
 ```text
 TemporalPath
   layerId
-  observerRevision
+  observerProvenance                     WGS84 values, datum, source/uncertainty, revision
   scheduleId and scheduleDefinition
   sourceStart/sourceEnd
   selectedTimeZone and tzdata provenance
   correctionProfile
   provider/model/version
+  warnings[]                             deterministic, immutable non-fatal disclosures
   samples[]
 
 TemporalSample
@@ -275,6 +276,12 @@ TemporalSample
 
 Presentation code receives `TemporalPath` read-only. It may choose visibility, radius, label
 density, color, and emphasis but cannot reschedule samples or alter directions.
+
+The public temporal-path boundary returns only a ready immutable result or an
+`AstronomyContractError`. Generic exceptions are wrapped as `TEMPORAL_PATH_FAILURE`; specific
+lower-layer scientific errors retain their code and are enriched with immutable temporal operation
+context. Failed paths never enter the cache or fall back to stale geometry during local-date
+rollover.
 
 ## Explicitly deferred
 
