@@ -4,6 +4,31 @@
 
 ### Added
 
+- Closed the remaining local Milestone 2F scientific contracts: daily-path observer provenance now
+  carries an explicit application-owned schema version distinct from observer revision and WGS84
+  model identity; path, sample, notch, cache identity, and temporal diagnostics retain it.
+  Temporal failures now pass through one immutable context-enrichment boundary, including early
+  invalid sampling-policy failures, and a deterministic shared-clock regression proves one
+  simulated hour changes the directions of all seven supported bodies. The suite passes 416 tests.
+  Integration, deployment, and Quest acceptance remain pending.
+
+- Hardened the local Milestone 2F daily Sun-path science boundary with immutable full observer
+  provenance on paths/samples/notches, deterministic structured warning disclosure, and
+  context-rich `TEMPORAL_PATH_FAILURE` handling for otherwise generic path-construction failures.
+  Failed daily paths do not enter the cache; an adversarial policy-version test proves cache
+  isolation. This is local remediation only: independent review, integration, deployment, and
+  Quest acceptance remain pending.
+
+- Added a bounded local 24-hour apparent Sun path with exact valid civil-hour notches, an explicit
+  IANA `Intl` time-zone contract, daylight-saving 23/25-hour handling, below-horizon continuity,
+  projective linear-depth rendering, and a live-Sun emphasis. The existing central simulation
+  clock now advances visible Sun, Moon, and planet state through one minute-or-better real-time
+  refresh cadence; no second scientific clock, labels, ecliptic, phase, or body path was added.
+- Recorded reported Quest feedback for the published actual-body layer: it operated, markers were
+  visible, and the user plausibly identified Sun, Mercury, and Venus. Labels were absent and
+  limited identification of other bodies; the user also observed that the celestial equator is not
+  the Sun's path. No angular, lifecycle, comfort, or all-seven identity claim is inferred.
+
 - Independently validated and normally integrated the actual solar-system body layer with merge
   `b24b3e9`. The feature and merged `master` pass 383 tests, type-check, production build,
   dependency/diff checks, adversarial provider/provenance/cache probes, and development/preview
