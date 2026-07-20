@@ -17,7 +17,7 @@ function model(overrides: Partial<EarthAxisPresentationModel> = {}): EarthAxisPr
     azimuthDeg: sign === 1 ? 0 : 180,
     horizonRelation: sign === 1 ? 'above' as const : 'below' as const,
     segmentVisible: true,
-    segmentOpacity: sign === 1 ? 0.88 : 0.22,
+    segmentOpacity: 0.72,
     markerVisible: true,
     labelVisible: true,
   });
@@ -101,11 +101,14 @@ describe('geocentric Earth-axis Three.js group', () => {
     expect(spindle.renderOrder).toBeGreaterThan(core.renderOrder);
     const spindleMaterial = spindle.material as THREE.ShaderMaterial;
     expect(spindleMaterial.uniforms.uLineNdc).toBeDefined();
-    expect(spindleMaterial.uniforms.uCoreImage).toBeDefined();
-    expect(spindleMaterial.uniforms.uNorthDirectionImage).toBeDefined();
+    expect(spindleMaterial.uniforms.uOpacity.value).toBeCloseTo(0.72, 12);
+    expect(spindleMaterial.uniforms.uSideVisibilityActive.value).toBe(0);
     expect(spindleMaterial.fragmentShader).toContain('alphaNumerator * betaNumerator');
-    expect(spindleMaterial.fragmentShader).not.toContain('uCoreNdc');
-    expect(spindleMaterial.uniforms).not.toHaveProperty('uDirectionSouthView');
+    expect(spindleMaterial.fragmentShader).toContain('uSideVisibilityActive');
+    expect(spindleMaterial.fragmentShader).not.toContain('uNorthOpacity');
+    expect(spindleMaterial.fragmentShader).not.toContain('uSouthOpacity');
+    expect(spindleMaterial.uniforms).not.toHaveProperty('uNorthOpacity');
+    expect(spindleMaterial.uniforms).not.toHaveProperty('uSouthOpacity');
   });
 
   it('derives camera-relative core and exact projective antipodes for the active eye', () => {
@@ -182,6 +185,8 @@ describe('geocentric Earth-axis Three.js group', () => {
     }));
     expect(spindle.visible).toBe(true);
     const spindleMaterial = spindle.material as THREE.ShaderMaterial;
+    expect(spindleMaterial.uniforms.uOpacity.value).toBe(source.north.segmentOpacity);
+    expect(spindleMaterial.uniforms.uSideVisibilityActive.value).toBe(1);
     expect(spindleMaterial.uniforms.uSouthVisible.value).toBe(0);
     expect(spindleMaterial.uniforms.uNorthVisible.value).toBe(1);
     expect(southMarker.visible).toBe(false);
@@ -219,6 +224,40 @@ describe('geocentric Earth-axis Three.js group', () => {
     expect(dispose).not.toHaveBeenCalled();
     handle.update(model());
     expect(handle.group.visible).toBe(true);
+  });
+
+  it('uploads one visibly non-degenerate, default-continuous spindle through the real render callback', () => {
+    const handle = createEarthAxisGroup(labelFactory);
+    const source = model();
+    handle.update(source);
+    const spindle = handle.group.getObjectByName('mean-earth-axis-rigid-spindle') as THREE.Mesh;
+    const core = handle.group.getObjectByName('modeled-earth-core-marker') as THREE.Mesh;
+    const camera = new THREE.PerspectiveCamera(54, 16 / 9, 0.01, 100);
+    camera.position.set(0.4, 1.65, 0.2);
+    camera.lookAt(source.earthCore.x, source.earthCore.y, source.earthCore.z);
+    camera.updateProjectionMatrix();
+    camera.updateWorldMatrix(true, false);
+    const renderer = {
+      getCurrentViewport(target: THREE.Vector4) {
+        return target.set(0, 0, 1440, 900);
+      },
+    } as unknown as THREE.WebGLRenderer;
+    core.onBeforeRender(
+      renderer, new THREE.Scene(), camera, core.geometry, core.material as THREE.Material, handle.group,
+    );
+    spindle.onBeforeRender(
+      renderer, new THREE.Scene(), camera, spindle.geometry, spindle.material as THREE.Material, handle.group,
+    );
+    const material = spindle.material as THREE.ShaderMaterial;
+    const line = material.uniforms.uLineNdc.value as THREE.Vector3;
+    const viewport = material.uniforms.uViewportPixels.value as THREE.Vector2;
+    expect(material.uniforms.uLineVisible.value).toBe(1);
+    expect(material.uniforms.uSideVisibilityActive.value).toBe(0);
+    expect(material.uniforms.uOpacity.value).toBe(source.north.segmentOpacity);
+    expect(line.toArray().every(Number.isFinite)).toBe(true);
+    expect(Math.hypot(line.x, line.y)).toBeGreaterThan(1e-12);
+    expect(Math.hypot(2 * line.x / viewport.x, 2 * line.y / viewport.y)).toBeGreaterThan(1e-12);
+    expect(spindle.renderOrder).toBeGreaterThan(core.renderOrder);
   });
 
   it('keeps exactly one spindle through toggles, reset, recalibration, and session re-entry', () => {

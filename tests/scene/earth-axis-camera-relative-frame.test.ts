@@ -325,6 +325,9 @@ describe('camera-relative homogeneous geocentric rendering frame', () => {
       if (projectionAtInfinity) {
         expect(projected.visibleInViewport, name).toBe(false);
       } else {
+        expect(projected.visibleInViewport, name).toBe(true);
+        expect(projected.sideClassificationAvailable, name).toBe(true);
+        expect(Math.hypot(projected.lineNdc.x, projected.lineNdc.y), name).toBeGreaterThan(1e-12);
         for (const point of [
           frame.spindleSouthEndpoint,
           frame.spindleCore,

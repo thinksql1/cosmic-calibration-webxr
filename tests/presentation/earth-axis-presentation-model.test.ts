@@ -11,6 +11,7 @@ import {
   createEarthAxisPresentationModel,
   createEarthAxisStatusViewModel,
   DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
+  EARTH_AXIS_SPINDLE_OPACITY,
 } from '../../src/presentation/earthAxisPresentationModel';
 
 function ready(
@@ -150,23 +151,19 @@ describe('geocentric Earth-axis presentation model', () => {
     expect(model.spindle.provenance.providerVersion).toBeTruthy();
   });
 
-  it('supports full-axis and above-horizon emphasis without moving the centerline', () => {
+  it('uses one continuous default spindle treatment while preserving below-horizon visibility control', () => {
     const snapshot = ready(42).snapshot;
-    const full = createEarthAxisPresentationModel(snapshot, {
+    const continuous = createEarthAxisPresentationModel(snapshot);
+    const hiddenBelowHorizon = createEarthAxisPresentationModel(snapshot, {
       ...DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
-      belowHorizonMode: 'full-axis',
+      showBelowHorizonSegment: false,
     });
-    const emphasized = createEarthAxisPresentationModel(snapshot, {
-      ...DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
-      belowHorizonMode: 'above-horizon-emphasis',
-    });
-    expect(full.south.segmentVisible).toBe(true);
-    expect(emphasized.south.segmentVisible).toBe(true);
-    expect(emphasized.south.segmentOpacity).toBeLessThan(emphasized.north.segmentOpacity);
-    expect(emphasized.south.diagnosticFiniteProxyPosition).toEqual(
-      full.south.diagnosticFiniteProxyPosition,
-    );
-    expect(emphasized.earthCore).toEqual(full.earthCore);
+    expect(continuous.north.segmentVisible).toBe(true);
+    expect(continuous.south.segmentVisible).toBe(true);
+    expect(continuous.north.segmentOpacity).toBe(EARTH_AXIS_SPINDLE_OPACITY);
+    expect(continuous.south.segmentOpacity).toBe(EARTH_AXIS_SPINDLE_OPACITY);
+    expect(hiddenBelowHorizon.south.segmentVisible).toBe(false);
+    expect(hiddenBelowHorizon.earthCore).toEqual(continuous.earthCore);
   });
 
   it('lets the user hide below-horizon rendering while retaining scientific pole data', () => {
@@ -228,11 +225,8 @@ describe('geocentric Earth-axis presentation model', () => {
     );
   });
 
-  it('rejects unsupported display modes without exposing a scale control', () => {
-    expect(() => createEarthAxisPresentationModel(ready().snapshot, {
-      ...DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
-      belowHorizonMode: 'decorative-ring' as never,
-    })).toThrow('below-horizon');
+  it('does not expose a core-splitting style mode or presentation scale control', () => {
+    expect(DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS).not.toHaveProperty('belowHorizonMode');
     expect(DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS).not.toHaveProperty('presentationRadiusMeters');
   });
 });

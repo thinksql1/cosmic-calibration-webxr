@@ -20,16 +20,12 @@ The architecture preserves the validated Milestone 1 convention:
 
 ## Implemented foundation and first visual consumer
 
-Milestone 2A implements the application-owned observer, explicit-tick UTC clock, read-only
-geographic-calibration view, Tier 1 configuration, provider registry, immutable P03
-axis/equator-basis snapshot, and bounded exact-key cache described in [Scientific State
-Foundation](SCIENTIFIC_STATE_FOUNDATION.md). Milestone 2B extends that snapshot with a
-validated observer-horizontal Earth-axis result. The local geocentric replacement further adds
-snapshot-owned WGS84 Earth-center placement and consumes both products in one world-scale axis
-with exact antipodal projective NCP/SCP directions. Calibration yaw remains presentation-parent
-work. The replacement is not independently reviewed, integrated, or published. No celestial-equator
-geometry, precession path, body display, temporal
-clock, or contemplative sequence has been added. See [Earth Axis and Celestial
+Milestones 2A through 2F form the published master baseline: immutable P03 axis/equator-basis
+snapshots, WGS84 Earth-core placement, projective NCP/SCP directions, the mean celestial equator,
+eye modes, observer-centered horizon, actual body markers, and the civil-day Sun path/live clock.
+The local `fix/earth-axis-spindle` branch changes only the core/axis/equator presentation into one
+unified finite Earth-centered assembly; it remains independently unreviewed, unintegrated, and
+undeployed. Calibration yaw remains presentation-parent work. See [Earth Axis and Celestial
 Poles](EARTH_AXIS_AND_CELESTIAL_POLES.md).
 
 ## Non-negotiable invariants
@@ -386,13 +382,12 @@ date/Earth-rotation transform.
 - **Validation:** unit length, closure, every sample perpendicular to the axis, antipodal sample
   pairs, and known latitude/horizon cases.
 
-**Milestone 2C implementation:** the local, unpublished layer consumes the immutable snapshot's
-validated GCRS P03 basis plus its science-owned observer-horizontal sampling basis. The unlabelled
-local basis changes only sample phase, never the full equatorial locus; it avoids treating the
-axis-only Earth-rotation shortcut as a general celestial-coordinate transform. The renderer uses
-96 bounded homogeneous samples of a finite Earth-core-centred reference ring in the infinite
-equatorial plane. It is not an observer-centred ring. Independent integration, publication, and
-Quest validation remain pending.
+**Milestone 2C implementation:** the published layer consumes the immutable snapshot's validated
+GCRS P03 basis plus its science-owned observer-horizontal sampling basis. The local unified
+correction preserves that science while rendering 96 bounded homogeneous samples of a finite
+Earth-core-centred reference ring in the infinite equatorial plane. It is not an observer-centred
+ring. Independent integration, publication, and Quest validation remain pending only for the local
+unified correction.
 
 ## Horizon model
 

@@ -34,7 +34,6 @@ import {
   createEarthAxisStatusViewModel,
   DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
   EARTH_AXIS_LINEAR_SCENE_FAR_METERS,
-  type BelowHorizonDisplayMode,
   type EarthAxisDisplaySettings,
 } from './presentation/earthAxisPresentationModel';
 import {
@@ -120,7 +119,6 @@ const showEarthCoreInput = requireElement<HTMLInputElement>('#show-earth-core');
 const showMarkersInput = requireElement<HTMLInputElement>('#show-pole-markers');
 const showLabelsInput = requireElement<HTMLInputElement>('#show-pole-labels');
 const showBelowHorizonInput = requireElement<HTMLInputElement>('#show-below-horizon');
-const belowHorizonModeSelect = requireElement<HTMLSelectElement>('#below-horizon-mode');
 const showCelestialEquatorInput = requireElement<HTMLInputElement>('#show-celestial-equator');
 const showLocalHorizonInput = requireElement<HTMLInputElement>('#show-local-horizon');
 const showSolarSystemBodiesInput = requireElement<HTMLInputElement>('#show-solar-system-bodies');
@@ -208,10 +206,6 @@ let scientificOriginIdentity = 'desktop-simulation';
 let xrOriginSequence = 0;
 
 function currentAxisDisplaySettings(): EarthAxisDisplaySettings {
-  const belowHorizonMode: BelowHorizonDisplayMode =
-    belowHorizonModeSelect.value === 'full-axis'
-      ? 'full-axis'
-      : 'above-horizon-emphasis';
   return Object.freeze({
     ...DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
     showAxis: showAxisInput.checked,
@@ -219,7 +213,6 @@ function currentAxisDisplaySettings(): EarthAxisDisplaySettings {
     showMarkers: showMarkersInput.checked,
     showLabels: showLabelsInput.checked,
     showBelowHorizonSegment: showBelowHorizonInput.checked,
-    belowHorizonMode,
   });
 }
 
@@ -679,7 +672,6 @@ useCurrentTimeButton.addEventListener('click', () => {
   showMarkersInput,
   showLabelsInput,
   showBelowHorizonInput,
-  belowHorizonModeSelect,
   showCelestialEquatorInput,
   showLocalHorizonInput,
   showSolarSystemBodiesInput,

@@ -15,13 +15,16 @@ the selected explicit IANA civil day, exact valid civil-hour notches on that pat
 updates through the same central simulation clock. The path is not the celestial equator or an
 annual ecliptic; labels and other body paths remain deferred.
 
-The local `fix/earth-axis-spindle` branch corrects the user-observed bowed/hinged axis presentation
+The local `fix/earth-axis-spindle` branch, based on `7e541f3`, corrects the user-observed bowed/hinged axis presentation
 and unifies the finite Earth core, spindle, projective poles, and celestial-equatorial plane under
 one Earth-centered presentation contract. The equator is a bounded two-Earth-radius reference
 ring centered on the core and perpendicular to the same axis; bounded homogeneous rendering
-preserves that finite center without raw Earth-scale GPU vertices. The surface observer and local
-horizon remain offset and observer-centered. P03, WGS84, calibration, bodies, Sun path, and time
-science are unchanged; independent integration and physical Quest acceptance remain pending.
+preserves that finite center without raw Earth-scale GPU vertices. Its current local renderer-gate
+remediation keeps static Float32 ring directions, uploads rounded per-eye finite-core uniforms, and
+uses a continuous default spindle style. The surface observer and local horizon remain offset and
+observer-centered. P03, WGS84, calibration, bodies, Sun path, and time science are unchanged. The
+local suite passes 40 files / 438 tests, but this branch is not independently revalidated,
+integrated, deployed, or physically Quest-tested; those gates remain pending.
 
 ## Milestone 2 architecture status
 
@@ -136,7 +139,7 @@ See [Architecture](docs/ARCHITECTURE.md) and [Calibration](docs/CALIBRATION.md) 
 
 ## Scientific foundation status
 
-Milestone 2A provides an explicit observer/UTC-clock/calibration/configuration snapshot pipeline with a validated P03 mean axis and equator basis. Its runtime boundary owns immutable instants/vectors, rejects malformed clocks before providers, and keys cache provenance explicitly. Independent acceptance, integration, publication, and hosted regression pass. The current local Milestone 2B replacement consumes that snapshot without direct provider calls, maps the mean axis into horizontal ENU, computes the modeled WGS84 Earth center relative to the surface observer, and maps both into the calibrated geographic parent once. NCP/SCP remain directions at infinity; the `10^13 m` finite points are diagnostics only. The GPU consumes per-eye camera-relative core values and homogeneous unit directions under a linear non-writing depth contract. The manual observer/time controls remain in-memory diagnostics, not geolocation or a general time system. See [Scientific State Foundation](docs/SCIENTIFIC_STATE_FOUNDATION.md), [Scientific Snapshot Contract](docs/SCIENTIFIC_SNAPSHOT_CONTRACT.md), [Scientific Cache Policy](docs/SCIENTIFIC_CACHE_POLICY.md), [Earth Axis and Celestial Poles](docs/EARTH_AXIS_AND_CELESTIAL_POLES.md), [Geocentric Rendering Precision](docs/GEOCENTRIC_RENDERING_PRECISION.md), and [WebXR Depth Contract](docs/WEBXR_DEPTH_CONTRACT.md).
+Milestone 2A provides an explicit observer/UTC-clock/calibration/configuration snapshot pipeline with a validated P03 mean axis and equator basis. Its runtime boundary owns immutable instants/vectors, rejects malformed clocks before providers, and keys cache provenance explicitly. The published Milestone 2B baseline consumes that snapshot without direct provider calls, maps the mean axis into horizontal ENU, computes the modeled WGS84 Earth center relative to the surface observer, and maps both into the calibrated geographic parent once. NCP/SCP remain directions at infinity; the `10^13 m` finite points are diagnostics only. The local unified correction preserves this science while changing only the spindle/equator presentation contract. The GPU consumes per-eye camera-relative core values and homogeneous unit directions under a linear non-writing depth contract. The manual observer/time controls remain in-memory diagnostics, not geolocation or a general time system. See [Scientific State Foundation](docs/SCIENTIFIC_STATE_FOUNDATION.md), [Scientific Snapshot Contract](docs/SCIENTIFIC_SNAPSHOT_CONTRACT.md), [Scientific Cache Policy](docs/SCIENTIFIC_CACHE_POLICY.md), [Earth Axis and Celestial Poles](docs/EARTH_AXIS_AND_CELESTIAL_POLES.md), [Geocentric Rendering Precision](docs/GEOCENTRIC_RENDERING_PRECISION.md), and [WebXR Depth Contract](docs/WEBXR_DEPTH_CONTRACT.md).
 
 ## Physical north-marker workflow
 

@@ -115,3 +115,12 @@ homogeneous `w = 1 / R`. This is exactly equivalent to the finite point
 `coreView + R * directionView`. Across the supported WGS84 observer/elevation domain the spatial
 component budget is below `2`; raw Earth-scale ring coordinates are CPU-only. The equator and
 spindle use the identical shared core and axis-normal objects beneath the same calibrated parent.
+
+The ring's `Float32BufferAttribute` contains static bounded application-basis sample directions and
+is written only when the immutable presentation model changes. Per-eye `onBeforeRender` updates
+only bounded `uCoreViewScaled` and `uRingProjectiveW` uniforms, each explicitly rounded with
+`Math.fround`. This avoids callback-time geometry mutation after Three.js has already uploaded a
+frame's attributes. Production-boundary tests reconstruct the shader-facing projective ring from
+those actual attributes and uniforms, with Float32-appropriate orthogonality/plane tolerances of
+`1e-6` and a fitted projected-center tolerance below `0.02` pixel at the fixed `1440 x 900`
+fixture viewport.

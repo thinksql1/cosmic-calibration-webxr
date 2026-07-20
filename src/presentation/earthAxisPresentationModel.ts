@@ -23,15 +23,12 @@ function convergenceUpperBoundArcseconds(observerToCoreDistanceMeters: number): 
   ) * RADIANS_TO_ARCSECONDS;
 }
 
-export type BelowHorizonDisplayMode = 'full-axis' | 'above-horizon-emphasis';
-
 export interface EarthAxisDisplaySettings {
   readonly showAxis: boolean;
   readonly showEarthCore: boolean;
   readonly showMarkers: boolean;
   readonly showLabels: boolean;
   readonly showBelowHorizonSegment: boolean;
-  readonly belowHorizonMode: BelowHorizonDisplayMode;
 }
 
 export const DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS: EarthAxisDisplaySettings = Object.freeze({
@@ -40,7 +37,6 @@ export const DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS: EarthAxisDisplaySettings = Obj
   showMarkers: true,
   showLabels: true,
   showBelowHorizonSegment: true,
-  belowHorizonMode: 'above-horizon-emphasis',
 });
 
 export interface PresentationPoint {
@@ -128,24 +124,8 @@ export interface EarthAxisStatusViewModel {
   readonly diagnostics: readonly string[];
 }
 
-function validateSettings(settings: EarthAxisDisplaySettings): void {
-  if (
-    settings.belowHorizonMode !== 'full-axis' &&
-    settings.belowHorizonMode !== 'above-horizon-emphasis'
-  ) {
-    throw new Error('Unsupported below-horizon Earth-axis display mode.');
-  }
-}
-
-function opacityFor(
-  relation: EarthAxisEndpointPresentation['horizonRelation'],
-  mode: BelowHorizonDisplayMode,
-): number {
-  if (mode === 'full-axis') return 0.72;
-  if (relation === 'below') return 0.46;
-  if (relation === 'on') return 0.62;
-  return 0.74;
-}
+/** One default structural treatment prevents a visual joint at the Earth core. */
+export const EARTH_AXIS_SPINDLE_OPACITY = 0.72;
 
 function addScaled(
   origin: PresentationPoint,
@@ -183,7 +163,7 @@ function endpoint(
     azimuthDeg: source.azimuthDeg,
     horizonRelation: source.horizonRelation,
     segmentVisible: settings.showAxis && belowVisible,
-    segmentOpacity: opacityFor(source.horizonRelation, settings.belowHorizonMode),
+    segmentOpacity: EARTH_AXIS_SPINDLE_OPACITY,
     markerVisible: settings.showMarkers,
     labelVisible: settings.showLabels,
   });
@@ -200,7 +180,6 @@ export function createEarthAxisPresentationModel(
   geocentricStructure: GeocentricCelestialStructurePresentation =
     createGeocentricCelestialStructurePresentation(snapshot),
 ): EarthAxisPresentationModel {
-  validateSettings(settings);
   const placement = snapshot.observerGeocentricEarthAxis;
   if (
     geocentricStructure.snapshotCacheKey !== snapshot.cacheKey ||

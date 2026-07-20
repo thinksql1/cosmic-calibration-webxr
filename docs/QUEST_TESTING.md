@@ -6,23 +6,29 @@ Desktop success is not Quest success. Record each physical criterion as **PASS**
 
 **Physical Quest acceptance: NOT RUN.** After independent integration and deployment:
 
-1. Enter passthrough.
+1. Open deployed application in passthrough.
 2. Calibrate true north.
-3. Enable Earth core, spindle, celestial poles, and celestial equator.
-4. Confirm the spindle is perfectly straight.
-5. Confirm the spindle passes through Earth core.
-6. Confirm Earth core appears at the center of the celestial-equator ring.
-7. Confirm the spindle crosses the equator at a right angle in the modeled 3D structure.
-8. Confirm north and south pole directions extend from the same axis.
-9. Confirm the local horizon is centered around the observer, not Earth core.
-10. Move laterally and vertically.
-11. Confirm the core/equator/spindle assembly remains rigid.
-12. Confirm observer parallax does not cause the equator to follow the head.
-13. Toggle layers.
-14. Recalibrate.
-15. Exit and re-enter.
-16. Confirm no duplicate or stale geometry.
-17. Confirm Sun path, notches, and bodies remain correct.
+3. Enable Earth core.
+4. Enable rigid spindle.
+5. Enable NCP and SCP.
+6. Enable celestial equator.
+7. Confirm spindle is perfectly straight.
+8. Confirm spindle passes through the Earth core.
+9. Confirm Earth core is at the visual center of the equator ring.
+10. Confirm spindle crosses the equator at the core.
+11. Confirm spindle and equator appear perpendicular.
+12. Confirm NCP and SCP continue the same axis.
+13. Confirm local horizon remains centered on the observer.
+14. Move laterally.
+15. Move vertically.
+16. Turn north, south, east, and west.
+17. Confirm the geocentric assembly remains rigid and world-locked.
+18. Confirm the ring does not follow the head.
+19. Toggle layers.
+20. Recalibrate.
+21. Exit and re-enter.
+22. Confirm no duplicate or stale geometry.
+23. Confirm Sun path, notches, bodies, and existing layers remain correct.
 
 ## Milestone 0 evidence
 
@@ -230,31 +236,8 @@ actual transition day, or long-duration comfort.
 Record only observed results. Do not infer all seven identities, a daylight-saving transition,
 recenter/tracking-loss coverage, exact drift, or comfort duration from this short procedure.
 
-## Rigid Earth-axis spindle correction (pending independent integration)
+## Rigid Earth-axis spindle correction
 
-**Physical Quest acceptance: NOT RUN.** The local correction replaces the independently styled
-north/south axis primitives with one authoritative, projectively clipped spindle through the same
-validated WGS84 core and P03 direction. It is not merged, pushed, deployed, or physically accepted.
-
-After independent revalidation, integration, and deployment authorization, record each item as
-`PASS`, `FAIL`, `UNCERTAIN`, or `NOT RUN`:
-
-1. Open the deployed app in Quest passthrough.
-2. Calibrate true north.
-3. Face north and inspect the axis.
-4. Face south and inspect the opposite continuation.
-5. Turn east and west to see the line obliquely.
-6. Confirm the north pole, Earth core, and south pole appear collinear.
-7. Confirm the core does not look like a hinge.
-8. Confirm the line resembles the rigid axle of a spinning top.
-9. Confirm the lower/southern section remains visible through the transparent Earth treatment.
-10. Move the head laterally and vertically.
-11. Confirm parallax does not reveal a bow, split, or offset.
-12. Toggle the axis off and on.
-13. Recalibrate true north.
-14. Exit and re-enter immersive AR.
-15. Confirm no duplicate spindle, stale half, or orphan joint appears.
-16. Confirm the horizon, pole markers, equator, bodies, Sun path, and hour notches remain correct.
-
-This physical task does not authorize labels, additional celestial features, merge, push,
-deployment, or a scientific-model change.
+The canonical 23-step unified-geocentric procedure above supersedes the historical spindle-only
+checklist. Physical acceptance remains **NOT RUN** until the corrected local branch is independently
+integrated and deployed.

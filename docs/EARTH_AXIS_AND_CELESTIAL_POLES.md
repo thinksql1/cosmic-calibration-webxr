@@ -163,7 +163,7 @@ The restrained diagnostics distinguish scientific values from rendering policy:
 Per-eye transient values remain available on the scene group's diagnostic `userData` for defect
 triage but are not continuously copied into the normal UI.
 
-The local Milestone 2D branch adds reversible `both`, `left`, and `right` visibility modes to the
+The published Milestone 2D baseline adds reversible `both`, `left`, and `right` visibility modes to the
 unchanged renderer. These presentation modes do not alter this document's scientific, projective,
 camera-relative, depth, or calibration contracts.
 
@@ -183,6 +183,6 @@ world locking; those were not separately captured.
 
 ## Exclusions
 
-This remediation adds no celestial equator, precession trajectory, nutation display, polar
+This local presentation remediation adds no new celestial-equator science, precession trajectory, nutation display, polar
 motion, Chandler wobble, ecliptic, Sun, Moon, planets, stars, temporal markers, geolocation, Earth
 sphere, relational circuits, media, audio, AI enhancement, or contemplative sequencing.

@@ -31,14 +31,12 @@ const spindleFragmentShader = /* glsl */ `
   uniform vec2 uViewportPixels;
   uniform vec3 uCoreImage;
   uniform vec3 uNorthDirectionImage;
-  uniform float uSideClassificationAvailable;
+  uniform float uSideVisibilityActive;
   uniform float uNorthVisible;
   uniform float uSouthVisible;
-  uniform float uNorthOpacity;
-  uniform float uSouthOpacity;
-  uniform float uFallbackOpacity;
   uniform float uLineVisible;
   uniform float uHalfWidthPixels;
+  uniform float uOpacity;
   uniform vec3 uColor;
   varying vec2 vNdc;
 
@@ -57,9 +55,7 @@ const spindleFragmentShader = /* glsl */ `
     );
     if (coverage <= 0.0) discard;
 
-    float opacity = uFallbackOpacity;
-    float visible = max(uNorthVisible, uSouthVisible);
-    if (uSideClassificationAvailable > 0.5) {
+    if (uSideVisibilityActive > 0.5) {
       vec3 fragmentImage = vec3(vNdc, 1.0);
       float coreCore = dot(uCoreImage, uCoreImage);
       float directionDirection = dot(uNorthDirectionImage, uNorthDirectionImage);
@@ -71,11 +67,11 @@ const spindleFragmentShader = /* glsl */ `
       float betaNumerator =
         fragmentDirection * coreCore - fragmentCore * coreDirection;
       float northWeight = step(0.0, alphaNumerator * betaNumerator);
-      opacity = mix(uSouthOpacity, uNorthOpacity, northWeight);
-      visible = mix(uSouthVisible, uNorthVisible, northWeight);
+      float visible = mix(uSouthVisible, uNorthVisible, northWeight);
+      if (visible < 0.5) discard;
     }
-    if (visible < 0.5) discard;
-    gl_FragColor = vec4(uColor, opacity * coverage);
+
+    gl_FragColor = vec4(uColor, uOpacity * coverage);
   }
 `;
 
@@ -147,14 +143,12 @@ function createSpindle(): THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> 
         uViewportPixels: { value: new THREE.Vector2(1, 1) },
         uCoreImage: { value: new THREE.Vector3(1, 0, 0) },
         uNorthDirectionImage: { value: new THREE.Vector3(0, 1, 0) },
-        uSideClassificationAvailable: { value: 0 },
+        uSideVisibilityActive: { value: 0 },
         uNorthVisible: { value: 1 },
         uSouthVisible: { value: 1 },
-        uNorthOpacity: { value: 0.74 },
-        uSouthOpacity: { value: 0.46 },
-        uFallbackOpacity: { value: 0.74 },
         uLineVisible: { value: 0 },
         uHalfWidthPixels: { value: 1.15 },
+        uOpacity: { value: 0.72 },
         uColor: { value: new THREE.Color(0xc9e3e8) },
       },
     }),
@@ -334,13 +328,13 @@ export function createEarthAxisGroup(
     const frame = frameForCamera(camera);
     const projected = projectEarthAxisCenterline(frame, camera.projectionMatrix);
     setVectorUniform(spindle.material.uniforms.uLineNdc, projected.lineNdc);
-    setVectorUniform(spindle.material.uniforms.uCoreImage, projected.coreImage);
-    setVectorUniform(
-      spindle.material.uniforms.uNorthDirectionImage,
-      projected.northDirectionImage,
-    );
-    spindle.material.uniforms.uSideClassificationAvailable.value =
-      projected.sideClassificationAvailable ? 1 : 0;
+    if (spindle.material.uniforms.uSideVisibilityActive.value > 0.5) {
+      setVectorUniform(spindle.material.uniforms.uCoreImage, projected.coreImage);
+      setVectorUniform(
+        spindle.material.uniforms.uNorthDirectionImage,
+        projected.northDirectionImage,
+      );
+    }
     spindle.material.uniforms.uLineVisible.value = projected.visibleInViewport ? 1 : 0;
     setViewportUniforms(renderer, spindle.material);
     group.userData.projectedCenterlineVisible = projected.visibleInViewport;
@@ -385,12 +379,9 @@ export function createEarthAxisGroup(
       spindle.visible = model.north.segmentVisible || model.south.segmentVisible;
       spindle.material.uniforms.uNorthVisible.value = model.north.segmentVisible ? 1 : 0;
       spindle.material.uniforms.uSouthVisible.value = model.south.segmentVisible ? 1 : 0;
-      spindle.material.uniforms.uNorthOpacity.value = model.north.segmentOpacity;
-      spindle.material.uniforms.uSouthOpacity.value = model.south.segmentOpacity;
-      spindle.material.uniforms.uFallbackOpacity.value = Math.max(
-        model.north.segmentVisible ? model.north.segmentOpacity : 0,
-        model.south.segmentVisible ? model.south.segmentOpacity : 0,
-      );
+      spindle.material.uniforms.uSideVisibilityActive.value =
+        model.north.segmentVisible === model.south.segmentVisible ? 0 : 1;
+      spindle.material.uniforms.uOpacity.value = model.north.segmentOpacity;
 
       earthCore.visible = model.earthCoreVisible;
       northMarker.visible = model.north.markerVisible;

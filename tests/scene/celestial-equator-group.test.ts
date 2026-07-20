@@ -41,7 +41,8 @@ describe('Earth-core-centred celestial-equator Three.js group', () => {
     expect(handle.group.children).toHaveLength(1);
     expect(shader.depthTest).toBe(false);
     expect(shader.depthWrite).toBe(false);
-    expect(shader.vertexShader).toContain('vec4(position, uRingProjectiveW)');
+    expect(shader.vertexShader).toContain('directionView + uCoreViewScaled');
+    expect(shader.uniforms.uCoreViewScaled).toBeDefined();
     expect(shader.uniforms.uRingProjectiveW).toBeDefined();
   });
 
@@ -82,6 +83,25 @@ describe('Earth-core-centred celestial-equator Three.js group', () => {
     expect((handle.group.children[0] as THREE.LineLoop).geometry).toBe(geometry);
   });
 
+  it('routes the public equator handle by physical eye without mutating its scientific model', () => {
+    const handle = createCelestialEquatorGroup(CELESTIAL_EQUATOR_SAMPLE_COUNT);
+    const source = model();
+    const sourceBefore = JSON.stringify(source);
+    const line = handle.group.children[0] as THREE.LineLoop;
+    const geometry = line.geometry;
+    handle.update(source);
+    handle.setEyePresentationMode('left');
+    handle.applyEyePresentationViews([{ eye: 'right' }, { eye: 'left' }], true);
+    expect(handle.getEyePresentationDiagnostics()).toMatchObject({
+      mode: 'left', renderedEyes: ['left'], layerMask: 4,
+    });
+    expect(line.layers.mask).toBe(4);
+    expect(line.geometry).toBe(geometry);
+    expect(JSON.stringify(source)).toBe(sourceBefore);
+    expect(source.center).toBe(source.geocentricStructure.earthCore);
+    expect(source.normalApplication).toBe(source.geocentricStructure.equatorialPlaneNormal);
+  });
+
   it('disposes owned resources exactly once', () => {
     const handle = createCelestialEquatorGroup(CELESTIAL_EQUATOR_SAMPLE_COUNT);
     handle.update(model());
@@ -95,5 +115,6 @@ describe('Earth-core-centred celestial-equator Three.js group', () => {
     expect(geometryDispose).toHaveBeenCalledTimes(1);
     expect(materialDispose).toHaveBeenCalledTimes(1);
     expect(handle.group.children).toHaveLength(0);
+    expect(() => handle.update(model())).toThrow('disposed');
   });
 });

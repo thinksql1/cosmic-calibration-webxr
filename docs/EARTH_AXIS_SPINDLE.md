@@ -82,13 +82,11 @@ The renderer owns one fullscreen mesh and one material named
 5. derives one normalized image-line equation from the core and ideal direction; and
 6. clips a constant-width, antialiased strip to the current viewport.
 
-Independently normalized homogeneous core/direction image vectors also classify the two oriented
-sides without uploading an unbounded NDC core. This keeps below-horizon visibility and opacity
-controls correct when the geocentric core is far outside the viewport.
-
 The strip is a restrained pale steel-blue and draws over the core marker, so the scientific anchor
-cannot visually cover the axle. Above/below-horizon emphasis changes opacity on that same strip; it
-does not create, offset, or rotate a second line. The default subdued section remains readable.
+cannot visually cover the axle. It uses one color, one opacity, and one width across the core; no
+default core-side classifier, opacity transition, or material seam exists. The below-horizon
+control may activate a bounded side classifier solely to gate a requested continuation's visibility;
+it never changes the default continuous spindle opacity or color.
 
 The spindle material alone uses `depthTest = false` and `depthWrite = false`. It remains visible
 through the explanatory Earth/core treatment without disabling depth globally, adding an Earth
@@ -148,33 +146,14 @@ physical Quest acceptance.
 
 ## Focused Quest checklist
 
-Physical acceptance remains **NOT RUN** for this correction.
-
-1. Open the deployed app in Quest passthrough.
-2. Calibrate true north.
-3. Face north and inspect the axis.
-4. Face south and inspect the opposite continuation.
-5. Turn east and west to see the line obliquely.
-6. Confirm the north pole, core, and south pole appear collinear.
-7. Confirm the core does not look like a hinge.
-8. Confirm the line resembles the axle of a spinning top.
-9. Confirm the lower/southern section remains visible through the transparent Earth model.
-10. Move the head laterally and vertically.
-11. Confirm parallax does not reveal a bow.
-12. Toggle the axis off and on.
-13. Recalibrate.
-14. Exit and re-enter.
-15. Confirm the same core/equator/spindle relationship returns.
-16. Confirm no duplicates or stale geometry remain.
-17. Confirm the horizon, poles, equator, bodies, Sun path, and hour notches remain correct.
-
-Record each result as `PASS`, `FAIL`, `UNCERTAIN`, or `NOT RUN`; do not infer physical acceptance
-from automated or desktop evidence.
+Physical acceptance remains **NOT RUN** for this local correction. The canonical pending 23-step
+unified-geocentric procedure is maintained in [Quest testing](QUEST_TESTING.md); do not infer any
+physical result from automated or desktop evidence.
 
 ## Deferred styling options
 
-A future physical review may tune one-strip width, pale steel color, or the below-Earth opacity
-curve. Such tuning must preserve the one-line descriptor, constant centerline, shared material,
+A future physical review may tune one-strip width or pale steel color. Such tuning must preserve
+the one-line descriptor, constant centerline, shared material,
 core incidence, layer-local depth policy, and subdued priority relative to the Sun path and bodies.
 No glow hinge, arrowhead, separate north/south color, wobble, curvature, or duplicate line is
 permitted.

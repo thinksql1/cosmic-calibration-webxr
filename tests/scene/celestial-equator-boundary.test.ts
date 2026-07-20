@@ -15,7 +15,7 @@ const sources = import.meta.glob(
 describe('celestial-equator rendering boundaries', () => {
   it('keeps finite-core incidence in bounded homogeneous coordinates', () => {
     const combined = Object.values(sources).join('\n');
-    expect(combined).toContain('vec4(position, uRingProjectiveW)');
+    expect(combined).toContain('directionView + uCoreViewScaled');
     expect(combined).toContain('coreViewVector.clone().multiplyScalar(inverseRadius)');
     expect(combined).toContain('NO_RAW_LARGE_WORLD_VERTEX_COORDINATES');
     expect(combined).not.toContain('10_000_000_000_000');

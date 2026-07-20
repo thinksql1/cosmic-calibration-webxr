@@ -33,14 +33,19 @@ equatorial observer directly on it.
 
 ## Rendering contract
 
-The renderer samples one 96-point `LineLoop`. For camera-relative core `C`, radius `R`, and
-transformed unit ring direction `d`, each finite point `C + R*d` is uploaded in the exactly
-projectively equivalent bounded form:
+The renderer samples one 96-point `LineLoop`. Its static `Float32BufferAttribute` stores bounded
+application-basis unit directions. For camera-relative core `C`, radius `R`, and transformed unit
+ring direction `d`, the per-eye shader combines that direction with bounded uniforms in the exactly
+projectively equivalent form:
 
 ```text
 position.xyz = C / R + d
 position.w = 1 / R
 ```
+
+`onBeforeRender` updates only `C / R` and `1 / R` uniforms for the active camera/eye; it does not
+mutate the ring attribute after Three.js has prepared that frame's GPU geometry. Both values are
+explicit Float32-rounded and remain bounded.
 
 Spatial GPU components remain below the strict budget of `2` instead of using raw million-metre
 vertices. Unlike the superseded `w = 0` direction loop, finite core translation remains in every

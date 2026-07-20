@@ -4,6 +4,16 @@
 
 ### Added
 
+- Closed the bounded unified-geocentric renderer gates locally: the default spindle now has one
+  pale-steel color and one `0.72` opacity across the core; optional below-horizon hiding uses a
+  visibility-only classifier and cannot create a default style seam. The equator now keeps static
+  Float32 direction attributes and uploads Float32-rounded per-eye core/radius uniforms through
+  its real render callback, avoiding callback-time geometry uploads after Three.js has prepared a
+  draw. Permanent production-boundary tests cover shader-facing uploads, fitted projected
+  core/ring agreement, Michigan/lateral/vertical views, eye routing, immutability, disposal, and
+  non-degenerate spindle visibility. The local suite passes 40 files / 438 tests, type-check,
+  build, diff/dependency checks, and desktop development/preview smoke checks. Integration,
+  deployment, and physical Quest acceptance remain pending.
 - Unified the finite WGS84 Earth core, rigid P03 spindle, exact projective NCP/SCP directions, and
   mean celestial-equatorial plane in one immutable presentation contract and one identity scene
   assembly. The equator now renders a finite two-Earth-radius reference ring centered on the core
@@ -12,21 +22,22 @@
 - Added permanent core/equator identity, axis/plane perpendicularity, ring-plane/fitted-center,
   shared-pole, observer-offset, transform/camera, projection-equivalence, GPU-bound, hierarchy,
   toggle/re-entry, and disposal coverage. DEC-029 supersedes only DEC-023's `w = 0` rendering
-  choice. Clean install, type-check, 39 files / 432 tests, production build, dependency/diff checks,
-  and development/production-preview orbit, calibration, reset, toggle, asset, and console smoke
-  checks pass. An independent final review's hierarchy and unified-transition findings were
-  corrected; its focused recheck and full 432-test gate pass with no remaining findings.
+  choice. The preceding local unified tip passed clean install, type-check, 39 files / 432 tests,
+  production build, dependency/diff checks, and development/production-preview orbit, calibration,
+  reset, toggle, asset, and console smoke checks before this renderer-gate follow-up. This local
+  follow-up adds continuous spindle styling and production rendering-boundary coverage; final test
+  count and validation are recorded with its local commit. Independent integration, deployment,
+  and physical Quest acceptance remain pending.
   Astronomy, calibration, bodies, Sun path, and time science are unchanged.
-  Independent integration, deployment, and physical Quest acceptance remain pending.
 
 - Added one validated `EarthAxisSpindlePresentation` source containing the WGS84 core, normalized
   P03 axis direction, exact antipode, bounded extent, frame/revisions, provenance, and validity.
   Added strict local/world/projected collinearity, camera-view, calibration/recalibration,
   rigid-parent, toggle/reset/re-entry, pole-agreement, bounded-GPU, depth, and disposal coverage;
   the complete suite now passes 36 files / 421 tests.
-- Added `docs/EARTH_AXIS_SPINDLE.md`, DEC-028, developer-only spindle diagnostics, and a focused
-  16-step Quest checklist. Physical acceptance, integration, publication, and deployment remain
-  pending.
+- Added `docs/EARTH_AXIS_SPINDLE.md`, DEC-028, and developer-only spindle diagnostics. The
+  historical spindle checklist was superseded by the canonical pending unified-geocentric Quest
+  checklist. Physical acceptance, integration, publication, and deployment remain pending.
 - Independently validated and normally integrated Milestone 2F with merge `31be4cc`. The feature
   and merged `master` pass 36 files / 416 tests, type-check, production build, dependency/diff
   checks, civil-time/provenance/failure/cache/motion probes, and development/preview regression.

@@ -32,8 +32,8 @@ Milestone 2D therefore adds bounded eye-presentation modes and a local tangent-p
 user explicitly promoted bounded actual Sun/Moon/major-planet placement ahead of the previously
 selected long-term precession prerequisite review; that review remains planned and is not silently
 removed. The user then authorized the bounded 2F apparent-Sun civil-day path and live-update
-milestone ahead of that physical body-layer checklist; its independent and physical gates remain
-required.
+milestone, which is now independently validated, integrated, and published; its focused physical
+Quest acceptance remains pending.
 
 ## Sequence overview
 
@@ -285,8 +285,8 @@ and temporal controls.
 
 ## Milestone 2F - 24-hour apparent Sun path and live celestial updates
 
-**Current result:** implemented locally on `feature/solar-24-hour-clock`; independent validation,
-integration, deployment, and physical Quest acceptance are pending.
+**Current result:** independently validated, integrated in `31be4cc`, and published by GitHub
+Actions run `29707073636`; focused physical Quest acceptance remains pending.
 
 **Objective:** derive a selected local civil-day observer-relative apparent Sun path and exact
 valid civil-hour notches from the existing airless topocentric provider, while advancing visible
