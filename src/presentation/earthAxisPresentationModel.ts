@@ -1,12 +1,10 @@
 import type { EnuUnitDirection } from '../science/astronomy/types';
 import type { ScientificSnapshot, ScientificSnapshotBuildResult } from '../science/snapshot/scientificSnapshot';
 import {
+  mapEnuPositionToApplicationBasis,
+  mapEnuToApplicationBasis,
   type ApplicationBasisDirection,
 } from './mapEnuToApplicationBasis';
-import {
-  createGeocentricCelestialStructurePresentation,
-  type GeocentricCelestialStructurePresentation,
-} from './geocentricCelestialStructurePresentation';
 
 export const CELESTIAL_POLE_RENDER_DISTANCE_FROM_CORE_METERS = 10_000_000_000_000;
 export const EARTH_AXIS_LINEAR_SCENE_FAR_METERS = 100;
@@ -23,12 +21,15 @@ function convergenceUpperBoundArcseconds(observerToCoreDistanceMeters: number): 
   ) * RADIANS_TO_ARCSECONDS;
 }
 
+export type BelowHorizonDisplayMode = 'full-axis' | 'above-horizon-emphasis';
+
 export interface EarthAxisDisplaySettings {
   readonly showAxis: boolean;
   readonly showEarthCore: boolean;
   readonly showMarkers: boolean;
   readonly showLabels: boolean;
   readonly showBelowHorizonSegment: boolean;
+  readonly belowHorizonMode: BelowHorizonDisplayMode;
 }
 
 export const DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS: EarthAxisDisplaySettings = Object.freeze({
@@ -37,6 +38,7 @@ export const DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS: EarthAxisDisplaySettings = Obj
   showMarkers: true,
   showLabels: true,
   showBelowHorizonSegment: true,
+  belowHorizonMode: 'above-horizon-emphasis',
 });
 
 export interface PresentationPoint {
@@ -61,27 +63,6 @@ export interface EarthAxisEndpointPresentation {
   readonly labelVisible: boolean;
 }
 
-export interface EarthAxisSpindlePresentation {
-  readonly kind: 'RIGID_EARTH_ROTATIONAL_AXIS_SPINDLE';
-  readonly validity: 'VALIDATED';
-  readonly lineContract: 'ONE_CORE_ONE_DIRECTION_ONE_EXACT_ANTIPODE';
-  readonly renderTopology: 'ONE_PROJECTIVELY_CLIPPED_SCREEN_SPACE_SPINDLE';
-  readonly coordinateFrameIdentity: 'APPLICATION_BASIS_UNCALIBRATED_BELOW_GEOGRAPHIC_PARENT';
-  readonly earthCore: PresentationPoint;
-  readonly northDirection: ApplicationBasisDirection;
-  readonly southDirection: ApplicationBasisDirection;
-  readonly displayExtentMeters: number;
-  readonly calibrationRevision: number;
-  readonly acceptedCalibrationRevision: number | null;
-  readonly observerRevision: number;
-  readonly provenance: {
-    readonly model: 'IAU_P03_PRECESSION_ONLY';
-    readonly provider: string;
-    readonly providerVersion: string;
-    readonly simulationInstantUtc: string;
-  };
-}
-
 export interface EarthAxisPresentationModel {
   readonly kind: 'ready';
   readonly model: 'IAU_P03_PRECESSION_ONLY';
@@ -89,7 +70,7 @@ export interface EarthAxisPresentationModel {
   readonly precisionTier: 'TIER_1';
   readonly presentationKind: 'GEOCENTRIC_WORLD_SCALE_EARTH_CORE_AXIS';
   readonly poleTopology: 'ANTIPODAL_PROJECTIVE_DIRECTIONS_AT_INFINITY';
-  readonly renderStrategy: 'CAMERA_RELATIVE_BOUNDED_HOMOGENEOUS_SPINDLE_AND_PROJECTIVE_POLES';
+  readonly renderStrategy: 'CAMERA_RELATIVE_CORE_AND_HOMOGENEOUS_PROJECTIVE_POLES';
   readonly depthContract: 'LINEAR_XR_DEPTH_WITH_NON_WRITING_CELESTIAL_OVERLAY';
   readonly gpuCoordinatePolicy: 'NO_RAW_LARGE_WORLD_VERTEX_COORDINATES';
   readonly observerSurfaceOrigin: PresentationPoint;
@@ -102,8 +83,6 @@ export interface EarthAxisPresentationModel {
   readonly poleRenderConvergenceUpperBoundArcseconds: number;
   readonly observerToCoreDistanceMeters: number;
   readonly observerToAxisDistanceMeters: number;
-  readonly geocentricStructure: GeocentricCelestialStructurePresentation;
-  readonly spindle: EarthAxisSpindlePresentation;
   readonly north: EarthAxisEndpointPresentation;
   readonly south: EarthAxisEndpointPresentation;
   readonly snapshotIdentity: {
@@ -124,8 +103,24 @@ export interface EarthAxisStatusViewModel {
   readonly diagnostics: readonly string[];
 }
 
-/** One default structural treatment prevents a visual joint at the Earth core. */
-export const EARTH_AXIS_SPINDLE_OPACITY = 0.72;
+function validateSettings(settings: EarthAxisDisplaySettings): void {
+  if (
+    settings.belowHorizonMode !== 'full-axis' &&
+    settings.belowHorizonMode !== 'above-horizon-emphasis'
+  ) {
+    throw new Error('Unsupported below-horizon Earth-axis display mode.');
+  }
+}
+
+function opacityFor(
+  relation: EarthAxisEndpointPresentation['horizonRelation'],
+  mode: BelowHorizonDisplayMode,
+): number {
+  if (mode === 'full-axis') return relation === 'on' ? 0.7 : 0.78;
+  if (relation === 'below') return 0.22;
+  if (relation === 'on') return 0.58;
+  return 0.88;
+}
 
 function addScaled(
   origin: PresentationPoint,
@@ -142,16 +137,15 @@ function addScaled(
 function endpoint(
   pole: EarthAxisEndpointPresentation['pole'],
   source: ScientificSnapshot['observerHorizontalEarthAxis']['north'],
-  directionEnu: EnuUnitDirection,
-  directionApplication: ApplicationBasisDirection,
   earthCore: PresentationPoint,
   settings: EarthAxisDisplaySettings,
 ): EarthAxisEndpointPresentation {
+  const directionApplication = mapEnuToApplicationBasis(source.direction);
   const belowVisible = source.horizonRelation !== 'below' || settings.showBelowHorizonSegment;
   return Object.freeze({
     pole,
     pointKind: 'PROJECTIVE_DIRECTION_AT_INFINITY',
-    directionEnu,
+    directionEnu: source.direction,
     directionApplication,
     diagnosticFiniteProxyPosition: addScaled(
       earthCore,
@@ -163,7 +157,7 @@ function endpoint(
     azimuthDeg: source.azimuthDeg,
     horizonRelation: source.horizonRelation,
     segmentVisible: settings.showAxis && belowVisible,
-    segmentOpacity: EARTH_AXIS_SPINDLE_OPACITY,
+    segmentOpacity: opacityFor(source.horizonRelation, settings.belowHorizonMode),
     markerVisible: settings.showMarkers,
     labelVisible: settings.showLabels,
   });
@@ -177,46 +171,16 @@ function endpoint(
 export function createEarthAxisPresentationModel(
   snapshot: ScientificSnapshot,
   settings: EarthAxisDisplaySettings = DEFAULT_EARTH_AXIS_DISPLAY_SETTINGS,
-  geocentricStructure: GeocentricCelestialStructurePresentation =
-    createGeocentricCelestialStructurePresentation(snapshot),
 ): EarthAxisPresentationModel {
+  validateSettings(settings);
   const placement = snapshot.observerGeocentricEarthAxis;
-  if (
-    geocentricStructure.snapshotCacheKey !== snapshot.cacheKey ||
-    geocentricStructure.validity !== 'VALIDATED'
-  ) {
-    throw new Error('Earth-axis presentation requires the matching validated geocentric structure.');
-  }
-  const observerSurfaceOrigin = geocentricStructure.observerSurfaceOrigin;
-  const earthCore = geocentricStructure.earthCore;
-  const northDirectionEnu = geocentricStructure.northAxisDirectionEnu;
-  const southDirectionEnu = geocentricStructure.southAxisDirectionEnu;
-  const northDirectionApplication = geocentricStructure.northAxisDirection;
-  const southDirectionApplication = geocentricStructure.southAxisDirection;
+  const observerSurfaceOrigin = mapEnuPositionToApplicationBasis(
+    placement.observerSurfaceOrigin,
+  );
+  const earthCore = mapEnuPositionToApplicationBasis(placement.earthCore);
   const convergenceBound = convergenceUpperBoundArcseconds(
     placement.observerToCoreDistanceMeters,
   );
-  const spindle: EarthAxisSpindlePresentation = Object.freeze({
-    kind: 'RIGID_EARTH_ROTATIONAL_AXIS_SPINDLE',
-    validity: 'VALIDATED',
-    lineContract: 'ONE_CORE_ONE_DIRECTION_ONE_EXACT_ANTIPODE',
-    renderTopology: 'ONE_PROJECTIVELY_CLIPPED_SCREEN_SPACE_SPINDLE',
-    coordinateFrameIdentity: 'APPLICATION_BASIS_UNCALIBRATED_BELOW_GEOGRAPHIC_PARENT',
-    earthCore,
-    northDirection: northDirectionApplication,
-    southDirection: southDirectionApplication,
-    displayExtentMeters: CELESTIAL_POLE_RENDER_DISTANCE_FROM_CORE_METERS,
-    calibrationRevision: snapshot.revisions.geographicCalibration,
-    acceptedCalibrationRevision:
-      snapshot.geographicCalibration.acceptedCalibrationRevision ?? null,
-    observerRevision: snapshot.revisions.observer,
-    provenance: Object.freeze({
-      model: 'IAU_P03_PRECESSION_ONLY',
-      provider: snapshot.earthAxis.provenance.provider,
-      providerVersion: snapshot.earthAxis.provenance.providerVersion,
-      simulationInstantUtc: snapshot.clock.instant.utcIso,
-    }),
-  });
 
   return Object.freeze({
     kind: 'ready',
@@ -225,7 +189,7 @@ export function createEarthAxisPresentationModel(
     precisionTier: 'TIER_1',
     presentationKind: 'GEOCENTRIC_WORLD_SCALE_EARTH_CORE_AXIS',
     poleTopology: 'ANTIPODAL_PROJECTIVE_DIRECTIONS_AT_INFINITY',
-    renderStrategy: 'CAMERA_RELATIVE_BOUNDED_HOMOGENEOUS_SPINDLE_AND_PROJECTIVE_POLES',
+    renderStrategy: 'CAMERA_RELATIVE_CORE_AND_HOMOGENEOUS_PROJECTIVE_POLES',
     depthContract: 'LINEAR_XR_DEPTH_WITH_NON_WRITING_CELESTIAL_OVERLAY',
     gpuCoordinatePolicy: 'NO_RAW_LARGE_WORLD_VERTEX_COORDINATES',
     observerSurfaceOrigin,
@@ -238,24 +202,8 @@ export function createEarthAxisPresentationModel(
     poleRenderConvergenceUpperBoundArcseconds: convergenceBound,
     observerToCoreDistanceMeters: placement.observerToCoreDistanceMeters,
     observerToAxisDistanceMeters: placement.observerToAxisDistanceMeters,
-    geocentricStructure,
-    spindle,
-    north: endpoint(
-      'NCP',
-      snapshot.observerHorizontalEarthAxis.north,
-      northDirectionEnu,
-      northDirectionApplication,
-      earthCore,
-      settings,
-    ),
-    south: endpoint(
-      'SCP',
-      snapshot.observerHorizontalEarthAxis.south,
-      southDirectionEnu,
-      southDirectionApplication,
-      earthCore,
-      settings,
-    ),
+    north: endpoint('NCP', snapshot.observerHorizontalEarthAxis.north, earthCore, settings),
+    south: endpoint('SCP', snapshot.observerHorizontalEarthAxis.south, earthCore, settings),
     snapshotIdentity: Object.freeze({
       cacheKey: snapshot.cacheKey,
       creationSequence: snapshot.creationSequence,
@@ -312,8 +260,7 @@ export function createEarthAxisStatusViewModel(
       `Observer distance from rotation axis ${(placement.observerToAxisDistanceMeters / 1000).toFixed(2)} km`,
       `Core elevation treatment ${placement.elevationTreatment}`,
       `Diagnostic 10^13 m finite-proxy convergence bound ${convergenceBound.toFixed(3)} arcseconds`,
-      'Spindle contract ONE_CORE_ONE_DIRECTION_ONE_EXACT_ANTIPODE',
-      'Render strategy CAMERA_RELATIVE_BOUNDED_HOMOGENEOUS_SPINDLE_AND_PROJECTIVE_POLES',
+      'Render strategy CAMERA_RELATIVE_CORE_AND_HOMOGENEOUS_PROJECTIVE_POLES',
       `Camera-relative core magnitude approximately ${(placement.observerToCoreDistanceMeters / 1000).toFixed(2)} km before small eye/head offsets`,
       'Depth contract LINEAR_XR_DEPTH_WITH_NON_WRITING_CELESTIAL_OVERLAY',
       'GPU pole policy unit projective directions; no finite celestial distance is uploaded',

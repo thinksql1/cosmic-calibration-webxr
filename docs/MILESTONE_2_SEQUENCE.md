@@ -32,8 +32,8 @@ Milestone 2D therefore adds bounded eye-presentation modes and a local tangent-p
 user explicitly promoted bounded actual Sun/Moon/major-planet placement ahead of the previously
 selected long-term precession prerequisite review; that review remains planned and is not silently
 removed. The user then authorized the bounded 2F apparent-Sun civil-day path and live-update
-milestone, which is now independently validated, integrated, and published; its focused physical
-Quest acceptance remains pending.
+milestone ahead of that physical body-layer checklist; its independent and physical gates remain
+required.
 
 ## Sequence overview
 
@@ -285,8 +285,8 @@ and temporal controls.
 
 ## Milestone 2F - 24-hour apparent Sun path and live celestial updates
 
-**Current result:** independently validated, integrated in `31be4cc`, and published by GitHub
-Actions run `29707073636`; focused physical Quest acceptance remains pending.
+**Current result:** implemented locally on `feature/solar-24-hour-clock`; independent validation,
+integration, deployment, and physical Quest acceptance are pending.
 
 **Objective:** derive a selected local civil-day observer-relative apparent Sun path and exact
 valid civil-hour notches from the existing airless topocentric provider, while advancing visible
@@ -342,13 +342,10 @@ remains a reference-fixture/scientific-review gate.
 **Explicit exclusions:** live EOP, combined apparent-pole animation, Sun, Moon, planets, ecliptic,
 and broad time-navigation UI.
 
-## Historical planning material and genuinely deferred extensions
+## Later milestones
 
-The following sections preserve the planning sequence written before Milestones 2E and 2F were
-implemented. They are not the current roadmap or task authority. Where an original heading
-overlaps shipped work, its status now states what was implemented and which more advanced portion
-remains deferred. Current state is governed by `PROJECT_STATE.md`; the one active task remains in
-`NEXT_TASK.md`.
+Proceed one scientific dependency at a time after 2D. These are intentionally ordered but are not
+part of the first Milestone 2 implementation authorization.
 
 ### Post-2D E - ecliptic
 
@@ -366,10 +363,6 @@ remains deferred. Current state is governed by `PROJECT_STATE.md`; the one activ
 
 ### Post-2D F - apparent Sun
 
-**Historical plan status: implemented and published.** Milestone 2E shipped the default-hidden
-apparent topocentric Sun marker under the shared observer/time/provenance contract. Projection,
-labels, pointing, and other advanced presentation modes remain deferred.
-
 - **Objective:** add only the current apparent topocentric Sun direction.
 - **Inputs:** accepted adapter, observer/time snapshot, explicit aberration/parallax/refraction
   profile, and Sun fixtures.
@@ -383,11 +376,6 @@ labels, pointing, and other advanced presentation modes remain deferred.
   arcminute-accuracy claims.
 
 ### Post-2D G - solar temporal clock
-
-**Historical plan status: implemented and published in a bounded form.** Milestone 2F shipped the
-observer-relative daily apparent Sun path, exact civil-hour notches, IANA/DST-aware civil-day
-handling, and live refresh. Rendered hour labels, rise/set events, annual or multi-day paths,
-analemma, and broad time controls remain deferred.
 
 - **Objective:** add the selected-date apparent Sun path and independently optional civil-hour
   ticks, labels, current emphasis, and rise/set annotations.
@@ -404,10 +392,6 @@ analemma, and broad time controls remain deferred.
   and Moon/planet paths.
 
 ### Post-2D H - apparent Moon
-
-**Historical plan status: partially implemented.** Milestone 2E shipped the apparent topocentric
-Moon marker with the other six supported bodies. Separately sourced phase/illumination metadata
-and Moon-specific temporal visualizations remain deferred.
 
 - **Objective:** add the current apparent topocentric Moon direction with separately sourced phase
   metadata.
@@ -440,10 +424,6 @@ and Moon-specific temporal visualizations remain deferred.
   labels, and combined solar/lunar controls without separate validation.
 
 ### Post-2D J - planets and other bodies
-
-**Historical plan status: partially implemented.** Milestone 2E shipped Mercury, Venus, Mars,
-Jupiter, and Saturn as default-hidden apparent-direction markers. Uranus, Neptune, Pluto,
-object labels, and all trajectory/orbit visualization remain deferred.
 
 - **Objective:** enable one body at a time only after its own scientific and presentation gate.
 - **Inputs:** accepted adapter, body-specific correction profile/date domain, and independent

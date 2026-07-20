@@ -14,14 +14,8 @@ import {
 const CLIP_DEPTH_WITHOUT_DEPTH_WRITE = 0.999;
 
 const vertexShader = /* glsl */ `
-  uniform vec3 uCoreViewScaled;
-  uniform float uRingProjectiveW;
   void main() {
-    vec3 directionView = mat3(modelViewMatrix) * position;
-    vec4 clipPosition = projectionMatrix * vec4(
-      directionView + uCoreViewScaled,
-      uRingProjectiveW
-    );
+    vec4 clipPosition = projectionMatrix * vec4(position, 0.0);
     if (clipPosition.w > 0.0) {
       clipPosition.z = clipPosition.w * ${CLIP_DEPTH_WITHOUT_DEPTH_WRITE.toFixed(3)};
     }
@@ -42,8 +36,6 @@ function material(): THREE.ShaderMaterial {
     uniforms: {
       uColor: { value: new THREE.Color(0xb79cff) },
       uOpacity: { value: 0.48 },
-      uCoreViewScaled: { value: new THREE.Vector3() },
-      uRingProjectiveW: { value: 1.0 },
     },
     transparent: true,
     depthTest: false,
@@ -63,7 +55,7 @@ export interface CelestialEquatorGroupHandle {
   createFrameForCamera(camera: THREE.Camera): CelestialEquatorCameraRelativeFrame;
 }
 
-/** Owns one bounded homogeneous Earth-core-centred equatorial reference ring. */
+/** Owns one sampled homogeneous projective great-circle overlay. */
 export function createCelestialEquatorGroup(
   sampleCount: number,
 ): CelestialEquatorGroupHandle {
@@ -77,7 +69,7 @@ export function createCelestialEquatorGroup(
   const position = new THREE.Float32BufferAttribute(sampleCount * 3, 3);
   geometry.setAttribute('position', position);
   const line = new THREE.LineLoop(geometry, material());
-  line.name = 'mean-celestial-equator-geocentric-reference-ring';
+  line.name = 'mean-celestial-equator-projective-great-circle';
   line.frustumCulled = false;
   line.renderOrder = 21;
   group.add(line);
@@ -115,16 +107,17 @@ export function createCelestialEquatorGroup(
 
   line.onBeforeRender = (_renderer, _scene, camera) => {
     const frame = frameForCamera(camera);
-    (line.material.uniforms.uCoreViewScaled.value as THREE.Vector3).set(
-      Math.fround(frame.coreView.x * frame.ringProjectiveW),
-      Math.fround(frame.coreView.y * frame.ringProjectiveW),
-      Math.fround(frame.coreView.z * frame.ringProjectiveW),
-    );
-    line.material.uniforms.uRingProjectiveW.value = Math.fround(frame.ringProjectiveW);
+    const values = position.array as Float32Array;
+    frame.directionsView.forEach((direction, index) => {
+      const offset = index * 3;
+      values[offset] = direction.x;
+      values[offset + 1] = direction.y;
+      values[offset + 2] = direction.z;
+    });
+    position.needsUpdate = true;
     group.userData.cameraRelativeCoreMagnitudeMeters = frame.cameraRelativeCoreMagnitudeMeters;
     group.userData.maximumUploadedComponentMagnitude = frame.maximumUploadedComponentMagnitude;
     group.userData.float32DirectionAngularErrorArcseconds = frame.float32DirectionAngularErrorArcseconds;
-    group.userData.maximumPlaneResidual = frame.maximumPlaneResidual;
   };
 
   return Object.freeze({
@@ -136,14 +129,6 @@ export function createCelestialEquatorGroup(
       }
       currentModel = model;
       invalidate();
-      const values = position.array as Float32Array;
-      model.samples.forEach((sample, index) => {
-        const offset = index * 3;
-        values[offset] = sample.directionApplication.x;
-        values[offset + 1] = sample.directionApplication.y;
-        values[offset + 2] = sample.directionApplication.z;
-      });
-      position.needsUpdate = true;
       line.visible = model.visible;
       line.material.uniforms.uOpacity.value = model.lineOpacity;
       group.visible = model.visible;
@@ -152,10 +137,6 @@ export function createCelestialEquatorGroup(
       group.userData.renderStrategy = model.renderStrategy;
       group.userData.depthContract = model.depthContract;
       group.userData.sampleCount = model.sampleCount;
-      group.userData.geocentricStructureContract = model.geocentricStructure.geometryContract;
-      group.userData.geocentricStructureCacheKey = model.geocentricStructure.snapshotCacheKey;
-      group.userData.displayRadiusMeters = model.displayRadiusMeters;
-      group.userData.centerIsEarthCore = model.center === model.earthCore;
       group.userData.provenance = model.provenance;
     },
     clear(): void {
